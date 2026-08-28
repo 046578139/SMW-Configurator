@@ -1,0 +1,696 @@
+/** Application state, rendering and event wiring. */
+
+import { OPTIONS, BY_ID, SECTIONS, EXTRAS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS, RF_PATH_MATRIX }
+  from './catalog.js';
+import { validate, autoResolve, holds, qtyChoices, maxQty, freqA, freqB, mainModule } from './rules.js';
+import { derive, vitals } from './derive.js';
+import { renderInstrument, renderChain, renderRuler } from './diagram.js';
+import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
+import { PRESETS } from './presets.js';
+
+const STORE = 'smw200a-config-v1';
+
+const state = {
+  sel: {},
+  name: 'Untitled configuration',
+  section: 'rf-a',
+  tab: 'overview',
+  search: '',
+  theme: localStorage.getItem('smw-theme') || 'dark',
+  panelOpen: false
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ============================== persistence ============================== */
+
+const encode = () => {
+  const opts = Object.entries(state.sel).filter(([, q]) => q > 0)
+    .map(([id, q]) => (q > 1 ? `${id}*${q}` : id)).join('.');
+  return `#c=${encodeURIComponent(opts)}&n=${encodeURIComponent(state.name)}`;
+};
+
+function decode (hash) {
+  const params = new URLSearchParams(hash.replace(/^#/, ''));
+  const sel = {};
+  for (const token of (params.get('c') || '').split('.')) {
+    if (!token) continue;
+    const [id, qty] = token.split('*');
+    if (BY_ID[id]) sel[id] = Math.max(1, parseInt(qty || '1', 10) || 1);
+  }
+  return { sel, name: params.get('n') || 'Untitled configuration' };
+}
+
+function save () {
+  localStorage.setItem(STORE, JSON.stringify({ sel: state.sel, name: state.name }));
+  history.replaceState(null, '', encode());
+}
+
+function load () {
+  if (location.hash.includes('c=')) {
+    const { sel, name } = decode(location.hash);
+    if (Object.keys(sel).length) { state.sel = sel; state.name = name; return; }
+  }
+  try {
+    const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (saved?.sel) { state.sel = saved.sel; state.name = saved.name || state.name; }
+  } catch { /* ignore malformed storage */ }
+}
+
+/* ============================== mutations =============================== */
+
+function setQty (id, qty) {
+  const opt = BY_ID[id];
+  if (!opt) return;
+  if (qty <= 0) delete state.sel[id];
+  else state.sel[id] = qty;
+
+  // single-select groups: one frequency option per path, one main module
+  if (qty > 0) {
+    if (opt.step === 1) OPTIONS.filter(o => o.step === 1 && o.id !== id).forEach(o => delete state.sel[o.id]);
+    if (opt.step === 2) ['B13', 'B13T', 'B13XT'].filter(x => x !== id).forEach(x => delete state.sel[x]);
+    if (opt.step === 5 && opt.meta?.path === 'B') {
+      OPTIONS.filter(o => o.step === 5 && o.meta?.path === 'B' && o.id !== id).forEach(o => delete state.sel[o.id]);
+    }
+  }
+  afterChange();
+}
+
+function toggle (id) {
+  const opt = BY_ID[id];
+  if (!opt) return;
+  if (state.sel[id]) {
+    // radio-like groups stay selected when clicked again
+    if (opt.step === 1 || opt.step === 2 || (opt.step === 5 && opt.meta?.path === 'B')) {
+      delete state.sel[id];
+    } else {
+      delete state.sel[id];
+    }
+  } else {
+    const choices = qtyChoices(opt, state.sel);
+    setQty(id, choices[0] || 1);
+    return;
+  }
+  afterChange();
+}
+
+/** Keeps the deeper chassis in step with the RF path B choice. */
+function syncAuto () {
+  const b = freqB(state.sel);
+  const needs = b && ['B2012', 'B2031', 'B2044', 'B2044N', 'B2044O'].includes(b.id);
+  if (needs) state.sel.B94L = 1;
+  else delete state.sel.B94L;
+}
+
+/** Phase noise is one level for the whole instrument. */
+function setPhaseLevel (levelId) {
+  for (const lvl of PHASE_NOISE_LEVELS) {
+    if (lvl.a) { delete state.sel[lvl.a]; delete state.sel[lvl.b]; }
+  }
+  const lvl = PHASE_NOISE_LEVELS.find(l => l.id === levelId);
+  if (lvl?.a) {
+    state.sel[lvl.a] = 1;
+    if (freqB(state.sel)) state.sel[lvl.b] = 1;
+  }
+  afterChange();
+}
+
+function afterChange () {
+  syncAuto();
+  // keep the path B phase noise option paired with path A
+  const b = freqB(state.sel);
+  for (const lvl of PHASE_NOISE_LEVELS) {
+    if (!lvl.a) continue;
+    if (state.sel[lvl.a] && b) state.sel[lvl.b] = 1;
+    if (!b) delete state.sel[lvl.b];
+  }
+  save();
+  render();
+}
+
+/* ============================== rendering =============================== */
+
+function sectionOptions (id) {
+  if (id === 'phase') return [];
+  return OPTIONS.filter(o => o.section === id && !o.auto);
+}
+
+function sectionStatus (sec) {
+  const { errors } = cached.validation;
+  const opts = sectionOptions(sec.id);
+  const chosen = opts.reduce((n, o) => n + (state.sel[o.id] || 0), 0);
+  const hasError = errors.some(e => e.section === sec.id);
+  let dot = null;
+  if (hasError) dot = 'err';
+  else if (sec.id === 'rf-a' && !freqA(state.sel)) dot = 'req';
+  else if (sec.id === 'baseband' && !mainModule(state.sel)) dot = 'req';
+  else if (chosen) dot = 'done';
+  return { chosen, dot };
+}
+
+let cached = { validation: { errors: [], warnings: [], info: [], ok: false }, derived: null };
+
+function renderRail () {
+  return SECTIONS.map(sec => {
+    const { chosen, dot } = sectionStatus(sec);
+    return `
+    <button class="nav-item ${state.section === sec.id ? 'active' : ''}" data-goto="${sec.id}">
+      <span class="nav-icon">${icon(sec.icon, 15)}</span>
+      <span class="nav-label">${esc(sec.label)}</span>
+      ${dot ? `<span class="nav-dot ${dot}"></span>` : ''}
+      ${chosen ? `<span class="nav-count">${chosen}</span>` : ''}
+    </button>`;
+  }).join('');
+}
+
+function renderSection (sec) {
+  const stepBadge = sec.steps.length
+    ? `<span class="step-badge">Guide step ${sec.steps.join(' + ')}</span>` : '';
+
+  let body = '';
+  if (sec.id === 'rf-a') body = renderFreqA();
+  else if (sec.id === 'rf-b') body = renderFreqB();
+  else if (sec.id === 'phase') body = renderPhase();
+  else if (sec.id === 'bb-hw') body = renderBasebandHw();
+  else if (sec.id === 'extras') body = renderExtras();
+  else body = renderGrouped(sectionOptions(sec.id));
+
+  return `
+<section class="section" id="sec-${sec.id}" data-section="${sec.id}">
+  <div class="section-head">
+    <div class="section-eyebrow">${icon(sec.icon, 13)} ${esc(sec.label)} ${stepBadge}</div>
+    <h2 class="section-title">${esc(sec.label)}</h2>
+    <p class="section-blurb">${esc(sec.blurb)}</p>
+  </div>
+  ${body}
+</section>`;
+}
+
+function renderGrouped (opts) {
+  if (!opts.length) return '<div class="empty">Nothing to configure here yet.</div>';
+  const groups = [];
+  for (const o of opts) {
+    const last = groups[groups.length - 1];
+    if (last && last.name === o.group) last.items.push(o);
+    else groups.push({ name: o.group, items: [o] });
+  }
+  return groups.map(g => `
+    ${groups.length > 1 ? `<div class="group-head">${esc(g.name)}</div>` : ''}
+    <div class="cards">${g.items.map(o => optionCard(o, state.sel)).join('')}</div>`).join('');
+}
+
+function renderFreqA () {
+  const opts = OPTIONS.filter(o => o.step === 1);
+  return `<div class="cards grid-2">${opts.map(o => freqCard(o, state.sel)).join('')}</div>`;
+}
+
+function renderFreqB () {
+  const a = freqA(state.sel);
+  const opts = OPTIONS.filter(o => o.step === 5 && o.meta?.path === 'B');
+  if (!a) {
+    return `<div class="empty">Choose the RF path A frequency option first – it decides which
+      path B options are available.</div>`;
+  }
+  const allowed = RF_PATH_MATRIX[a.id] || [];
+  if (!allowed.length) {
+    return `<div class="issue info">
+      <div class="issue-title">${icon('info', 14)}<span>Single path instrument</span></div>
+      <div class="issue-detail">R&amp;S®SMW-${esc(a.id)} in RF path A cannot be combined with a second
+        RF path. Choose a different path A frequency option if you need two paths.</div>
+    </div>`;
+  }
+  const cards = opts.filter(o => allowed.includes(o.id)).map(o => freqCard(o, state.sel)).join('');
+  const blocked = opts.filter(o => !allowed.includes(o.id));
+  const chassis = state.sel.B94L
+    ? `<div class="issue info"><div class="issue-title">${icon('info', 14)}<span>Deeper chassis added automatically</span></div>
+       <div class="issue-detail">This RF path combination requires R&amp;S®SMW-B94L (1438.8150.02); it is
+       included in the parts list.</div></div>` : '';
+  return `
+    <div class="cards grid-2">${cards}</div>
+    ${chassis}
+    ${blocked.length ? `<div class="group-head">Not available with R&amp;S®SMW-${esc(a.id)}</div>
+      <div class="cards grid-2" style="opacity:.42;pointer-events:none">
+        ${blocked.map(o => freqCard(o, state.sel)).join('')}</div>` : ''}`;
+}
+
+function renderPhase () {
+  const b = freqB(state.sel);
+  const current = PHASE_NOISE_LEVELS.find(l => l.a && state.sel[l.a])?.id || 'std';
+  return `<div class="levels">${PHASE_NOISE_LEVELS.map(lvl => {
+    const on = current === lvl.id;
+    const codes = lvl.a ? (b ? `${lvl.a} + ${lvl.b}` : lvl.a) : 'included';
+    const orders = lvl.a
+      ? [BY_ID[lvl.a]?.order, b ? BY_ID[lvl.b]?.order : null].filter(Boolean).join(' · ')
+      : 'no extra option';
+    return `
+    <div class="card ${on ? 'on' : 'off'}" data-level="${lvl.id}">
+      <button class="tick round" data-level="${lvl.id}" aria-pressed="${on}">${icon('check', 13)}</button>
+      <div class="card-body" data-level="${lvl.id}">
+        <div class="card-top"><span class="opt-id">${esc(codes)}</span></div>
+        <p class="opt-name">${esc(lvl.label)}</p>
+        <p class="opt-note">${esc(lvl.blurb)}</p>
+        <div class="opt-meta"><span class="opt-order">${esc(orders)}</span></div>
+      </div>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+function renderBasebandHw () {
+  const mm = mainModule(state.sel);
+  if (!mm) {
+    return `<div class="empty">Choose a baseband main module first – it decides whether the standard
+      or the wideband baseband hardware applies.</div>`;
+  }
+  const wideband = mm === 'B13XT';
+  const group = wideband ? 'Wideband baseband' : 'Standard baseband';
+  const opts = OPTIONS.filter(o => o.section === 'bb-hw' && o.group === group);
+  const other = OPTIONS.filter(o => o.section === 'bb-hw' && o.group !== group && state.sel[o.id]);
+  return `
+    <div class="issue info">
+      <div class="issue-title">${icon('info', 14)}<span>${wideband ? 'Wideband' : 'Standard'} baseband section (guide step ${wideband ? 9 : 8})</span></div>
+      <div class="issue-detail">R&amp;S®SMW-${esc(mm)} is installed, so the ${wideband ? 'wideband' : 'standard'}
+        baseband options apply – up to ${wideband ? '2 GHz' : '160 MHz'} RF bandwidth. The two sections cannot be mixed.</div>
+    </div>
+    <div class="cards">${opts.map(o => optionCard(o, state.sel)).join('')}</div>
+    ${other.length ? `<div class="group-head">Selected but not compatible</div>
+      <div class="cards">${other.map(o => optionCard(o, state.sel)).join('')}</div>` : ''}`;
+}
+
+function renderExtras () {
+  return EXTRAS.map(g => `
+    <div class="group-head">${esc(g.group)}</div>
+    <div class="cards">${g.items.map(it => {
+      const suggested = it.hintIf && holds(it.hintIf, state.sel);
+      return `
+      <div class="card off" style="cursor:default">
+        <span class="tick" style="visibility:hidden"></span>
+        <div class="card-body">
+          <div class="card-top"><span class="opt-id">${esc(it.id)}</span>
+            ${suggested ? '<span class="chip met">suggested for this configuration</span>' : ''}</div>
+          <p class="opt-name">${esc(it.name)}</p>
+          <div class="opt-meta"><span class="opt-order">${esc(it.order)}</span></div>
+        </div>
+      </div>`;
+    }).join('')}</div>`).join('');
+}
+
+function renderSearch () {
+  const q = state.search.toLowerCase();
+  const hits = OPTIONS.filter(o =>
+    o.id.toLowerCase().includes(q) ||
+    o.name.toLowerCase().includes(q) ||
+    o.order.includes(q) ||
+    (o.group || '').toLowerCase().includes(q));
+  if (!hits.length) {
+    return `<div class="empty">No option matches “${esc(state.search)}”.</div>`;
+  }
+  return `
+  <section class="section">
+    <div class="section-head">
+      <div class="section-eyebrow">${icon('search', 13)} Search</div>
+      <h2 class="section-title">${hits.length} option${hits.length === 1 ? '' : 's'} match “${esc(state.search)}”</h2>
+    </div>
+    <div class="cards">${hits.map(o => optionCard(o, state.sel)).join('')}</div>
+  </section>`;
+}
+
+/* ------------------------------------------------------------- side panel */
+
+function renderPanel () {
+  const d = cached.derived;
+  const v = cached.validation;
+  const issues = v.errors.length + v.warnings.length + v.info.length;
+
+  const tabs = [
+    ['overview', 'Overview', 0],
+    ['chain', 'Chain', 0],
+    ['checks', 'Checks', issues],
+    ['order', 'Parts list', bomLines(state.sel, BASE_UNIT).length]
+  ];
+
+  let body = '';
+  if (state.tab === 'overview') {
+    body = `
+      <div class="viz">${renderInstrument(d, state.sel)}</div>
+      <div class="pane-title">Frequency coverage</div>
+      <div class="viz">${renderRuler(d)}</div>
+      <div class="pane-title">Key figures</div>
+      <div class="vitals">${vitals(d).map(v2 => `
+        <div class="vital">
+          <div class="vital-label">${esc(v2.label)}</div>
+          <div class="vital-value">${esc(v2.value)}</div>
+          <div class="vital-sub">${esc(v2.sub)}</div>
+        </div>`).join('')}</div>`;
+  } else if (state.tab === 'chain') {
+    body = `
+      <div class="viz">${renderChain(d, state.sel)}</div>
+      <div class="pane-title">Configuration</div>
+      <div class="vitals">
+        <div class="vital"><div class="vital-label">Hardware options</div>
+          <div class="vital-value">${d.hwCount}</div><div class="vital-sub">B-options</div></div>
+        <div class="vital"><div class="vital-label">Software options</div>
+          <div class="vital-value">${d.swCount}</div><div class="vital-sub">K-options, keycode</div></div>
+        <div class="vital"><div class="vital-label">Baseband</div>
+          <div class="vital-value">${d.section ? (d.section === 'wideband' ? 'Wideband' : 'Standard') : '—'}</div>
+          <div class="vital-sub">${esc(d.mainModule || 'no main module')}</div></div>
+        <div class="vital"><div class="vital-label">Chassis</div>
+          <div class="vital-value">${d.chassis === 'deep' ? 'Deep' : 'Standard'}</div>
+          <div class="vital-sub">${d.chassis === 'deep' ? 'R&amp;S®SMW-B94L' : 'included in base unit'}</div></div>
+      </div>`;
+  } else if (state.tab === 'checks') {
+    body = issues
+      ? [...v.errors.map(e => issueItem(e, 'error')),
+         ...v.warnings.map(e => issueItem(e, 'warning')),
+         ...v.info.map(e => issueItem(e, 'info'))].join('')
+      : `<div class="all-clear">${icon('shield', 38)}
+          <strong>Configuration is valid</strong>
+          Every option's prerequisites are satisfied and no rule from the configuration guide is broken.
+        </div>`;
+  } else {
+    body = bomPane(state.sel, BASE_UNIT);
+  }
+
+  return `
+  <div class="panel-tabs">
+    ${tabs.map(([id, label, count]) => `
+      <button class="tab ${state.tab === id ? 'active' : ''}" data-tab="${id}">${esc(label)}
+        ${count ? `<span class="badge ${id === 'checks' && v.errors.length ? 'bad' : ''}">${count}</span>` : ''}
+      </button>`).join('')}
+  </div>
+  <div class="panel-body">${body}</div>
+  <div class="panel-foot">
+    <button class="btn" data-action="resolve" ${v.errors.length ? '' : 'disabled'}>
+      ${icon('wand', 15)} Fix issues</button>
+    <button class="btn btn-primary" data-action="export">${icon('download', 15)} Export</button>
+  </div>`;
+}
+
+/* ------------------------------------------------------------------ paint */
+
+function render () {
+  cached.validation = validate(state.sel);
+  cached.derived = derive(state.sel);
+
+  $('#rail').innerHTML = renderRail();
+  $('#main-inner').innerHTML = state.search
+    ? renderSearch()
+    : SECTIONS.map(renderSection).join('');
+  $('#panel').innerHTML = renderPanel();
+  $('#config-name').value = state.name;
+
+  const st = cached.validation;
+  const chip = $('#status-chip');
+  if (!freqA(state.sel) || !mainModule(state.sel)) {
+    chip.className = 'chip unmet';
+    chip.innerHTML = `${icon('alert', 11)} incomplete`;
+  } else if (st.errors.length) {
+    chip.className = 'chip unmet';
+    chip.innerHTML = `${icon('alert', 11)} ${st.errors.length} issue${st.errors.length === 1 ? '' : 's'}`;
+  } else {
+    chip.className = 'chip met';
+    chip.innerHTML = `${icon('check', 11)} valid`;
+  }
+}
+
+/* ============================== interactions ============================ */
+
+function scrollToSection (id) {
+  state.section = id;
+  const el = document.getElementById(`sec-${id}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.goto === id));
+}
+
+function toast (message) {
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `${icon('check', 15)} ${esc(message)}`;
+  document.body.append(el);
+  setTimeout(() => el.remove(), 2400);
+}
+
+document.addEventListener('click', ev => {
+  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close]');
+  if (!t) return;
+
+  if (t.dataset.toggle) { toggle(t.dataset.toggle); return; }
+  if (t.dataset.level) { setPhaseLevel(t.dataset.level); return; }
+
+  if (t.dataset.step) {
+    const [id, dir] = t.dataset.step.split(':');
+    const opt = BY_ID[id];
+    const choices = qtyChoices(opt, state.sel);
+    const now = state.sel[id] || 0;
+    const idx = choices.indexOf(now);
+    if (dir === 'up' && idx < choices.length - 1) setQty(id, choices[idx + 1]);
+    if (dir === 'down') setQty(id, idx > 0 ? choices[idx - 1] : 0);
+    return;
+  }
+
+  if (t.dataset.goto) {
+    scrollToSection(t.dataset.goto);
+    if (window.innerWidth <= 1000) closePanel();
+    return;
+  }
+  if (t.dataset.tab) { state.tab = t.dataset.tab; render(); return; }
+
+  if (t.dataset.fix) {
+    const qtys = JSON.parse(t.dataset.fixqty || '{}');
+    for (const id of t.dataset.fix.split(',')) {
+      const opt = BY_ID[id];
+      let want = qtys[id] || 1;
+      if (opt?.qtySteps) want = opt.qtySteps.find(q => q >= want) ?? opt.qtySteps[0];
+      state.sel[id] = Math.max(state.sel[id] || 0, want);
+    }
+    afterChange();
+    return;
+  }
+  if (t.dataset.drop) {
+    for (const id of t.dataset.drop.split(',')) delete state.sel[id];
+    afterChange();
+    return;
+  }
+  if (t.dataset.setqty) {
+    const [id, qty] = t.dataset.setqty.split(':');
+    setQty(id, parseInt(qty, 10));
+    return;
+  }
+  if (t.dataset.preset) {
+    const p = PRESETS.find(x => x.id === t.dataset.preset);
+    if (p) {
+      state.sel = { ...p.sel };
+      state.name = p.name;
+      closeModal();
+      afterChange();
+      toast(`Loaded “${p.name}”`);
+    }
+    return;
+  }
+  if (t.dataset.close !== undefined) { closeModal(); return; }
+
+  const action = t.dataset.action;
+  if (action === 'resolve') {
+    const before = validate(state.sel).errors.length;
+    state.sel = autoResolve(state.sel);
+    afterChange();
+    const after = validate(state.sel).errors.length;
+    toast(after === 0 ? 'All issues resolved' : `${before - after} of ${before} issues resolved`);
+  }
+  if (action === 'presets') openPresets();
+  if (action === 'export') openExport();
+  if (action === 'share') {
+    navigator.clipboard?.writeText(location.origin + location.pathname + encode())
+      .then(() => toast('Link copied to clipboard'))
+      .catch(() => toast('Copy failed – the link is in the address bar'));
+  }
+  if (action === 'reset') {
+    if (confirm('Clear the current configuration?')) {
+      state.sel = {}; state.name = 'Untitled configuration'; afterChange(); toast('Configuration cleared');
+    }
+  }
+  if (action === 'theme') {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('smw-theme', state.theme);
+    applyTheme();
+  }
+  if (action === 'panel') { state.panelOpen ? closePanel() : openPanel(); }
+  if (action === 'csv') { downloadCsv(); }
+  if (action === 'json') { downloadJson(); }
+  if (action === 'print') { window.print(); }
+});
+
+document.addEventListener('input', ev => {
+  if (ev.target.id === 'search') { state.search = ev.target.value.trim(); render(); }
+  if (ev.target.id === 'config-name') { state.name = ev.target.value || 'Untitled configuration'; save(); }
+});
+
+document.addEventListener('keydown', ev => {
+  if (ev.key === '/' && document.activeElement.tagName !== 'INPUT') {
+    ev.preventDefault(); $('#search').focus();
+  }
+  if (ev.key === 'Escape') {
+    if ($('.scrim')) closeModal();
+    else if (state.search) { state.search = ''; $('#search').value = ''; render(); }
+  }
+});
+
+/* section highlighting while scrolling */
+function watchScroll () {
+  const observer = new IntersectionObserver(entries => {
+    for (const e of entries) {
+      if (e.isIntersecting) {
+        const id = e.target.dataset.section;
+        state.section = id;
+        $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.goto === id));
+      }
+    }
+  }, { root: $('#main'), rootMargin: '-10% 0px -75% 0px' });
+  const attach = () => $$('.section[data-section]').forEach(s => observer.observe(s));
+  attach();
+  new MutationObserver(attach).observe($('#main-inner'), { childList: true });
+}
+
+/* ============================== overlays ================================ */
+
+function openModal (html) {
+  closeModal();
+  const scrim = document.createElement('div');
+  scrim.className = 'scrim';
+  scrim.innerHTML = html;
+  scrim.addEventListener('click', e => { if (e.target === scrim) closeModal(); });
+  document.body.append(scrim);
+}
+function closeModal () { $('.scrim')?.remove(); }
+
+function openPresets () {
+  openModal(`
+  <div class="modal" role="dialog" aria-label="Starting points">
+    <div class="modal-head">
+      <div style="flex:1">
+        <h2>Start from a typical setup</h2>
+        <p>Each starting point is a valid configuration. Adjust anything afterwards.</p>
+      </div>
+      <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+    </div>
+    <div class="modal-body">
+      <div class="preset-grid">
+        ${PRESETS.map(p => `
+          <button class="preset" data-preset="${p.id}">
+            <div class="preset-icon">${icon(p.icon, 17)}</div>
+            <div class="preset-name">${esc(p.name)}</div>
+            <div class="preset-desc">${esc(p.desc)}</div>
+            <div class="preset-tags">${p.tags.map(t => `<span class="chip">${esc(t)}</span>`).join('')}</div>
+          </button>`).join('')}
+      </div>
+    </div>
+  </div>`);
+}
+
+function openExport () {
+  const lines = bomLines(state.sel, BASE_UNIT);
+  const v = cached.validation;
+  const groups = [];
+  for (const l of lines) {
+    const last = groups[groups.length - 1];
+    if (last && last.name === l.group) last.rows.push(l);
+    else groups.push({ name: l.group, rows: [l] });
+  }
+  openModal(`
+  <div class="modal" role="dialog" aria-label="Parts list">
+    <div class="modal-head">
+      <div style="flex:1">
+        <h2>${esc(state.name)}</h2>
+        <p>${lines.length} line items ·
+          ${v.errors.length ? `<span style="color:var(--error)">${v.errors.length} open issue${v.errors.length === 1 ? '' : 's'}</span>`
+                            : '<span style="color:var(--ok)">validated against the configuration guide</span>'}</p>
+      </div>
+      <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <table class="table">
+        <thead><tr><th>Type</th><th>Designation</th><th>Order No.</th><th style="text-align:right">Qty</th></tr></thead>
+        <tbody>
+          ${groups.map(g => `
+            <tr class="head-row"><td colspan="4">${esc(g.name)}</td></tr>
+            ${g.rows.map(r => `
+              <tr>
+                <td class="c-id">${r.id === BASE_UNIT.id ? 'R&amp;S®SMW200A' : `R&amp;S®SMW-${esc(r.id.replace(/-\d+$/, ''))}`}</td>
+                <td>${esc(r.name)}</td>
+                <td class="c-order">${esc(r.order)}</td>
+                <td class="c-qty">${r.qty}</td>
+              </tr>`).join('')}`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" data-action="print">${icon('print', 15)} Print</button>
+      <button class="btn" data-action="json">${icon('copy', 15)} JSON</button>
+      <button class="btn btn-primary" data-action="csv">${icon('download', 15)} CSV</button>
+    </div>
+  </div>`);
+}
+
+function download (filename, mime, text) {
+  const url = URL.createObjectURL(new Blob([text], { type: mime }));
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const slug = () => state.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'smw200a';
+
+function downloadCsv () {
+  const rows = [['Type', 'Designation', 'Order No.', 'Quantity']];
+  for (const l of bomLines(state.sel, BASE_UNIT)) {
+    rows.push([l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${l.id.replace(/-\d+$/, '')}`,
+      l.name, l.order, l.qty]);
+  }
+  const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  download(`${slug()}.csv`, 'text/csv;charset=utf-8', '﻿' + csv);
+  toast('CSV downloaded');
+}
+
+function downloadJson () {
+  const v = validate(state.sel);
+  const payload = {
+    name: state.name,
+    generatedAt: new Date().toISOString(),
+    source: `${GUIDE.title}, ${GUIDE.version} (${GUIDE.pd})`,
+    valid: v.ok,
+    issues: v.errors.map(e => ({ title: e.title, detail: e.detail })),
+    items: bomLines(state.sel, BASE_UNIT).map(l => ({
+      type: l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${l.id.replace(/-\d+$/, '')}`,
+      designation: l.name, orderNo: l.order, quantity: l.qty, group: l.group
+    })),
+    capabilities: derive(state.sel),
+    link: location.origin + location.pathname + encode()
+  };
+  download(`${slug()}.json`, 'application/json', JSON.stringify(payload, (k, val) =>
+    (k === 'freqA' || k === 'freqB' ? (val && val.id) || null : val), 2));
+  toast('JSON downloaded');
+}
+
+/* ============================== boot ==================================== */
+
+function applyTheme () {
+  document.documentElement.dataset.theme = state.theme;
+  const btn = $('#theme-btn');
+  if (btn) btn.innerHTML = icon(state.theme === 'dark' ? 'sun' : 'moon', 15);
+}
+
+function openPanel () { state.panelOpen = true; $('#panel').classList.add('open'); }
+function closePanel () { state.panelOpen = false; $('#panel').classList.remove('open'); }
+
+export function boot () {
+  load();
+  syncAuto();
+  applyTheme();
+  render();
+  watchScroll();
+  window.addEventListener('hashchange', () => {
+    const { sel, name } = decode(location.hash);
+    if (Object.keys(sel).length) { state.sel = sel; state.name = name; render(); }
+  });
+}
