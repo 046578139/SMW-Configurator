@@ -10,13 +10,29 @@ import { PRESETS } from './presets.js';
 
 const STORE = 'smw200a-config-v1';
 
+/* Storage is a convenience, never a requirement: private windows, sandboxed
+   frames and browsers with site data blocked all make these calls throw. */
+const store = {
+  get (key) { try { return localStorage.getItem(key); } catch { return null; } },
+  set (key, value) { try { localStorage.setItem(key, value); } catch { /* not available */ } }
+};
+
+/** The host page may stamp a theme on the root element; otherwise follow the OS. */
+function initialTheme () {
+  const saved = store.get('smw-theme');
+  if (saved === 'light' || saved === 'dark') return saved;
+  const stamped = document.documentElement.dataset.theme;
+  if (stamped === 'light' || stamped === 'dark') return stamped;
+  return matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+}
+
 const state = {
   sel: {},
   name: 'Untitled configuration',
   section: 'rf-a',
   tab: 'overview',
   search: '',
-  theme: localStorage.getItem('smw-theme') || 'dark',
+  theme: initialTheme(),
   panelOpen: false
 };
 
@@ -43,8 +59,8 @@ function decode (hash) {
 }
 
 function save () {
-  localStorage.setItem(STORE, JSON.stringify({ sel: state.sel, name: state.name }));
-  history.replaceState(null, '', encode());
+  store.set(STORE, JSON.stringify({ sel: state.sel, name: state.name }));
+  try { history.replaceState(null, '', encode()); } catch { /* sandboxed frame */ }
 }
 
 function load () {
@@ -53,7 +69,7 @@ function load () {
     if (Object.keys(sel).length) { state.sel = sel; state.name = name; return; }
   }
   try {
-    const saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+    const saved = JSON.parse(store.get(STORE) || 'null');
     if (saved?.sel) { state.sel = saved.sel; state.name = saved.name || state.name; }
   } catch { /* ignore malformed storage */ }
 }
@@ -315,6 +331,19 @@ function renderSearch () {
   </section>`;
 }
 
+function colophon () {
+  return `
+  <div class="colophon">
+    <strong>Unofficial planning aid.</strong> Built from published Rohde &amp; Schwarz
+    documentation — ${esc(GUIDE.title)}, ${esc(GUIDE.version)} (${esc(GUIDE.pd)}) — and
+    the matching specifications documents. Not affiliated with or endorsed by
+    Rohde &amp; Schwarz, and no substitute for a quotation: it carries no prices or
+    availability, and R&amp;S states that data without tolerance limits is not binding.
+    Confirm any configuration with Rohde &amp; Schwarz before ordering.
+    R&amp;S® is a registered trademark of Rohde &amp; Schwarz; other marks belong to their owners.
+  </div>`;
+}
+
 /* ------------------------------------------------------------- side panel */
 
 function renderPanel () {
@@ -393,9 +422,9 @@ function render () {
   cached.derived = derive(state.sel);
 
   $('#rail').innerHTML = renderRail();
-  $('#main-inner').innerHTML = state.search
+  $('#main-inner').innerHTML = (state.search
     ? renderSearch()
-    : SECTIONS.map(renderSection).join('');
+    : SECTIONS.map(renderSection).join('')) + colophon();
   $('#panel').innerHTML = renderPanel();
   $('#config-name').value = state.name;
 
@@ -500,9 +529,10 @@ document.addEventListener('click', ev => {
   if (action === 'presets') openPresets();
   if (action === 'export') openExport();
   if (action === 'share') {
-    navigator.clipboard?.writeText(location.origin + location.pathname + encode())
+    const link = location.origin + location.pathname + encode();
+    (navigator.clipboard?.writeText(link) ?? Promise.reject())
       .then(() => toast('Link copied to clipboard'))
-      .catch(() => toast('Copy failed – the link is in the address bar'));
+      .catch(() => window.prompt('Copy this link to share the configuration:', link));
   }
   if (action === 'reset') {
     if (confirm('Clear the current configuration?')) {
@@ -511,7 +541,7 @@ document.addEventListener('click', ev => {
   }
   if (action === 'theme') {
     state.theme = state.theme === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('smw-theme', state.theme);
+    store.set('smw-theme', state.theme);
     applyTheme();
   }
   if (action === 'panel') { state.panelOpen ? closePanel() : openPanel(); }
@@ -628,19 +658,50 @@ function openExport () {
       </table>
     </div>
     <div class="modal-foot">
+      ${savingBlocked
+        ? `<span style="flex:1;font-size:11.5px;color:var(--text-faint);align-self:center">
+             Saving files is turned off in this view – print the list or copy the link instead.</span>`
+        : ''}
       <button class="btn" data-action="print">${icon('print', 15)} Print</button>
-      <button class="btn" data-action="json">${icon('copy', 15)} JSON</button>
-      <button class="btn btn-primary" data-action="csv">${icon('download', 15)} CSV</button>
+      ${savingBlocked ? '' : `<button class="btn" data-action="json">${icon('copy', 15)} JSON</button>
+      <button class="btn btn-primary" data-action="csv">${icon('download', 15)} CSV</button>`}
     </div>
   </div>`);
 }
 
-function download (filename, mime, text) {
+/* ---------------------------------------------------------------- saving */
+
+/**
+ * Some hosts sandbox the frame and hand saving to the platform instead of
+ * letting the page start a download. Where that host exists we ask it; a
+ * plain web server has no such host and the ordinary anchor works.
+ * Resolved lazily, because the host answers well after the first render.
+ */
+let savePromise;
+const saveHost = () => (savePromise ??= window.claude?.use?.('downloads') ?? Promise.resolve(null));
+
+/** True when a host is present but refuses saving, so the buttons can say so. */
+let savingBlocked = false;
+
+async function download (filename, mime, text) {
+  const host = await saveHost();
+  if (host) {
+    try {
+      await host.save({ filename, data: text });
+      toast(`Saved ${filename}`);
+    } catch (err) {
+      if (err?.code === 'declined') return;                     // the viewer said no
+      if (err?.code === 'rate_limited') { toast('One save at a time – try again in a moment'); return; }
+      toast(`${filename} could not be saved here`);
+    }
+    return;
+  }
   const url = URL.createObjectURL(new Blob([text], { type: mime }));
   const a = document.createElement('a');
   a.href = url; a.download = filename;
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(`${filename} downloaded`);
 }
 
 const slug = () => state.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'smw200a';
@@ -673,7 +734,6 @@ function downloadJson () {
   };
   download(`${slug()}.json`, 'application/json', JSON.stringify(payload, (k, val) =>
     (k === 'freqA' || k === 'freqB' ? (val && val.id) || null : val), 2));
-  toast('JSON downloaded');
 }
 
 /* ============================== boot ==================================== */
@@ -688,6 +748,10 @@ function openPanel () { state.panelOpen = true; $('#panel').classList.add('open'
 function closePanel () { state.panelOpen = false; $('#panel').classList.remove('open'); }
 
 export function boot () {
+  // a host that sandboxes the frame is the only case where this matters
+  if (window.claude?.use) {
+    saveHost().then(host => { savingBlocked = !host; }).catch(() => { savingBlocked = true; });
+  }
   load();
   syncAuto();
   applyTheme();

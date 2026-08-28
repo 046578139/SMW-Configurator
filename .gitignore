@@ -1,0 +1,3 @@
+# build product of tools/build-standalone.mjs - regenerate, don't commit
+dist/
+node_modules/

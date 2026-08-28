@@ -5,8 +5,7 @@
  * stays in step with the configuration without any drawing library.
  */
 
-const NS = 'http://www.w3.org/2000/svg';
-const esc = s => String(s).replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+import { esc } from './util.js';
 
 /** Small deterministic PRNG so a given configuration always draws the same trace. */
 function rng (seed) {

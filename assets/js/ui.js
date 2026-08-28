@@ -1,6 +1,7 @@
 /** Icon set and stateless render helpers. */
 
 import { BY_ID } from './catalog.js';
+import { esc } from './util.js';
 import { holds, evaluate, parse, needText, qtyChoices, maxQty } from './rules.js';
 
 const P = {
@@ -44,8 +45,7 @@ export const icon = (name, size = 16) =>
   `<svg viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor"
     stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${P[name] || P.chip}</svg>`;
 
-export const esc = s => String(s ?? '').replace(/[&<>"]/g,
-  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+export { esc };
 
 /** "R&S®SMW-K144" with the ® rendered small. */
 const fullId = id => {

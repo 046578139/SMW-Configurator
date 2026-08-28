@@ -54,6 +54,21 @@ Tests:
 node --test
 ```
 
+### One file, no server
+
+```sh
+node tools/build-standalone.mjs        # -> dist/smw200a-configurator.html
+```
+
+Inlines the stylesheet and every module into a single ~160 kB HTML file that
+runs by double-clicking it — no server, no network. Useful for handing the
+configurator to someone who just wants to open it. The builder has no
+dependencies: the modules form a plain chain with no cycles and no clashing
+top-level names, so concatenating them in order is all it takes.
+
+The file is a build product and is not checked in; rebuild it after changing
+anything under `assets/`.
+
 ## Where the data comes from
 
 Everything is transcribed from Rohde & Schwarz product documentation, kept in
@@ -82,6 +97,7 @@ interface.
 index.html              shell and layout
 assets/css/app.css      design system, both themes
 assets/js/
+  util.js               shared helpers
   catalog.js            239 options: order numbers, rules, quantity limits
   rules.js              expression parser, validator, autoResolve
   derive.js             selection -> instrument capabilities
@@ -90,6 +106,7 @@ assets/js/
   presets.js            validated starting points
   app.js                state, rendering, events, export
 tests/rules.test.mjs    28 regression tests
+tools/build-standalone.mjs  single-file build
 ```
 
 Requirements are written in a small expression language that mirrors the
@@ -123,6 +140,17 @@ valid.
 the default branch. It needs Pages enabled for the repository with **Source:
 GitHub Actions** (Settings → Pages). Nothing else is required — the site is
 served exactly as it sits in the repository.
+
+## Hosting notes
+
+The app degrades rather than breaking where a host is restrictive. Browser
+storage is treated as a convenience — private windows and sandboxed frames make
+those calls throw, and the configurator carries on without them, since the full
+configuration also lives in the URL. Some hosts sandbox the frame and never let
+a page start a download; where such a host exposes a save API the export buttons
+use it, and where saving is refused outright the dialog says so instead of
+offering a button that does nothing. On an ordinary web server neither path
+applies and downloads work normally.
 
 ## Scope
 
