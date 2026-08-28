@@ -4,7 +4,8 @@ import { OPTIONS, BY_ID, SECTIONS, EXTRAS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS,
   from './catalog.js';
 import { validate, autoResolve, holds, qtyChoices, maxQty, freqA, freqB, mainModule } from './rules.js';
 import { derive, vitals } from './derive.js';
-import { renderInstrument, renderChain, renderRuler } from './diagram.js';
+import { renderChain, renderRuler } from './diagram.js';
+import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
 
@@ -33,6 +34,7 @@ const state = {
   tab: 'overview',
   search: '',
   theme: initialTheme(),
+  face: 'front',
   panelOpen: false
 };
 
@@ -360,8 +362,28 @@ function renderPanel () {
 
   let body = '';
   if (state.tab === 'overview') {
+    const counts = faceCounts(d);
+    const notes = connectorNotes(d);
     body = `
-      <div class="viz">${renderInstrument(d, state.sel)}</div>
+      <div class="face-switch" role="group" aria-label="Panel face">
+        <button class="face ${state.face === 'front' ? 'active' : ''}" data-face="front">
+          Front <span class="face-count">${counts.front}</span></button>
+        <button class="face ${state.face === 'rear' ? 'active' : ''}" data-face="rear">
+          Rear <span class="face-count">${counts.rear}</span></button>
+      </div>
+      <div class="viz viz-panel">
+        ${state.face === 'rear' ? renderRear(d, 430) : renderFront(d, state.sel, 560)}
+        <button class="viz-zoom" data-action="enlarge"
+          title="View the ${state.face} panel larger">${icon('search', 14)} Enlarge</button>
+      </div>
+      ${notes.length ? `<div class="conn-notes">${notes.map(n => `
+        <div class="conn-note">
+          <span class="conn-label">${esc(n.label)}</span>
+          <span class="conn-value">${esc(n.value)}</span>
+          ${n.note ? `<span class="conn-sub">${esc(n.note)}</span>` : ''}
+        </div>`).join('')}</div>` : ''}
+      <p class="viz-caption">Schematic elevation. The connectors fitted and their
+        types follow the specifications; positions on the panel are indicative.</p>
       <div class="pane-title">Frequency coverage</div>
       <div class="viz">${renderRuler(d)}</div>
       <div class="pane-title">Key figures</div>
@@ -460,8 +482,10 @@ function toast (message) {
 }
 
 document.addEventListener('click', ev => {
-  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close]');
+  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face]');
   if (!t) return;
+
+  if (t.dataset.face) { state.face = t.dataset.face; $('#panel').innerHTML = renderPanel(); return; }
 
   if (t.dataset.toggle) { toggle(t.dataset.toggle); return; }
   if (t.dataset.level) { setPhaseLevel(t.dataset.level); return; }
@@ -528,6 +552,29 @@ document.addEventListener('click', ev => {
   }
   if (action === 'presets') openPresets();
   if (action === 'export') openExport();
+  if (action === 'enlarge') {
+    const d2 = cached.derived;
+    const rear = state.face === 'rear';
+    const counts = faceCounts(d2);
+    openModal(`
+    <div class="modal modal-wide" role="dialog" aria-label="${rear ? 'Rear' : 'Front'} panel">
+      <div class="modal-head">
+        <div style="flex:1">
+          <h2>${rear ? 'Rear' : 'Front'} panel</h2>
+          <p>${rear ? counts.rear : counts.front} connectors on this face.</p>
+        </div>
+        <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+      </div>
+      <div class="modal-body">
+        <div class="viz viz-wide">${rear
+          ? renderRear(d2, 980) : renderFront(d2, state.sel, 980)}</div>
+        <p class="viz-caption">Schematic elevation. The connectors fitted and their types
+          follow the specifications; positions on the panel are indicative.</p>
+      </div>
+    </div>`);
+    return;
+  }
+
   if (action === 'share') {
     const link = location.origin + location.pathname + encode();
     (navigator.clipboard?.writeText(link) ?? Promise.reject())

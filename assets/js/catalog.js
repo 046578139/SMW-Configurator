@@ -149,17 +149,43 @@ export const SECTIONS = [
  * meta        values used to derive instrument capabilities
  * ------------------------------------------------------------------ */
 
+/**
+ * RF output connector fitted for each frequency option, from the front panel
+ * connector table in the specifications. The frequency option decides the
+ * connector, so the configurator can state which one an instrument arrives with.
+ */
+export const RF_CONNECTOR = {
+  'N female':
+    ['B1003', 'B1006', 'B1007', 'B2003', 'B2006', 'B2007'],
+  'PC 2.92 mm female':
+    ['B1012', 'B1020', 'B1031', 'B1040', 'B1040N', 'B2012', 'B2020', 'B2031'],
+  'PC 1.85 mm male':
+    ['B1044', 'B1044N', 'B1044O', 'B2044', 'B2044N', 'B2044O'],
+  '1.85 mm female':
+    ['B1056', 'B1056N', 'B1056O', 'B1067', 'B1067N', 'B1067O']
+};
+
+/** Extra wording the specifications attach to some of those connectors. */
+export const CONNECTOR_NOTE = {
+  'PC 2.92 mm female': 'test port adapter, interchangeable port connector system',
+  'PC 1.85 mm male': 'adapter 1.85 mm female/female included',
+  '1.85 mm female': 'interchangeable 1.85 mm female/female wear and tear adapter'
+};
+
+const CONN_OF = {};
+for (const [type, ids] of Object.entries(RF_CONNECTOR)) for (const id of ids) CONN_OF[id] = type;
+
 const F = (id, ghz, order, opts = {}) => ({
   id, name: `100 kHz to ${ghz} GHz`, order, step: 1, section: 'rf-a',
   group: 'Frequency options, RF path A', retrofit: 'no',
-  meta: { fMax: ghz, path: 'A' }, ...opts
+  meta: { fMax: ghz, path: 'A', conn: CONN_OF[id] }, ...opts
 });
 
 const FB = (id, ghz, order, opts = {}) => ({
   id, name: `100 kHz to ${ghz} GHz, RF path B`, order, step: 5, section: 'rf-b',
   group: 'Frequency options, RF path B', retrofit: 'no',
   reqText: 'R&S®SMW-B13T or R&S®SMW-B13XT',
-  requires: 'BB2', meta: { fMax: ghz, path: 'B' }, ...opts
+  requires: 'BB2', meta: { fMax: ghz, path: 'B', conn: CONN_OF[id] }, ...opts
 });
 
 const LIMITED = 'I/Q modulation bandwidth and minimum pulse width limited';
@@ -739,3 +765,122 @@ OPTIONS.push(...expand(10, 'bb-enh', 'Baseband enhancements', [
 ]).map(o => ({ ...o, since: 'specs' })));
 
 export const BY_ID = Object.fromEntries(OPTIONS.map(o => [o.id, o]));
+
+/* ------------------------------------------------------------------ *
+ * Panel connectors
+ *
+ * Transcribed from the "Connectors" section of the specifications: the
+ * front panel table, the rear panel table, and the two tables covering
+ * connectors carried by the baseband generator and fading simulator
+ * modules themselves.
+ *
+ * `when` names the derived condition that makes a connector present or
+ * active; entries without one are fitted to every instrument. Positions
+ * in the drawing are schematic - the specifications give the inventory
+ * and the connector types, not a panel layout.
+ * ------------------------------------------------------------------ */
+
+/** Connectors on the front panel. */
+export const FRONT_PANEL = [
+  { group: 'RF output', items: [
+    { label: 'RF 50 Ω', sub: 'path A', kind: 'rf', when: 'rfA', path: 'A' },
+    { label: 'RF 50 Ω', sub: 'path B', kind: 'rf', when: 'rfB', path: 'B' }
+  ] },
+  { group: 'Analog I/Q modulation inputs', items: [
+    { label: 'I', sub: 'path A', kind: 'bnc', type: 'BNC female', when: 'iqA' },
+    { label: 'Q', sub: 'path A', kind: 'bnc', type: 'BNC female', when: 'iqA' },
+    { label: 'I', sub: 'path B', kind: 'bnc', type: 'BNC female', when: 'iqB' },
+    { label: 'Q', sub: 'path B', kind: 'bnc', type: 'BNC female', when: 'iqB' }
+  ] },
+  { group: 'User and utility', items: [
+    { label: 'USER 1', kind: 'bnc', type: 'BNC female' },
+    { label: 'USER 2', kind: 'bnc', type: 'BNC female' },
+    { label: 'USER 3', kind: 'bnc', type: 'BNC female' },
+    { label: 'SENSOR', kind: 'odu', type: '6-pin ODU MINI-SNAP series B' },
+    { label: 'USB', kind: 'usb', type: 'USB type A' }
+  ] }
+];
+
+/** Connectors on the rear panel, excluding those carried by the modules. */
+export const REAR_PANEL = [
+  { group: 'RF output, relocated', items: [
+    { label: 'RF 50 Ω', sub: 'path A', kind: 'rf', when: 'rearRfA', path: 'A' },
+    { label: 'RF 50 Ω', sub: 'path B', kind: 'rf', when: 'rearRfB', path: 'B' },
+    { label: 'I', sub: 'path A', kind: 'bnc', type: 'BNC female', when: 'rearIq' },
+    { label: 'Q', sub: 'path A', kind: 'bnc', type: 'BNC female', when: 'rearIq' }
+  ] },
+  { group: 'Reference and local oscillator', items: [
+    { label: 'REF IN', kind: 'bnc', type: 'BNC female' },
+    { label: 'REF OUT', kind: 'bnc', type: 'BNC female' },
+    { label: 'EFC', kind: 'bnc', type: 'BNC female' },
+    { label: 'LO IN', kind: 'sma', type: 'SMA female' },
+    { label: 'LO OUT', kind: 'sma', type: 'SMA female' }
+  ] },
+  { group: 'Trigger, user and analog inputs', items: [
+    { label: 'INST TRG A', kind: 'bnc', type: 'BNC female' },
+    { label: 'INST TRG B', kind: 'bnc', type: 'BNC female', when: 'rfB' },
+    { label: 'USER 4', kind: 'bnc', type: 'BNC female' },
+    { label: 'USER 5', kind: 'bnc', type: 'BNC female' },
+    { label: 'USER 6', kind: 'bnc', type: 'BNC female' },
+    { label: 'EXT 1', kind: 'bnc', type: 'BNC female' },
+    { label: 'EXT 2', kind: 'bnc', type: 'BNC female' }
+  ] },
+  { group: 'Analog I/Q outputs', items: [
+    { label: 'I/LF OUT 1', kind: 'bnc', type: 'BNC female', when: 'analogIqOut' },
+    // the specifications set the inverting outputs with an overline; spelled out
+    // here because the combining character does not survive at label size
+    { label: 'I-BAR 1', kind: 'bnc', type: 'BNC female', when: 'analogIqOut' },
+    { label: 'Q/LF OUT 2', kind: 'bnc', type: 'BNC female', when: 'analogIqOut' },
+    { label: 'Q-BAR 1', kind: 'bnc', type: 'BNC female', when: 'analogIqOut' },
+    { label: '2nd SET', sub: 'I, I-bar, Q, Q-bar', kind: 'bnc', type: 'BNC female',
+      count: 4, when: 'analogIqOut2' }
+  ] },
+  { group: 'Digital I/Q', items: [
+    { label: 'DIG I/Q OUT 1', kind: 'mdr', type: '26-pin MDR', when: 'digitalOut' },
+    { label: 'DIG I/Q OUT 2', kind: 'mdr', type: '26-pin MDR', when: 'digitalOut' },
+    { label: 'HS DIG I/Q OUT 1', kind: 'qsfp', type: 'QSFP+/QSFP 28', when: 'hsDigital' },
+    { label: 'HS DIG I/Q OUT 2', kind: 'qsfp', type: 'QSFP+/QSFP 28', when: 'hsDigital' }
+  ] },
+  { group: 'Remote control and service', items: [
+    { label: 'LAN', kind: 'rj45', type: 'RJ-45' },
+    { label: 'USB DEVICE', kind: 'usb', type: 'USB type B' },
+    { label: 'USB', kind: 'usb', type: 'USB type A' },
+    { label: 'IEEE 488', kind: 'gpib', type: '24-pin Amphenol series 57 female' },
+    { label: 'DISPLAY PORT', kind: 'video', type: 'for future use' },
+    { label: 'HDMI', kind: 'video', type: 'for future use' }
+  ] }
+];
+
+/**
+ * Connector sets carried by the plug-in modules. One block appears on the
+ * rear panel for each installed module, so the rear panel grows with the
+ * baseband and fading hardware.
+ */
+export const MODULE_PANELS = {
+  standard: {
+    label: 'Standard baseband generator / fading simulator',
+    items: [
+      { label: 'T/M/C 1', kind: 'bnc', type: 'BNC female' },
+      { label: 'T/M 2', kind: 'bnc', type: 'BNC female' },
+      { label: 'T/M 3', kind: 'bnc', type: 'BNC female' },
+      { label: 'T/M/C 4', kind: 'bnc', type: 'BNC female' },
+      { label: 'T/M 5', kind: 'bnc', type: 'BNC female' },
+      { label: 'T/M 6', kind: 'bnc', type: 'BNC female' },
+      { label: 'DIG IQ IN/OUT 1', kind: 'mdr', type: '26-pin MDR' },
+      { label: 'DIG IQ IN/OUT 2', kind: 'mdr', type: '26-pin MDR' }
+    ]
+  },
+  wideband: {
+    label: 'Wideband baseband generator',
+    items: [
+      { label: 'T/M/C 1', kind: 'bnc', type: 'BNC female, for future use' },
+      { label: 'T/M 2', kind: 'bnc', type: 'BNC female, for future use' },
+      { label: 'T/M/C 3', kind: 'bnc', type: 'BNC female, for future use' },
+      { label: 'T/M 4', kind: 'bnc', type: 'BNC female, for future use' },
+      { label: 'DIG IQ IN/OUT 1', kind: 'mdr', type: '26-pin MDR, for future use' },
+      { label: 'DIG IQ IN/OUT 2', kind: 'mdr', type: '26-pin MDR, for future use' },
+      { label: 'HS DIG IQ IN/OUT 1', kind: 'qsfp', type: 'QSFP+/QSFP 28' },
+      { label: 'HS DIG IQ IN/OUT 2', kind: 'qsfp', type: 'QSFP+/QSFP 28' }
+    ]
+  }
+};

@@ -23,55 +23,7 @@ const hash = str => {
  * Front panel
  * ======================================================================== */
 
-export function renderInstrument (d, sel) {
-  const W = 356;
-  const deep = d.chassis === 'deep';
-  const H = deep ? 150 : 138;
-  const bodyH = H - 20;
-  const live = d.generators > 0;
-  const twoPath = d.paths > 1;
-
-  const dispX = 14, dispY = 16, dispW = 214, dispH = bodyH - 32;
-
-  return `
-<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="R&S SMW200A front panel preview">
-  <defs>
-    <linearGradient id="case" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#2b3648"/><stop offset="1" stop-color="#1a2231"/>
-    </linearGradient>
-    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#08131a"/><stop offset="1" stop-color="#04090e"/>
-    </linearGradient>
-    <linearGradient id="trace" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="var(--accent)" stop-opacity=".85"/>
-      <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
-    </linearGradient>
-    <filter id="softGlow" x="-40%" y="-60%" width="180%" height="240%">
-      <feGaussianBlur stdDeviation="2.2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>
-
-  <!-- chassis -->
-  <rect x="4" y="8" width="${W - 8}" height="${bodyH}" rx="9" fill="url(#case)" stroke="#3b4a63"/>
-  <rect x="4.5" y="8.5" width="${W - 9}" height="${bodyH - 1}" rx="8.5" fill="none" stroke="#4d5f7d" stroke-opacity=".45"/>
-  ${deep ? `<rect x="4" y="${bodyH + 4}" width="${W - 8}" height="7" rx="3" fill="#243044" stroke="#3b4a63"/>
-    <text x="${W / 2}" y="${bodyH + 9.6}" font-size="6.5" fill="#7d8da3" text-anchor="middle"
-      letter-spacing=".1em">DEEPER CHASSIS · R&amp;S SMW-B94L</text>` : ''}
-
-  <!-- display -->
-  <rect x="${dispX}" y="${dispY}" width="${dispW}" height="${dispH}" rx="5" fill="url(#screen)" stroke="#16283a"/>
-  ${screenContent(dispX, dispY, dispW, dispH, d, sel, live)}
-
-  <!-- right hand controls -->
-  ${knobs(dispX + dispW + 14, dispY, bodyH, d, twoPath, live)}
-
-  <!-- brand strip -->
-  <text x="14" y="${bodyH + 1}" font-size="7" fill="#5d6e88" letter-spacing=".14em">R&amp;S SMW200A VECTOR SIGNAL GENERATOR</text>
-</svg>`;
-}
-
-function screenContent (x, y, w, h, d, sel, live) {
+export function screenContent (x, y, w, h, d, sel, live) {
   const pad = 8;
   const gx = x + pad, gy = y + pad + 12, gw = w - pad * 2, gh = h - pad * 2 - 16;
 
@@ -149,42 +101,6 @@ function spectrum (x, y, w, h, d, sel) {
 function flatline (x, y, w, h) {
   const mid = y + h * 0.72;
   return `<path d="M${x} ${mid}L${x + w} ${mid}" stroke="#1d5566" stroke-width="1" stroke-dasharray="2 3"/>`;
-}
-
-function knobs (x, y, bodyH, d, twoPath, live) {
-  const parts = [];
-  const cy1 = y + 20;
-  const cy2 = y + 56;
-
-  const port = (cx, cy, on, label, colour) => `
-    <g>
-      <circle cx="${cx}" cy="${cy}" r="11" fill="#111a26" stroke="${on ? colour : '#3b4a63'}" stroke-width="${on ? 1.6 : 1}"/>
-      <circle cx="${cx}" cy="${cy}" r="5.4" fill="#0a1119" stroke="${on ? colour : '#33415a'}" stroke-width=".8"/>
-      ${on ? `<circle cx="${cx}" cy="${cy}" r="2" fill="${colour}" filter="url(#softGlow)"/>` : ''}
-      <text x="${cx}" y="${cy + 21}" font-size="7.5" fill="${on ? colour : '#5d6e88'}" text-anchor="middle"
-        letter-spacing=".08em" font-family="ui-monospace,monospace">${label}</text>
-    </g>`;
-
-  parts.push(port(x + 15, cy1, !!d.freqA, 'RF A', 'var(--accent)'));
-  parts.push(port(x + 15, cy2, twoPath, 'RF B', 'var(--accent-2)'));
-
-  // status LEDs
-  const leds = [
-    ['MOD', live, 'var(--accent)'],
-    ['I/Q', d.hasAnalogIQOut || d.hasAnalogIQIn, 'var(--accent-3)'],
-    ['DIG', d.hasDigitalOut, 'var(--accent-2)'],
-    ['FAD', d.fadingChannels > 0, 'var(--warn)']
-  ];
-  leds.forEach(([label, on, colour], i) => {
-    const ly = y + 10 + i * 14;
-    parts.push(`
-      <circle cx="${x + 42}" cy="${ly}" r="2.4" fill="${on ? colour : '#26303f'}"
-        ${on ? 'filter="url(#softGlow)"' : ''}/>
-      <text x="${x + 49}" y="${ly + 2.2}" font-size="7" fill="${on ? '#93a3ba' : '#3f4b5e'}"
-        font-family="ui-monospace,monospace" letter-spacing=".08em">${label}</text>`);
-  });
-
-  return parts.join('');
 }
 
 /* ======================================================================== *
@@ -320,7 +236,6 @@ export function renderChain (d, sel) {
   ${pills}
 </svg>`;
 }
-
 
 /** One module box in the signal chain. */
 function block (x, y, w, h, it) {

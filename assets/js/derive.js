@@ -20,6 +20,39 @@ function fadingChannels (units, k74, k75) {
   return k75 ? 32 : 16;      // four modules installed
 }
 
+/**
+ * Which connectors a configuration puts on which face of the instrument.
+ *
+ * The B81 to B84 options relocate the RF outputs from the front panel to the
+ * rear, so the same frequency option lands on a different face depending on
+ * what else is ordered. B81 and B83 take the path A I/Q inputs with them.
+ */
+function panelState (sel, a, b, paths, genStd, genWide) {
+  const rearRfA = !!(sel.B81 || sel.B83);
+  const rearRfB = !!(sel.B82 || sel.B84);
+  return {
+    rearRfA,
+    rearRfB,
+    // the guide sells B81/B83 as "rear panel connectors for RF path A and I/Q"
+    rearIq: rearRfA,
+    rfA: !!a && !rearRfA,
+    rfB: paths > 1 && !rearRfB,
+    iqA: !!a && !rearRfA,
+    iqB: paths > 1,
+    connA: a?.meta.conn || null,
+    connB: b?.meta.conn || null,
+    analogIqOut: !!(q(sel, 'K16') || q(sel, 'K17')),
+    analogIqOut2: !!q(sel, 'K17'),
+    digitalOut: !!(q(sel, 'K18') || q(sel, 'K19')),
+    hsDigital: !!sel.B13XT,
+    modules: [
+      ...Array(genStd).fill('standard'),
+      ...Array(genWide).fill('wideband'),
+      ...Array(q(sel, 'B14') + q(sel, 'B15')).fill('standard')
+    ]
+  };
+}
+
 export function derive (sel) {
   const a = freqA(sel);
   const b = freqB(sel);
@@ -87,6 +120,7 @@ export function derive (sel) {
     hasDigitalOut: !!(q(sel, 'K18') || q(sel, 'K19')),
     hasAnalogIQOut: !!(q(sel, 'K16') || q(sel, 'K17')),
     hasAnalogIQIn: !!q(sel, 'K739'),
+    panel: panelState(sel, a, b, paths, genStd, genWide),
     coherent: !!q(sel, 'B90'),
     hwCount: OPTIONS.filter(o => o.id.startsWith('B') && sel[o.id]).reduce((n, o) => n + sel[o.id], 0),
     swCount: OPTIONS.filter(o => o.id.startsWith('K') && sel[o.id]).reduce((n, o) => n + sel[o.id], 0)

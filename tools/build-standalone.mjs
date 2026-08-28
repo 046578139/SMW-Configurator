@@ -27,6 +27,7 @@ const MODULES = [
   'assets/js/rules.js',
   'assets/js/derive.js',
   'assets/js/diagram.js',
+  'assets/js/panel.js',
   'assets/js/ui.js',
   'assets/js/presets.js',
   'assets/js/app.js'
@@ -48,8 +49,47 @@ function flatten (source, path) {
   return `/* ---- ${path} ---- */\n${stripped.trim()}\n`;
 }
 
+/**
+ * Guards the list above: every module another module imports has to be in it,
+ * and it has to come first. Without this a forgotten entry produces a bundle
+ * that parses cleanly and then fails at runtime on a missing name.
+ */
+function checkModuleList () {
+  const seen = new Set();
+  for (const path of MODULES) {
+    const source = read(path);
+    for (const m of source.matchAll(/from\s*['"]\.\/([^'"]+)['"]/g)) {
+      const dep = `assets/js/${m[1]}`;
+      if (!MODULES.includes(dep)) throw new Error(`${path} imports ${dep}, which is missing from MODULES`);
+      if (!seen.has(dep)) throw new Error(`${path} imports ${dep}, which must come before it in MODULES`);
+    }
+    seen.add(path);
+  }
+}
+checkModuleList();
+
 const css = read('assets/css/app.css');
 const html = read('index.html');
+
+/**
+ * Reads one whole tag out of the source.
+ *
+ * A regex cannot do this: the favicon's href is a data URI holding an inline
+ * SVG, so the tag contains `>` characters inside quoted attributes. Stopping
+ * at the first `>` truncates the tag and silently swallows whatever follows.
+ */
+function tagAt (source, startMarker) {
+  const start = source.indexOf(startMarker);
+  if (start === -1) return '';
+  let quote = null;
+  for (let i = start; i < source.length; i++) {
+    const ch = source[i];
+    if (quote) { if (ch === quote) quote = null; continue; }
+    if (ch === '"' || ch === "'") { quote = ch; continue; }
+    if (ch === '>') return source.slice(start, i + 1);
+  }
+  throw new Error(`unterminated tag at ${startMarker}`);
+}
 
 // the shell markup, without the document scaffolding and the module loader
 const body = html
@@ -69,7 +109,7 @@ const page = `<!doctype html>
 <title>R&amp;S SMW200A Configurator</title>
 <meta name="description" content="Interactive configurator for the Rohde &amp; Schwarz SMW200A vector signal generator, checked against the configuration guide.">
 <meta name="color-scheme" content="dark light">
-${html.match(/<link rel="icon"[^>]*>/)?.[0] || ''}
+${tagAt(html, '<link rel="icon"')}
 <style>
 ${css}
 </style>
@@ -83,6 +123,12 @@ boot();
 </body>
 </html>
 `;
+
+/* A truncated tag in <head> silently eats the stylesheet, and the result still
+   looks like valid HTML, so check the built page rather than trusting it. */
+const styled = page.match(/<style>([\s\S]*?)<\/style>/);
+if (!styled || styled[1].length < css.length) throw new Error('the stylesheet did not survive the build');
+if (/<head>[\s\S]*?<[a-z]+[^<]*?=[^<]*?<style>/.test(page)) throw new Error('a tag in <head> is unterminated');
 
 mkdirSync(resolve(root, dirname(out)), { recursive: true });
 writeFileSync(resolve(root, out), page);

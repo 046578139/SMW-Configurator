@@ -24,11 +24,29 @@ phase noise levels that must match across paths, the standard/wideband baseband
 split, floating licences, per-RF-path option sets, and quantity steps such as
 the fading simulator's 1 / 2 / 4.
 
-**Shows the instrument, not a list of checkboxes.** The front-panel view has a
-working spectrum display: carrier count follows the number of baseband
-generators, occupied bandwidth follows the installed extensions, AWGN lifts the
-noise floor, fading adds ripple, and R&S®SMW-K811 carves notches. The signal
-chain diagram animates from baseband through fading and routing to the RF
+**Shows the instrument, not a list of checkboxes.** Front and rear panel
+elevations follow the configuration, and you can switch faces or open either one
+enlarged. The connectors drawn are the ones the specifications say that
+configuration arrives with:
+
+- the RF output connector type comes from the frequency option, so
+  R&S®SMW-B1003 fits an N female and R&S®SMW-B1067 a 1.85 mm female
+- R&S®SMW-B81 to ‑B84 move the RF outputs from the front panel to the rear,
+  and B81/B83 take the path A I/Q inputs with them, so connectors leave one
+  face and appear on the other
+- every baseband generator and fading simulator adds its own block of rear
+  panel connectors, and a wideband generator brings QSFP+ high-speed digital
+  I/Q where a standard one brings 26-pin MDR
+- the analog and digital I/Q output groups appear only once an option
+  activates them
+
+Positions on the panel are schematic — the specifications give the inventory and
+the connector types, not a panel layout, and the drawing says so.
+
+The display in the front view is live: carrier count follows the number of
+baseband generators, occupied bandwidth follows the installed extensions, AWGN
+lifts the noise floor, fading adds ripple, and R&S®SMW-K811 carves notches. The
+signal chain diagram animates from baseband through fading and routing to the RF
 connectors, and the frequency ruler places both paths on a log axis against
 sub-6 GHz and FR2.
 
@@ -60,11 +78,14 @@ node --test
 node tools/build-standalone.mjs        # -> dist/smw200a-configurator.html
 ```
 
-Inlines the stylesheet and every module into a single ~160 kB HTML file that
+Inlines the stylesheet and every module into a single ~180 kB HTML file that
 runs by double-clicking it — no server, no network. Useful for handing the
 configurator to someone who just wants to open it. The builder has no
 dependencies: the modules form a plain chain with no cycles and no clashing
-top-level names, so concatenating them in order is all it takes.
+top-level names, so concatenating them in order is all it takes. It refuses to
+emit a page whose stylesheet did not survive, and checks that every module a
+module imports is listed ahead of it, because both failures otherwise produce a
+file that looks valid and breaks at runtime.
 
 The file is a build product and is not checked in; rebuild it after changing
 anything under `assets/`.
@@ -77,7 +98,7 @@ Everything is transcribed from Rohde & Schwarz product documentation, kept in
 | Document | Used for |
 | --- | --- |
 | `SMW200A_configguide_en_3606803792_v0600.pdf` | option list, order numbers, all configuration rules, step numbering |
-| `SMW200A_specs_en_3606803722_v3100.pdf` | derived figures; five options newer than the guide |
+| `SMW200A_specs_en_3606803722_v3100.pdf` | derived figures; the front and rear panel connector tables; five options newer than the guide |
 | `SMW200AMIMOFading_specs_en_3673127622_v0400.pdf` | fading channel counts and MIMO orders |
 | `DigitalStandards_specs_en_5213943422_v2800.pdf` | digital standards background |
 | `GNSSAvionicsSimulationRSSignalGenerators_specs_en_3607689622_v1700.pdf` | GNSS channel behaviour |
@@ -101,11 +122,13 @@ assets/js/
   catalog.js            239 options: order numbers, rules, quantity limits
   rules.js              expression parser, validator, autoResolve
   derive.js             selection -> instrument capabilities
-  diagram.js            front panel, signal chain, frequency ruler (SVG)
+  diagram.js            display, signal chain, frequency ruler (SVG)
+  panel.js              front and rear panel elevations (SVG)
   ui.js                 icon set and stateless render helpers
   presets.js            validated starting points
   app.js                state, rendering, events, export
-tests/rules.test.mjs    28 regression tests
+tests/rules.test.mjs    28 rule regression tests
+tests/panel.test.mjs    12 panel and connector tests
 tools/build-standalone.mjs  single-file build
 ```
 
