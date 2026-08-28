@@ -106,9 +106,11 @@ function spectrum (x, y, w, h, d, sel) {
   const N = 150;
 
   const bw = d.bandwidth || 0;
-  // relative occupied width of one carrier on screen
-  const frac = bw ? 0.12 + 0.40 * (Math.log10(bw) / Math.log10(2000)) : 0.045;
-  const carriers = d.generators > 1 ? [0.31, 0.69] : [0.5];
+  const two = d.generators > 1;
+  // relative occupied width of one carrier on screen; two carriers get a
+  // narrower slice each so they stay readable as separate channels
+  const frac = (bw ? 0.10 + 0.34 * (Math.log10(bw) / Math.log10(2000)) : 0.045) * (two ? 0.8 : 1);
+  const carriers = two ? [0.27, 0.73] : [0.5];
 
   const noiseFloor = d.awgn ? 0.30 : 0.13;   // fraction of height above the bottom
   const notch = sel.K811 ? 1 : 0;
@@ -125,7 +127,7 @@ function spectrum (x, y, w, h, d, sel) {
         // flat-topped channel with rounded shoulders
         const shape = dist < 0.72 ? 1 : Math.cos(((dist - 0.72) / 0.28) * Math.PI / 2) ** 2;
         let amp = 0.78 * shape;
-        if (ripple) amp *= 0.86 + 0.14 * Math.sin(t * 46 + seed % 7);
+        if (ripple) amp *= 0.90 + 0.10 * Math.sin(t * 24 + (seed % 7));
         if (notch && Math.abs(dist - 0.35) < 0.06) amp *= 0.30;
         level = Math.max(level, noiseFloor + amp + (rand() - 0.5) * 0.035);
       } else if (dist < 3.2) {
@@ -371,12 +373,16 @@ export function renderRuler (d) {
   const bar = (f, y, colour, label) => {
     if (!f) return '';
     const w = posOf(f) * span;
+    // a wide bar leaves no room to the right, so the label moves inside it
+    const inside = w > span - 46;
+    const tx = inside ? x0 + w - 6 : x0 + w + 6;
     return `
       <rect x="${x0}" y="${y}" width="${w.toFixed(1)}" height="9" rx="4.5"
         fill="${colour}" fill-opacity=".22" stroke="${colour}" stroke-width="1"/>
       <rect x="${x0}" y="${y}" width="${w.toFixed(1)}" height="9" rx="4.5" fill="${colour}" fill-opacity=".35"/>
-      <text x="${(x0 + w + 6).toFixed(1)}" y="${y + 7.4}" font-size="8" fill="${colour}"
-        font-family="ui-monospace,monospace">${label}</text>`;
+      <text x="${tx.toFixed(1)}" y="${y + 7.4}" font-size="8" fill="${inside ? 'var(--bg)' : colour}"
+        font-weight="${inside ? 700 : 400}" text-anchor="${inside ? 'end' : 'start'}"
+        font-family="ui-monospace,monospace">${esc(label)}</text>`;
   };
 
   return `
@@ -389,7 +395,7 @@ export function renderRuler (d) {
         text-anchor="middle" letter-spacing=".06em">${name}</text>`;
   }).join('')}
 
-  ${bar(d.freqA?.meta.fMax, 20, 'var(--accent)', d.freqA ? d.freqA.id.replace('B10', 'B10') : '')}
+  ${bar(d.freqA?.meta.fMax, 20, 'var(--accent)', d.freqA ? d.freqA.id : '')}
   ${d.freqB ? bar(d.freqB.meta.fMax, 33, 'var(--accent-2)', d.freqB.id) : ''}
 
   <line x1="${x0}" y1="${axisY}" x2="${x1}" y2="${axisY}" stroke="var(--line)"/>

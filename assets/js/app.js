@@ -560,8 +560,12 @@ function openModal (html) {
   scrim.innerHTML = html;
   scrim.addEventListener('click', e => { if (e.target === scrim) closeModal(); });
   document.body.append(scrim);
+  document.body.classList.add('modal-open');   // lets @media print swap what is printed
 }
-function closeModal () { $('.scrim')?.remove(); }
+function closeModal () {
+  $('.scrim')?.remove();
+  document.body.classList.remove('modal-open');
+}
 
 function openPresets () {
   openModal(`
