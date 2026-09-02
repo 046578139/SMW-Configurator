@@ -305,7 +305,7 @@ export const OPTIONS = [
   { id: 'B10', name: 'Baseband generator with ARB (64 Msample) and digital modulation (real-time), 120 MHz RF bandwidth',
     order: '1413.1200.02', step: 8, section: 'bb-hw', group: 'Standard baseband',
     retrofit: 'service', requires: 'B13|B13T', reqText: 'R&S®SMW-B13 or R&S®SMW-B13T',
-    max: 2, maxReq: 'B13T', note: 'Can be installed once or twice.',
+    max: 2, note: 'Can be installed once or twice.',
     meta: { gen: 'standard', arb: 64, bw: 120 } },
   { id: 'K16', name: 'Differential analog I/Q outputs', order: '1413.3384.02', step: 8,
     section: 'bb-hw', group: 'Standard baseband', retrofit: 'keycode', requires: 'B13|B13T',
@@ -404,7 +404,7 @@ export const OPTIONS = [
     reqText: 'R&S®SMW-B10 and -K18, or R&S®SMW-B9 and -K19' },
   { id: 'K555', name: 'Bandwidth extension', order: '1414.6229.02', step: 10, section: 'bb-enh',
     group: 'Baseband enhancements', retrofit: 'keycode',
-    requires: 'RFA&RFB&B9*2&K525*2&K527*2',
+    requires: 'RFA&RFB&WGEN*2&K525*2&K527*2',
     reqText: 'R&S®SMW-B1xxx and -B2xxx frequency options, two R&S®SMW-B9, two -K525, two -K527',
     note: 'Can be installed once. Combines both paths – needs an R&S®SMW-ZKK/-ZKV combiner kit.',
     meta: { clock: 4800 } },
@@ -551,7 +551,7 @@ export const OPTIONS = [
     ['K128', 'P(Y)-/M-/PRS-noise',                        '1413.3361.02', 'GEN'],
     ['K129', 'Matched-spectrum GNSS interferer',          '1434.8410.02', 'WGEN&GNSSB', '-'],
     ['K132', 'Modernized BeiDou',                         '1414.6606.02', 'GEN'],
-    ['K134', 'Upgrade to dual-frequency GNSS',            '1414.6770.02', 'WGEN&GNSSB', 'WGEN*2'],
+    ['K134', 'Upgrade to dual-frequency GNSS',            '1414.6770.02', 'WGEN&GNSSB', 'WGEN*2&GNSSB*2'],
     ['K135', 'Upgrade to triple-frequency GNSS',          '1414.6793.02', 'K134', 'K134*2'],
     ['K136', 'Add 6 GNSS channels',                       '1414.6812.02', 'WGEN&GNSSB', '+4'],
     ['K137', 'Add 12 GNSS channels',                      '1414.6835.02', 'WGEN&GNSSB', '+4'],
@@ -659,7 +659,7 @@ export const OPTIONS = [
     ['K308', 'Direction finding',                   '1414.1433.02', 'K301'],
     ['K309', 'Import of 2D maps',                   'not listed',   'K301'],
     ['K315', 'Pulse-on-pulse simulation',           '1414.6529.02',
-             'B9*2&K502*2&B15*2&(K503*2|K301*2)', '-'],
+             'WGEN*2&K502*2&B15*2&(K503*2|K301*2)', '-'],
     ['K350', 'DFS signal generation',               '1413.9160.02', 'GEN']
   ])
 ];

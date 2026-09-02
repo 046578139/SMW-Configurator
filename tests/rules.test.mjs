@@ -142,10 +142,16 @@ test('enhancements written for B9 also accept B9F', () => {
 /* ------------------------------------------------------------ quantities */
 
 test('a second unit is only offered once its condition holds', () => {
+  // the guide conditions a second K16 on B13T, in as many words
   const one = { B1003: 1, B13: 1, B10: 1 };
-  assert.equal(maxQty(BY_ID.B10, one), 1, 'B13 carries a single I/Q path');
-  assert.equal(maxQty(BY_ID.B10, { B1003: 1, B13T: 1, B10: 1 }), 2);
-  assert.ok(titles({ ...one, B10: 2 }).includes('qty-B10'));
+  assert.equal(maxQty(BY_ID.K16, one), 1, 'a second K16 needs B13T');
+  assert.equal(maxQty(BY_ID.K16, { B1003: 1, B13T: 1, B10: 1 }), 2);
+  assert.ok(titles({ ...one, K16: 2 }).includes('qty-K16'));
+
+  // but B10's own remark is a bare "can be installed once or twice", with no
+  // condition, unlike the K16 and K18 rows directly beneath it
+  assert.equal(maxQty(BY_ID.B10, one), 2, 'two B10 do not need B13T');
+  assert.equal(titles({ ...one, B10: 2 }).includes('qty-B10'), false);
 });
 
 test('the fading simulator only comes in 1, 2 or 4 units', () => {
@@ -378,4 +384,32 @@ test('options sharing a product code never print an invented one', () => {
   for (const o of OPTIONS) {
     if (!o.id.startsWith('K200')) assert.equal(productCode(o.id), o.id);
   }
+});
+
+/* ------------------------------------------------ fidelity to the guide */
+
+test('"two R&S SMW-B9" accepts the B9F variant', () => {
+  // step 9 footnote 3: software that runs on the B9 also runs on the B9F, and
+  // footnote 4 forbids mixing them - so a pure B9F instrument must qualify
+  const onB9F = { B1003: 1, B2003: 1, B13XT: 1, B9F: 2, K525: 2, K527: 2 };
+  const onB9 = { B1003: 1, B2003: 1, B13XT: 1, B9: 2, K525: 2, K527: 2 };
+  assert.ok(holds(BY_ID.K555.requires, onB9F), 'K555 refused on two B9F');
+  assert.ok(holds(BY_ID.K555.requires, onB9));
+  assert.ok(!holds(BY_ID.K555.requires, { ...onB9F, B9F: 1 }), 'one generator is not two');
+
+  assert.ok(holds(BY_ID.K315.requires, { B13XT: 1, B9F: 2, K502: 2, B15: 2, K301: 2 }));
+
+  // and no requirement should name B9 literally where the guide means either
+  for (const o of OPTIONS) {
+    for (const src of [o.requires, o.maxReq]) {
+      if (src) assert.equal(/(^|[^A-Z0-9])B9(?![A-Z0-9])/.test(src), false,
+        `${o.id} names B9 literally: ${src}`);
+    }
+  }
+});
+
+test('a second K134 needs a second GNSS standard, not just a second generator', () => {
+  const twoGen = { B13XT: 1, B9: 2, K134: 1 };
+  assert.equal(maxQty(BY_ID.K134, { ...twoGen, K44: 1 }), 1, 'one standard is not two');
+  assert.equal(maxQty(BY_ID.K134, { ...twoGen, K44: 1, K66: 1 }), 2);
 });
