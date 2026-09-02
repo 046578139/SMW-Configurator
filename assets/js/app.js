@@ -8,6 +8,7 @@ import { renderChain, renderRuler } from './diagram.js';
 import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
+import { productCode } from './util.js';
 
 const STORE = 'smw200a-config-v1';
 
@@ -800,7 +801,7 @@ function openExport () {
             <tr class="head-row"><td colspan="4">${esc(g.name)}</td></tr>
             ${g.rows.map(r => `
               <tr>
-                <td class="c-id">${r.id === BASE_UNIT.id ? 'R&amp;S®SMW200A' : `R&amp;S®SMW-${esc(r.id.replace(/-\d+$/, ''))}`}</td>
+                <td class="c-id">${r.id === BASE_UNIT.id ? 'R&amp;S®SMW200A' : `R&amp;S®SMW-${esc(productCode(r.id))}`}</td>
                 <td>${esc(r.name)}</td>
                 <td class="c-order">${esc(r.order)}</td>
                 <td class="c-qty">${r.qty}</td>
@@ -860,7 +861,7 @@ const slug = () => state.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(
 function downloadCsv () {
   const rows = [['Type', 'Designation', 'Order No.', 'Quantity']];
   for (const l of bomLines(state.sel, BASE_UNIT)) {
-    rows.push([l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${l.id.replace(/-\d+$/, '')}`,
+    rows.push([l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${productCode(l.id)}`,
       l.name, l.order, l.qty]);
   }
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
@@ -877,7 +878,7 @@ function downloadJson () {
     valid: v.ok,
     issues: v.errors.map(e => ({ title: e.title, detail: e.detail })),
     items: bomLines(state.sel, BASE_UNIT).map(l => ({
-      type: l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${l.id.replace(/-\d+$/, '')}`,
+      type: l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${productCode(l.id)}`,
       designation: l.name, orderNo: l.order, quantity: l.qty, group: l.group
     })),
     capabilities: derive(state.sel),

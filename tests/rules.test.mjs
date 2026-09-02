@@ -13,6 +13,7 @@ import { OPTIONS, BY_ID, RF_PATH_MATRIX, O_VARIANTS } from '../assets/js/catalog
 import {
   validate, autoResolve, holds, parse, evaluate, maxQty, qtyChoices, needText
 } from '../assets/js/rules.js';
+import { productCode } from '../assets/js/util.js';
 import { derive } from '../assets/js/derive.js';
 import { PRESETS } from '../assets/js/presets.js';
 
@@ -362,5 +363,19 @@ test('resolving never makes a configuration worse or drops a choice', () => {
     const after = autoResolve(sel);
     assert.ok(validate(after).errors.length <= before, 'resolving added problems');
     for (const id of Object.keys(sel)) assert.ok(after[id], `${id} was dropped`);
+  }
+});
+
+test('options sharing a product code never print an invented one', () => {
+  // R&S®SMW-K200 is one code with an order number per quantity, so the catalog
+  // gives each quantity its own id - which must not reach a parts list
+  for (const id of ['K200-1', 'K200-5', 'K200-50']) {
+    assert.equal(productCode(id), 'K200');
+    const issue = validate({ [id]: 1 }).errors.find(e => e.id.includes(id));
+    if (issue) assert.equal(/K200-\d/.test(issue.title), false, issue.title);
+  }
+  // and every other id is its own code
+  for (const o of OPTIONS) {
+    if (!o.id.startsWith('K200')) assert.equal(productCode(o.id), o.id);
   }
 });

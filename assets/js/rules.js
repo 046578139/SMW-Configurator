@@ -12,6 +12,7 @@
  * configuration guide words "two R&S SMW-B9/-B10".
  */
 
+import { productCode } from './util.js';
 import {
   OPTIONS, BY_ID, SHORTHAND, RF_PATH_MATRIX, B94L_REQUIRED,
   O_VARIANTS, PHASE_NOISE_LEVELS
@@ -137,7 +138,7 @@ export function qtyChoices (opt, sel) {
 
 /* -------------------------------------------------------------- messages */
 
-const label = id => (BY_ID[id] ? `R&S®SMW-${id}` : id);
+const label = id => (BY_ID[id] ? `R&S®SMW-${productCode(id)}` : id);
 
 export function needText (need) {
   const names = need.ids.map(label);

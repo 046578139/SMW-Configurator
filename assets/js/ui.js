@@ -1,7 +1,7 @@
 /** Icon set and stateless render helpers. */
 
 import { BY_ID } from './catalog.js';
-import { esc } from './util.js';
+import { esc, productCode } from './util.js';
 import { holds, evaluate, parse, needText, qtyChoices, maxQty } from './rules.js';
 
 const P = {
@@ -50,7 +50,7 @@ export { esc };
 
 /** "R&S®SMW-K144" with the ® rendered small. */
 const fullId = id => {
-  const code = esc(id.replace(/-\d+$/, ''));
+  const code = esc(productCode(id));
   // B1044O / B1056N and friends: highlight the trailing letter so it cannot be
   // mistaken for a digit when someone copies an order code.
   const m = code.match(/^(B\d+)([A-Z]+)$/);
