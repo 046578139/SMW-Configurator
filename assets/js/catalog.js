@@ -51,7 +51,23 @@ export const SHORTHAND = {
        'B1044O|B1056|B1056N|B1056O|B1067|B1067N|B1067O',
   // RF path A frequency options that are not "O" variants
   RFAX: 'B1003|B1006|B1007|B1012|B1020|B1031|B1040|B1040N|B1044|B1044N|' +
-        'B1056|B1056N|B1067|B1067N'
+        'B1056|B1056N|B1067|B1067N',
+  // frequency options of 6 GHz or above, one list per RF path: a licence that
+  // is bound to a path (K553) needs the option in that path, not in the other
+  F6A: 'B1006|B1007|B1012|B1020|B1031|B1040|B1040N|B1044|B1044N|B1044O|' +
+       'B1056|B1056N|B1056O|B1067|B1067N|B1067O',
+  F6B: 'B2006|B2007|B2012|B2020|B2031|B2044|B2044N|B2044O',
+  // 20 GHz or above, per path - the rule the R&S online configurator applies
+  // to K554, which guide v06.00 does not list
+  F20A: 'B1020|B1031|B1040|B1040N|B1044|B1044N|B1044O|B1056|B1056N|B1056O|' +
+        'B1067|B1067N|B1067O',
+  F20B: 'B2020|B2031|B2044|B2044N|B2044O',
+  // LTE, cellular IoT and 5G NR base standards counted together, which is how
+  // the guide's "two R&S SMW-K55/-K115" reads (K69, K81, K175): one of each
+  // is two, exactly as "two R&S SMW-B9/-B10" is one B9 plus one B10
+  LTEIOT: 'K55|K115',
+  LTEIOTNR: 'K55|K115|K144',
+  LTENR: 'K55|K144'
 };
 
 /** Frequency options that force the wideband main module and block B90/K739/K545. */
@@ -115,14 +131,14 @@ export const SECTIONS = [
     blurb: 'Generators, memory and bandwidth for the baseband section you picked. Standard and wideband hardware cannot be mixed.' },
   { id: 'bb-enh',    label: 'Baseband enhancements',steps: [10],   kind: 'multi',  icon: 'sliders',
     blurb: 'Signal conditioning and impairment tools that sit on top of the baseband hardware.' },
+  { id: 'fading',    label: 'MIMO & fading',        steps: [14],   kind: 'multi',  icon: 'mimo',
+    blurb: 'Fading simulators, MIMO routing and multi-entity scenarios. R&S®SMW-B14 belongs to the standard baseband section, R&S®SMW-B15 to the wideband section.' },
   { id: 'std-int',   label: 'Digital standards',    steps: [11],   kind: 'multi',  icon: 'radio',
     blurb: 'Real-time and ARB standards generated inside the instrument.' },
   { id: 'std-wiq',   label: 'WinIQSIM2 standards',  steps: [12],   kind: 'multi',  icon: 'pc',
     blurb: 'Waveforms calculated on an external PC with R&S®WinIQSIM2 and played back by the instrument.' },
   { id: 'pulse',     label: 'Pulse Sequencer',      steps: [13],   kind: 'multi',  icon: 'pulse',
     blurb: 'Radar and EW signal creation with the external R&S®Pulse Sequencer software.' },
-  { id: 'fading',    label: 'MIMO & fading',        steps: [14],   kind: 'multi',  icon: 'mimo',
-    blurb: 'Fading simulators, MIMO routing and multi-entity scenarios.' },
   { id: 'other',     label: 'Other options',        steps: [15],   kind: 'multi',  icon: 'panel',
     blurb: 'Rear panel connectors, storage and service tooling.' },
   { id: 'extras',    label: 'Accessories',          steps: [],     kind: 'extras', icon: 'box',
@@ -285,8 +301,9 @@ export const OPTIONS = [
     reqText: 'R&S®SMW-B13/-B13T/-B13XT',
     note: 'Floating license – order twice to use it in both RF paths at the same time.', floating: true },
   { id: 'K553', name: 'External frontend control', order: '1414.6758.02', step: 4, section: 'rf-enh',
-    group: 'Other RF options', retrofit: 'keycode', requires: 'F6', max: 2, maxReq: 'RFB',
-    reqText: 'Frequency option with 6 GHz or higher' },
+    group: 'Other RF options', retrofit: 'keycode', requires: 'F6A|F6B', max: 2, maxReq: 'F6A&F6B',
+    reqText: 'Frequency option with 6 GHz or higher in the path where it is used',
+    note: 'One licence per RF path; each path needs its own frequency option of 6 GHz or higher.' },
   { id: 'K703', name: '100 MHz, 1 GHz ultra low noise reference input/output', order: '1413.7380.02',
     step: 4, section: 'rf-enh', group: 'Other RF options', retrofit: 'keycode', requires: 'RFA',
     reqText: 'Frequency option (step 1)', note: 'Installed once, usable with all installed RF paths.' },
@@ -309,13 +326,13 @@ export const OPTIONS = [
     meta: { gen: 'standard', arb: 64, bw: 120 } },
   { id: 'K16', name: 'Differential analog I/Q outputs', order: '1413.3384.02', step: 8,
     section: 'bb-hw', group: 'Standard baseband', retrofit: 'keycode', requires: 'B13|B13T',
-    reqText: 'R&S®SMW-B13 or R&S®SMW-B13T', max: 2, maxReq: 'B13T' },
+    reqText: 'R&S®SMW-B13 or R&S®SMW-B13T', max: 2, maxReq: 'B13T', floating: true },
   { id: 'K18', name: 'Digital baseband output', order: '1413.3432.02', step: 8, section: 'bb-hw',
     group: 'Standard baseband', retrofit: 'keycode', requires: 'B13|B13T',
-    reqText: 'R&S®SMW-B13 or R&S®SMW-B13T', max: 2, maxReq: 'B13T' },
+    reqText: 'R&S®SMW-B13 or R&S®SMW-B13T', max: 2, maxReq: 'B13T', floating: true },
   { id: 'K501', name: 'Extended sequencing', order: '1413.9218.02', step: 8, section: 'bb-hw',
     group: 'Standard baseband', retrofit: 'keycode', requires: 'B10', reqText: 'R&S®SMW-B10',
-    max: 2, maxReq: 'B10*2' },
+    max: 2, maxReq: 'B10*2', floating: true },
   { id: 'K511', name: 'ARB memory extension to 512 Msample', order: '1413.6860.02', step: 8,
     section: 'bb-hw', group: 'Standard baseband', retrofit: 'keycode', requires: 'B10',
     reqText: 'R&S®SMW-B10', max: 2, maxReq: 'B10*2', meta: { arb: 512 } },
@@ -371,34 +388,37 @@ export const OPTIONS = [
   /* -- Step 10: baseband enhancements ------------------------------ */
   { id: 'K62', name: 'Additive white Gaussian noise (AWGN)', order: '1413.3484.02', step: 10,
     section: 'bb-enh', group: 'Baseband enhancements', retrofit: 'keycode', requires: 'BB',
-    reqText: 'R&S®SMW-B13/-B13T/-B13XT', max: 2, maxReq: 'BB2' },
+    reqText: 'R&S®SMW-B13/-B13T/-B13XT', max: 2, maxReq: 'BB2', floating: true },
   { id: 'K80', name: 'Bit error rate tester', order: '1414.6187.02', step: 10, section: 'bb-enh',
     group: 'Baseband enhancements', retrofit: 'keycode', requires: 'GEN',
     reqText: 'R&S®SMW-B10 or R&S®SMW-B9', note: 'Can be installed once.' },
   { id: 'K540', name: 'Envelope tracking', order: '1413.7215.02', step: 10, section: 'bb-enh',
     group: 'Baseband enhancements', retrofit: 'keycode',
-    requires: '((B13|B13T)&K16)|(B13XT&K17)',
-    reqText: 'R&S®SMW-B13/-B13T and -K16, or R&S®SMW-B13XT and -K17',
-    max: 2, maxReq: 'B13T&K16*2' },
+    requires: '((B13|B13T)&K16&B10)|(B13XT&K17&WGEN)',
+    reqText: 'R&S®SMW-B13/-B13T, -K16 and -B10, or R&S®SMW-B13XT, -K17 and -B9',
+    max: 2, maxReq: 'B13T&K16*2', floating: true,
+    note: 'The specifications also ask for a baseband generator in the section used.' },
   { id: 'K541', name: 'AM/AM, AM/φM predistortion', order: '1413.7267.02', step: 10,
     section: 'bb-enh', group: 'Baseband enhancements', retrofit: 'keycode', requires: 'GEN',
-    reqText: 'R&S®SMW-B9/-B10', max: 2, maxReq: 'GEN*2&RFB&BB2' },
+    reqText: 'R&S®SMW-B9/-B10', max: 2, maxReq: 'GEN*2&RFB&BB2', floating: true },
   { id: 'K544', name: 'User-defined frequency response correction', order: '1414.3707.02', step: 10,
-    section: 'bb-enh', group: 'Baseband enhancements', retrofit: 'keycode', requires: 'BB',
-    reqText: 'R&S®SMW-B13/-B13T/-B13XT', max: 2, maxReq: 'BB2' },
-  { id: 'K545', name: 'RF port alignment', order: '1414.6429.02', step: 10, section: 'bb-enh',
+    section: 'bb-enh', group: 'Baseband enhancements', retrofit: 'keycode', requires: 'BB&GEN',
+    reqText: 'R&S®SMW-B13/-B13T/-B13XT and R&S®SMW-B9/-B10', max: 2, maxReq: 'BB2', floating: true,
+    note: 'The R&S online configurator also requires a baseband generator; guide v06.00 names the main module only.' },
+  { id: 'K545', name: 'Automated RF port alignment', order: '1414.6429.02', step: 10, section: 'bb-enh',
     group: 'Baseband enhancements', retrofit: 'keycode', requires: 'B90&GEN&K61&K544',
     conflicts: O_VARIANTS,
     reqText: 'R&S®SMW-B90 and, for each installed RF path, R&S®SMW-B9/-B10, -K61 and -K544',
     note: 'Can be installed once. Not compatible with R&S®SMW-BxxxxO frequency options.',
     perPath: ['GEN', 'K61', 'K544'] },
   { id: 'K546', name: 'Digital Doherty', order: '1414.6487.02', step: 10, section: 'bb-enh',
-    group: 'Baseband enhancements', retrofit: 'keycode', requires: 'K541*2&GEN*2&RFB&BB2',
-    reqText: 'Two R&S®SMW-K541, two R&S®SMW-B9/-B10, two RF paths and R&S®SMW-B13T/-B13XT',
-    note: 'Can be installed once.' },
+    group: 'Baseband enhancements', retrofit: 'keycode', requires: 'B90&K541*2&GEN*2&RFB&BB2',
+    reqText: 'R&S®SMW-B90, two R&S®SMW-K541, two R&S®SMW-B9/-B10, two RF paths and R&S®SMW-B13T/-B13XT',
+    note: 'Can be installed once. Phase coherence (R&S®SMW-B90) is required by the specifications and the R&S online configurator; guide v06.00 omits it.' },
   { id: 'K548', name: 'Crest factor reduction', order: '1414.6641.02', step: 10, section: 'bb-enh',
     group: 'Baseband enhancements', retrofit: 'keycode', requires: 'GEN', reqText: 'R&S®SMW-B9/-B10',
-    max: 2, maxReq: 'GEN*2' },
+    max: 2, maxReq: 'GEN*2', floating: true,
+    note: 'The R&S online configurator offers it once per instrument; the guide allows a second unit with a second generator.' },
   { id: 'K551', name: 'Slow I/Q', order: '1413.9724.02', step: 10, section: 'bb-enh',
     group: 'Baseband enhancements', retrofit: 'keycode', requires: '(B10&K18)|(WGEN&K19)',
     reqText: 'R&S®SMW-B10 and -K18, or R&S®SMW-B9 and -K19' },
@@ -410,10 +430,10 @@ export const OPTIONS = [
     meta: { clock: 4800 } },
   { id: 'K810', name: 'Enhanced noise generation', order: '1414.6341.02', step: 10,
     section: 'bb-enh', group: 'Baseband enhancements', retrofit: 'keycode', requires: 'K62',
-    reqText: 'R&S®SMW-K62', max: 2, maxReq: 'K62*2' },
+    reqText: 'R&S®SMW-K62', max: 2, maxReq: 'K62*2', floating: true },
   { id: 'K811', name: 'Notched signals', order: '1414.6364.02', step: 10, section: 'bb-enh',
     group: 'Baseband enhancements', retrofit: 'keycode', requires: 'GEN', reqText: 'R&S®SMW-B9/-B10',
-    max: 2, maxReq: 'GEN*2' },
+    max: 2, maxReq: 'GEN*2', floating: true },
 
   /* -- Step 14: multichannel, MIMO and fading ---------------------- */
   { id: 'B14', name: 'Fading simulator', order: '1413.1500.02', step: 14, section: 'fading',
@@ -423,8 +443,9 @@ export const OPTIONS = [
   { id: 'B15', name: 'Fading simulator and signal processor', order: '1414.4710.02', step: 14,
     section: 'fading', group: 'Multichannel, MIMO and fading', retrofit: 'service',
     requires: 'B13XT&WGEN', reqText: 'R&S®SMW-B13XT and at least one R&S®SMW-B9',
-    qtySteps: [2, 4], qtyStepsReq: { 4: 'WGEN*2' },
-    note: 'Two or four units; four require two R&S®SMW-B9.', meta: { fader: 'wideband' } },
+    qtySteps: [1, 2, 4], qtyStepsReq: { 2: 'WGEN*2', 4: 'WGEN*2' },
+    note: 'Once with one R&S®SMW-B9; twice or four times with two. With two R&S®SMW-B9 only 0, 2 or 4 units are possible.',
+    meta: { fader: 'wideband' } },
   { id: 'K71', name: 'Dynamic fading', order: '1413.3532.02', step: 14, section: 'fading',
     group: 'Multichannel, MIMO and fading', retrofit: 'keycode', requires: 'B14|B15',
     reqText: 'R&S®SMW-B14 or R&S®SMW-B15', max: 2, maxReq: 'B14*2|B15*2' },
@@ -442,8 +463,10 @@ export const OPTIONS = [
     meta: { mimo: '4x4' } },
   { id: 'K75', name: 'Higher-order MIMO', order: '1413.9576.02', step: 14, section: 'fading',
     group: 'Multichannel, MIMO and fading', retrofit: 'keycode',
-    requires: 'K74&((B13T&B10*2&B14*2)|(B13XT&WGEN*2&B15*2))',
-    reqText: 'R&S®SMW-K74 plus the hardware listed for K74', meta: { mimo: '8x8' } },
+    requires: 'K74&((B13T&B10*2&B14*4)|(B13XT&WGEN*2&B15*4))',
+    reqText: 'R&S®SMW-K74 and either R&S®SMW-B13T, two -B10 and four -B14, or R&S®SMW-B13XT, two -B9 and four -B15',
+    note: 'Guide v06.00 lists two or four fading simulators; the R&S online configurator requires four, and the specifications describe every higher-order set-up with four.',
+    meta: { mimo: '8x8' } },
   { id: 'K76', name: 'Multiple entities', order: '1413.9624.02', step: 14, section: 'fading',
     group: 'Multichannel, MIMO and fading', retrofit: 'keycode',
     requires: '(B13T&B10*2)|(B13XT&WGEN*2)',
@@ -473,16 +496,18 @@ export const OPTIONS = [
     requires: 'B1003|B1006', reqText: 'R&S®SMW-B1003 or R&S®SMW-B1006' },
   { id: 'B82', name: 'Rear panel connectors for RF path B (3/6 GHz)', order: '1413.5941.02',
     step: 15, section: 'other', group: 'Other options', retrofit: 'service',
-    requires: '(B2003|B2006)&B81', reqText: 'R&S®SMW-B2003 or -B2006, and R&S®SMW-B81' },
+    requires: '(B2003|B2006)&(B81|B83)', reqText: 'R&S®SMW-B2003 or -B2006, and R&S®SMW-B81 or -B83',
+    note: 'The R&S online configurator accepts R&S®SMW-B83 as the path A rear connector option; guide v06.00 names only -B81.' },
   { id: 'B83', name: 'Rear panel connectors for RF path A (20/31.8/40 GHz) and I/Q',
     order: '1414.0937.02', step: 15, section: 'other', group: 'Other options', retrofit: 'service',
-    requires: 'B1020|B1031|B1040', reqText: 'R&S®SMW-B1020/-B1031/-B1040' },
+    requires: 'B1020|B1031|B1040|B1040N', reqText: 'R&S®SMW-B1020/-B1031/-B1040/-B1040N' },
   { id: 'B84', name: 'Rear panel connectors for RF path B (20 GHz)', order: '1414.1033.02',
-    step: 15, section: 'other', group: 'Other options', retrofit: 'service', requires: 'B2020&B83',
-    reqText: 'R&S®SMW-B2020 and R&S®SMW-B83' },
+    step: 15, section: 'other', group: 'Other options', retrofit: 'service', requires: 'B2020&(B81|B83)',
+    reqText: 'R&S®SMW-B2020 and R&S®SMW-B81 or -B83',
+    note: 'The R&S online configurator accepts R&S®SMW-B81 as the path A rear connector option; guide v06.00 names only -B83.' },
   { id: 'B93', name: 'Solid-state drive', order: '1414.1885.02', step: 15, section: 'other',
     group: 'Other options', retrofit: 'service' },
-  { id: 'K980', name: 'Health and utilization monitoring service (HUMS)', order: 'not listed',
+  { id: 'K980', name: 'Health and utilization monitoring service (HUMS)', order: '1414.6893.02',
     step: 15, section: 'other', group: 'Other options', retrofit: 'keycode',
     note: 'Can be installed once.' },
 
@@ -497,15 +522,15 @@ export const OPTIONS = [
     ['K51',  'TD-SCDMA enhanced BS/MS tests',             '1413.4080.02', 'K50'],
     ['K55',  'LTE Release 8',                             '1413.4180.02', 'GEN'],
     ['K68',  'TETRA Release 2',                           '1413.4439.02', 'GEN'],
-    ['K69',  'LTE closed-loop BS test',                   '1413.4480.02', 'K55|K115', 'K55*2|K115*2'],
-    ['K81',  'Log file generation',                       '1413.4539.02', 'K55|K115|K144', 'K55*2|K115*2|K144*2'],
+    ['K69',  'LTE closed-loop BS test',                   '1413.4480.02', 'LTEIOT', 'LTEIOT*2'],
+    ['K81',  'Log file generation',                       '1413.4539.02', 'LTEIOTNR', 'LTEIOTNR*2'],
     ['K83',  '3GPP FDD HSPA/HSPA+, enhanced BS/MS tests', '1413.4580.02', 'K42'],
     ['K84',  'LTE Release 9',                             '1413.5435.02', 'K55'],
     ['K85',  'LTE Release 10 (LTE-Advanced)',             '1413.5487.02', 'K55'],
     ['K87',  '1xEV-DO Rev. B',                            '1413.6519.02', 'K47'],
     ['K112', 'LTE Release 11',                            '1413.8505.02', 'K55'],
     ['K113', 'LTE Release 12',                            '1414.1933.02', 'K55'],
-    ['K115', 'Cellular IoT',                              '1414.2723.02', 'GEN'],
+    ['K115', 'Cellular IoT Release 13',                   '1414.2723.02', 'GEN'],
     ['K118', 'Verizon 5GTF signals',                      '1414.3465.02', 'GEN'],
     ['K119', 'LTE Release 13/14/15',                      '1414.3542.02', 'K55'],
     ['K130', 'OneWeb user-defined signal generation',     '1414.3788.02', 'GEN', undefined,
@@ -513,11 +538,13 @@ export const OPTIONS = [
     ['K143', 'Cellular IoT Release 14',                   '1414.6064.02', 'GEN'],
     ['K144', '5G New Radio',                              '1414.4990.02', 'GEN'],
     ['K145', '5G NR closed-loop BS test',                 '1414.6506.02', 'K144'],
-    ['K146', 'Cellular IoT Release 15',                   '1414.6564.02', 'K143'],
+    ['K146', 'Cellular IoT Release 15/16/17',             '1414.6564.02', 'K115', undefined,
+             'The R&S online configurator requires only R&S®SMW-K115; guide v06.00 lists -K143 (which itself needs -K115).'],
     ['K148', '5G NR Release 16',                          '1414.6664.02', 'K144'],
     ['K170', '5G NR sidelink',                            '1413.8640.02', 'GEN'],
     ['K171', '5G NR Release 17',                          '1413.7280.02', 'K148'],
-    ['K175', 'U-plane generation',                        '1413.3261.02', 'K55|K144', 'K55*2|K144*2'],
+    ['K175', 'U-plane generation',                        '1413.3261.02', 'LTENR', 'LTENR*2'],
+    ['K184', 'Beyond 5G',                                 '1434.9169.02', 'K144', undefined, undefined, 'vendor'],
     ['K355', 'OneWeb reference signals',                  '1414.3742.02', 'GEN', undefined,
              'Only available to authorized OneWeb customers.']
   ]),
@@ -533,7 +560,11 @@ export const OPTIONS = [
     ['K147', 'IEEE 802.11be',                             '1413.6677.02', 'K54'],
     ['K149', 'HRP UWB',                                   '1414.6912.02', 'WGEN'],
     ['K177', 'IEEE 802.11ay',                             '1434.8191.02', 'K141'],
-    ['K178', 'Bluetooth® 5.4 and channel sounding',       '1434.8279.02', 'K117']
+    ['K178', 'Bluetooth® 5.4 and channel sounding',       '1434.8279.02', 'K117'],
+    ['K180', 'IEEE 802.15.4 OQPSK',                       '1434.8433.02', 'GEN', undefined, undefined, 'vendor'],
+    ['K181', 'HRP UWB MMS',                               '1434.9017.02', 'K149', undefined, undefined, 'vendor'],
+    ['K182', 'HRP UWB sensing',                           '1434.9052.02', 'K181', undefined, undefined, 'vendor'],
+    ['K185', 'IEEE 802.11bn',                             '1434.9223.02', 'K54', undefined, undefined, 'vendor']
   ]),
   ...expand(11, 'std-int', 'Navigation standards', [
     ['K44',  'GPS',                                       '1413.3832.02', 'GEN'],
@@ -543,30 +574,39 @@ export const OPTIONS = [
     ['K98',  'Modernized GPS',                            '1414.1533.02', 'GEN'],
     ['K106', 'SBAS/QZSS',                                 '1414.2923.02', 'K44'],
     ['K107', 'BeiDou',                                    '1414.1585.02', 'GEN'],
-    ['K108', 'Real-world scenarios',                      '1414.2975.02', 'GNSS', '-'],
-    ['K109', 'GNSS real-time interfaces (RT remote control)', '1414.3013.02', 'GNSS', '-'],
+    ['K108', 'Real-world scenarios',                      '1414.2975.02', 'WGEN&GNSS', '-',
+             'Guide v06.00 lists only the GNSS standards; the R&S online configurator also requires R&S®SMW-B9/-B9F.'],
+    ['K109', 'GNSS real-time interfaces (RT remote control)', '1414.3013.02', 'WGEN&GNSS', '-',
+             'Guide v06.00 lists only the GNSS standards; the R&S online configurator also requires R&S®SMW-B9/-B9F.'],
+    ['K111', 'GBAS',                                      '1414.3059.02', 'GEN', undefined, undefined, 'vendor'],
     ['K122', 'Virtual RTK reference station',             '1414.6993.02',
-             'K44|K66|K94|K98|K107|K123|K132', '-'],
-    ['K123', 'Modernized GLONASS',                        '1413.3310.02', 'GEN'],
-    ['K128', 'P(Y)-/M-/PRS-noise',                        '1413.3361.02', 'GEN'],
+             'WGEN&(K44|K66|K94|K98|K107|K123|K132)', '-',
+             'The R&S online configurator also requires R&S®SMW-B9/-B9F and additionally accepts -K97.'],
+    ['K123', 'Modernized GLONASS',                        '1413.3310.02', 'WGEN', undefined,
+             'Guide v06.00 says R&S®SMW-B9/-B10; the R&S online configurator requires R&S®SMW-B9/-B9F.'],
+    ['K128', 'P(Y)-/M-/PRS-noise',                        '1413.3361.02', 'WGEN', undefined,
+             'Guide v06.00 says R&S®SMW-B9/-B10; the R&S online configurator requires R&S®SMW-B9/-B9F.'],
     ['K129', 'Matched-spectrum GNSS interferer',          '1434.8410.02', 'WGEN&GNSSB', '-'],
     ['K132', 'Modernized BeiDou',                         '1414.6606.02', 'GEN'],
     ['K134', 'Upgrade to dual-frequency GNSS',            '1414.6770.02', 'WGEN&GNSSB', 'WGEN*2&GNSSB*2'],
     ['K135', 'Upgrade to triple-frequency GNSS',          '1414.6793.02', 'K134', 'K134*2'],
-    ['K136', 'Add 6 GNSS channels',                       '1414.6812.02', 'WGEN&GNSSB', '+4'],
-    ['K137', 'Add 12 GNSS channels',                      '1414.6835.02', 'WGEN&GNSSB', '+4'],
-    ['K138', 'Add 24 GNSS channels',                      '1414.6858.02', 'WGEN&GNSSB', '+4'],
-    ['K139', 'Add 48 GNSS channels',                      '1414.6935.02', 'WGEN&GNSSB', '+4'],
+    ['K136', 'Add 6 GNSS channels',                       '1414.6812.02', 'WGEN&GNSSB', '+98', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
+    ['K137', 'Add 12 GNSS channels',                      '1414.6835.02', 'WGEN&GNSSB', '+49', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
+    ['K138', 'Add 24 GNSS channels',                      '1414.6858.02', 'WGEN&GNSSB', '+24', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
+    ['K139', 'Add 48 GNSS channels',                      '1414.6935.02', 'WGEN&GNSSB', '+12', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
     ['K360', 'ERA-GLONASS test suite',                    '1414.2800.02', 'K44&K94', '-'],
     ['K361', 'eCall test suite',                          '1414.2846.02', 'K44&K66&K106', '-'],
     ['K362', 'GNSS test suite',                           '1414.6406.02',
-             'K44|K66|K94|K97|K98|K107|K132', '-']
+             'K44|K66|K94|K97|K98|K107|K132', '-'],
+    ['K363', 'Car navigation test suite',                 '1434.8179.02',
+             'K44&K66&K94&K107&K108', '-', undefined, 'vendor']
   ]),
   ...expand(11, 'std-int', 'Broadcast standards', [
     ['K52',  'DVB-H/DVB-T',                               '1413.6090.02', 'GEN'],
     ['K116', 'DVB-S2/S2X',                                '1414.2630.02', 'GEN'],
     ['K169', 'DVB-RCS2',                                  '1413.8711.02', 'GEN'],
-    ['K176', 'DVB-S2/DVB-S2X Annex E',                    '1413.8686.02', 'K116']
+    ['K176', 'DVB-S2/DVB-S2X Annex E',                    '1413.8686.02', 'K116'],
+    ['K183', 'DVB-S2/DVB-S2X Annex M',                    '1434.9100.02', 'K116', undefined, undefined, 'vendor']
   ]),
   ...expand(11, 'std-int', 'Other standards and modulation systems', [
     ['K61',  'Multicarrier CW signal generation',         '1413.4280.02', 'GEN'],
@@ -592,7 +632,7 @@ export const OPTIONS = [
     ['K287', '1xEV-DO Rev. B',                            '1413.6560.02', 'K247'],
     ['K412', 'LTE Release 11 and enhanced features',      '1413.8557.02', 'K255'],
     ['K413', 'LTE Release 12',                            '1414.2030.02', 'K255'],
-    ['K415', 'Cellular IoT',                              '1414.2769.02', 'GEN'],
+    ['K415', 'Cellular IoT Release 13',                   '1414.2769.02', 'GEN'],
     ['K418', 'Verizon 5GTF signals',                      '1414.3507.02', 'GEN'],
     ['K419', 'LTE Release 13/14/15',                      '1414.3588.02', 'K255'],
     ['K430', 'OneWeb user-defined signal generation',     '1414.3820.02', 'GEN'],
@@ -601,7 +641,8 @@ export const OPTIONS = [
     ['K446', 'Cellular IoT Release 15',                   '1414.6587.02', 'K415'],
     ['K448', '5G New Radio Release 16',                   '1414.6687.02', 'K444'],
     ['K470', '5G NR sidelink',                            '1413.8663.02', 'GEN'],
-    ['K471', '5G NR Release 17',                          '1413.7296.02', 'K448']
+    ['K471', '5G NR Release 17',                          '1413.7296.02', 'K448'],
+    ['K484', 'Beyond 5G',                                 '1434.9181.02', 'K444', undefined, undefined, 'vendor']
   ]),
   ...expand(12, 'std-wiq', 'Wireless connectivity standards', [
     ['K254', 'IEEE 802.11 (a/b/g/n/j/p)',                 '1413.5187.02', 'GEN'],
@@ -615,7 +656,11 @@ export const OPTIONS = [
     ['K447', 'IEEE 802.11be',                             '1413.6683.02', 'K254'],
     ['K449', 'HRP UWB',                                   '1414.6958.02', 'WGEN'],
     ['K477', 'IEEE 802.11ay',                             '1434.8210.02', 'K441'],
-    ['K478', 'Bluetooth® 5.4 and channel sounding',       '1434.8291.02', 'K417']
+    ['K478', 'Bluetooth® 5.4 and channel sounding',       '1434.8291.02', 'K417'],
+    ['K480', 'IEEE 802.15.4 OQPSK',                       '1434.8456.02', 'GEN', undefined, undefined, 'vendor'],
+    ['K481', 'HRP UWB MMS',                               '1434.9030.02', 'K449', undefined, undefined, 'vendor'],
+    ['K482', 'HRP UWB sensing',                           '1434.9075.02', 'K481', undefined, undefined, 'vendor'],
+    ['K485', 'IEEE 802.11bn',                             '1434.9246.02', 'K254', undefined, undefined, 'vendor']
   ]),
   ...expand(12, 'std-wiq', 'Navigation standards', [
     ['K244', 'GPS, 1 satellite',                          '1413.4880.02', 'GEN'],
@@ -632,7 +677,8 @@ export const OPTIONS = [
     ['K253', 'DAB/T-DMB',                                 '1413.6248.02', 'GEN'],
     ['K416', 'DVB-S2/S2X',                                '1414.2681.02', 'GEN'],
     ['K469', 'DVB-RCS2',                                  '1413.9130.02', 'GEN'],
-    ['K476', 'DVB-S2/DVB-S2X Annex E',                    '1413.9076.02', 'K416']
+    ['K476', 'DVB-S2/DVB-S2X Annex E',                    '1413.9076.02', 'K416'],
+    ['K483', 'DVB-S2/DVB-S2X Annex M',                    '1434.9123.02', 'K416', undefined, undefined, 'vendor']
   ]),
   ...expand(12, 'std-wiq', 'Other standards and modulation systems', [
     ['K261', 'Multicarrier CW signal generation',         '1413.5335.02', 'GEN'],
@@ -641,9 +687,9 @@ export const OPTIONS = [
     ['K414', 'OFDM signal generation',                    '3636.0434.02', 'GEN']
   ]),
   ...expand(12, 'std-wiq', 'Waveform packages for signals from R&S®WinIQSIM2', [
-    ['K200-1',  '1 waveform',   '1414.6870.71', 'GEN', '+20', 'Max. 250 registered waveforms per instrument.'],
-    ['K200-5',  '5 waveforms',  '1414.6870.72', 'GEN', '+20', 'Max. 250 registered waveforms per instrument.'],
-    ['K200-50', '50 waveforms', '1414.6870.75', 'GEN', '+5',  'Max. 250 registered waveforms per instrument.']
+    ['K200-1',  '1 waveform',   '1414.6870.71', 'GEN', '+250', 'Max. 250 registered waveforms per instrument.'],
+    ['K200-5',  '5 waveforms',  '1414.6870.72', 'GEN', '+50',  'Max. 250 registered waveforms per instrument.'],
+    ['K200-50', '50 waveforms', '1414.6870.75', 'GEN', '+5',   'Max. 250 registered waveforms per instrument.']
   ]),
 
   /* -- Step 13: R&S Pulse Sequencer software ------------------------ */
@@ -657,7 +703,7 @@ export const OPTIONS = [
              'WGEN*2&K502*2&K301*2'],
     ['K307', 'Multiple emitters extension (interleaved)', '1413.3510.02', 'K306'],
     ['K308', 'Direction finding',                   '1414.1433.02', 'K301'],
-    ['K309', 'Import of 2D maps',                   'not listed',   'K301'],
+    ['K309', 'Import of 2D maps',                   '1414.6706.02', 'K301'],
     ['K315', 'Pulse-on-pulse simulation',           '1414.6529.02',
              'WGEN*2&K502*2&B15*2&(K503*2|K301*2)', '-'],
     ['K350', 'DFS signal generation',               '1413.9160.02', 'GEN']
@@ -666,14 +712,15 @@ export const OPTIONS = [
 
 /**
  * Expands the compact standards tables above into full option records.
- * Row: [id, name, order, requires, maxSpec?, note?]
+ * Row: [id, name, order, requires, maxSpec?, note?, since?]
  *   maxSpec  undefined -> quantity 2 allowed when "<requires>*2" holds
  *            '-'       -> single unit only
  *            '+N'      -> up to N units, no extra condition
  *            other     -> expression that must hold for quantity 2
+ *   since    'specs' | 'vendor' when the option is newer than guide v06.00
  */
 function expand (step, section, group, rows) {
-  return rows.map(([id, name, order, requires, maxSpec, note]) => {
+  return rows.map(([id, name, order, requires, maxSpec, note, since]) => {
     let max = 1, maxReq = null;
     if (maxSpec === undefined) {
       if (/^[A-Z][A-Z0-9-]*$/.test(requires)) { max = 2; maxReq = requires + '*2'; }
@@ -684,45 +731,55 @@ function expand (step, section, group, rows) {
     } else {
       max = 2; maxReq = maxSpec;
     }
-    return {
+    const rec = {
       id, name, order, step, section, group, requires, max, maxReq,
       reqText: humanReq(requires), retrofit: 'keycode',
-      note: note || (max > 1 ? 'Can be installed twice if the required hardware is present twice.' : undefined)
+      note: note || (maxReq ? 'Can be installed twice if the required hardware is present twice.' : undefined)
     };
+    if (since) rec.since = since;
+    return rec;
   });
 }
 
 /** Turns a requirement expression into the wording used in the guide. */
 function humanReq (expr) {
+  /* declared here because expand() runs while OPTIONS is still being built,
+     before a module-level const would exist */
+  const REQ_WORDS = {
+    WGEN: 'SMW-B9', GEN: 'SMW-B9/-B10', GNSS: 'a GNSS standard', GNSSB: 'a GNSS standard',
+    BB: 'SMW-B13/-B13T/-B13XT', BB2: 'SMW-B13T/-B13XT',
+    RFA: 'a frequency option in RF path A', RFB: 'a frequency option in RF path B',
+    F6A: 'a frequency option of 6 GHz or higher in RF path A',
+    F6B: 'a frequency option of 6 GHz or higher in RF path B',
+    F20A: 'a frequency option of 20 GHz or higher in RF path A',
+    F20B: 'a frequency option of 20 GHz or higher in RF path B',
+    LTEIOT: 'SMW-K55/-K115', LTEIOTNR: 'SMW-K55/-K115/-K144', LTENR: 'SMW-K55/-K144'
+  };
   return expr
-    .replace(/WGEN/g, 'R&S®SMW-B9')
-    .replace(/GEN/g, 'R&S®SMW-B9/-B10')
-    .replace(/GNSSB|GNSS/g, 'a GNSS standard')
-    .replace(/\bBB2\b/g, 'R&S®SMW-B13T/-B13XT')
-    .replace(/\bBB\b/g, 'R&S®SMW-B13/-B13T/-B13XT')
-    .replace(/\b(B\d[\dA-Z]*|K\d+(?:-\d+)?)\b/g, 'R&S®SMW-$1')
+    .replace(/[A-Z][A-Z0-9-]*/g, t => REQ_WORDS[t] || (/^[BK]\d/.test(t) ? 'SMW-' + t : t))
     .replace(/\*2/g, ' (×2)')
     .replace(/&/g, ' and ')
-    .replace(/\|/g, ' or ');
+    .replace(/\|/g, ' or ')
+    .replace(/SMW-/g, 'R&S®SMW-');
 }
 
 /** Accessories and services from the ordering information. Advisory only. */
 export const EXTRAS = [
   { group: 'Recommended extras', items: [
-    { id: 'ZZA-KN4',  name: '19" rack adapter', order: '1175.3033.00' },
-    { id: 'SMU-Z6',   name: 'Cable for R&S® digital baseband interfaces, 2 m', order: '1415.0201.02',
-      hintIf: 'K18|K19' },
+    { id: 'ZZA-KN4B', name: '19" rack adapter', order: '1703.1346.00',
+      note: 'Successor of R&S®ZZA-KN4 (1175.3033.00) listed in guide v06.00; specifications v31.00 and the R&S online configurator carry the new number.' },
+    { id: 'BBCABLE-2M', name: 'Cable for R&S® digital baseband interfaces, 2 m', order: '3716.5425.00',
+      hintIf: 'K18|K19',
+      note: 'Guide v06.00 lists this cable as R&S®SMU-Z6 (1415.0201.02); specifications v31.00 and the R&S online configurator carry 3716.5425.00.' },
     { id: 'BBCABLE',  name: 'Cable for R&S® digital baseband interfaces, 0.5 m', order: '1208.3213.00',
       hintIf: 'K18|K19' },
     { id: 'DIGIQ-HS', name: 'Cable for HS digital I/Q interface (optical, QSFP+)', order: '3641.2948.03',
       hintIf: 'K19' },
-    { id: 'TS-USB1',  name: 'USB serial adapter for RS-232 remote control', order: '6124.2531.00' }
-  ]},
-  { group: 'Power combiner kits and cables (R&S®SMW-K555)', items: [
-    { id: 'SMW-ZKK',  name: 'Combiner kit, 40 GHz', order: '1434.7908.02', hintIf: 'K555' },
-    { id: 'SMW-ZKV',  name: 'Combiner kit, 67 GHz', order: '1434.7989.02', hintIf: 'K555' },
-    { id: 'ZV-Z195',  name: 'Cable, 2.92 mm (m) to 2.92 mm (m)', order: '1306.4536.36', hintIf: 'K555' },
-    { id: 'ZV-Z196',  name: 'Cable, 1.85 mm (m) to 1.85 mm (m)', order: '1306.4559.25', hintIf: 'K555' }
+    { id: 'TS-USB1',  name: 'USB serial adapter for RS-232 remote control', order: '6124.2531.00' },
+    { id: 'SSD-SPARE', name: 'Spare SSD for R&S®SMW200A', order: '1414.1910.02',
+      note: 'Listed by the R&S online configurator; not in guide v06.00.' },
+    { id: 'SMW-T0',   name: 'Trial license, 3 months', order: '1414.6970.23',
+      note: 'Pre-selected by the R&S online configurator. Covers K16, K17, K22, K23, K24, K44, K61, K62, K66, K94, K107, K300, K301, K302, K304, K306, K307, K309, K502, K540, K541, K542, K544, K548, K703, K704, K720, K739, K810 and K811.' }
   ]},
   { group: 'Test port adapters', items: [
     { id: 'ADP-292F', name: 'Test port adapter, 2.92 mm female', order: '1036.4790.00',
@@ -738,9 +795,18 @@ export const EXTRAS = [
     { id: 'ADP-185292', name: 'Coaxial adapter 1.85 mm (f) – 2.92 mm (f)', order: '3628.4728.02',
       hintIf: 'B1044|B2044|B1044N|B2044N|B1044O|B2044O' }
   ]},
+  { group: 'Power combiner kits and cables (R&S®SMW-K555)', items: [
+    { id: 'SMW-ZKK',  name: 'Combiner kit, 40 GHz', order: '1434.7908.02', hintIf: 'K555' },
+    { id: 'SMW-ZKV',  name: 'Combiner kit, 67 GHz', order: '1434.7989.02', hintIf: 'K555' },
+    { id: 'ZV-Z195',  name: 'Cable, 2.92 mm (m) to 2.92 mm (m)', order: '1306.4536.36', hintIf: 'K555' },
+    { id: 'ZV-Z196',  name: 'Cable, 1.85 mm (m) to 1.85 mm (m)', order: '1306.4559.25', hintIf: 'K555' }
+  ]},
   { group: 'Documentation and calibration', items: [
     { id: 'DCV-2', name: 'Documentation of calibration values', order: '0240.2193.18' },
-    { id: 'ACA-6',  name: 'Accredited calibration, up to 6 GHz', order: '3596.7005.03' },
+    { id: 'DCV-ZP', name: 'Paper printout of the calibration values', order: '1173.6506.02',
+      note: 'Listed by the R&S online configurator; not in guide v06.00.' },
+    { id: 'ACA-6',  name: 'Accredited calibration, up to 6 GHz', order: '3596.7005.03',
+      note: 'Guide v06.00 numbers. The R&S online configurator quotes accredited calibration by instrument, e.g. 3599.6468.03 (3/6 GHz, one path), 3599.6474.03 (2 × 3 GHz), 3599.6451.03 (2 × 44 GHz), 3599.6480.03 (67 GHz, one path).' },
     { id: 'ACA-75', name: 'Accredited calibration, 7.5 GHz', order: '3598.3507.03' },
     { id: 'ACA-44', name: 'Accredited calibration, 12.75 GHz to 44 GHz', order: '3596.7011.03' },
     { id: 'ACA-67', name: 'Accredited calibration, 56 GHz and 67 GHz', order: '3598.9540.03' }
@@ -751,7 +817,8 @@ export const EXTRAS = [
 /* Options that appear in the specifications document (version 31.00) but not
    yet in configuration guide version 06.00. Marked so their origin is clear. */
 OPTIONS.push(...expand(4, 'rf-enh', 'Other RF options', [
-  ['K554', 'External multiplier control', '1413.7309.02', 'RFA', 'RFB']
+  ['K554', 'External multiplier control', '1413.7309.02', 'F20A|F20B', 'F20A&F20B',
+   'One licence per RF path; each path needs a frequency option of 20 GHz or higher (R&S online configurator rule; guide v06.00 has no entry).']
 ]).map(o => ({ ...o, since: 'specs' })));
 
 OPTIONS.push(...expand(9, 'bb-hw', 'Wideband baseband', [

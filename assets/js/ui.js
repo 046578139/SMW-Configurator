@@ -77,6 +77,7 @@ export function optionCard (opt, sel, opts = {}) {
   }
   if (opt.floating) chips.push('<span class="chip float">floating license</span>');
   if (opt.since === 'specs') chips.push('<span class="chip new">newer than guide v06.00</span>');
+  if (opt.since === 'vendor') chips.push('<span class="chip new">from the R&amp;S online configurator, not in guide v06.00</span>');
   if (opt.max > 1 || opt.qtySteps) {
     chips.push(`<span class="chip">up to ${opt.qtySteps ? opt.qtySteps[opt.qtySteps.length - 1] : opt.max} ×</span>`);
   }

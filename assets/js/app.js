@@ -208,6 +208,8 @@ function renderSection (sec) {
 </section>`;
 }
 
+const byCode = (x, y) => x.id.localeCompare(y.id, undefined, { numeric: true });
+
 function renderGrouped (opts) {
   if (!opts.length) return '<div class="empty">Nothing to configure here yet.</div>';
   const groups = [];
@@ -216,6 +218,10 @@ function renderGrouped (opts) {
     if (last && last.name === o.group) last.items.push(o);
     else groups.push({ name: o.group, items: [o] });
   }
+  /* Options added after the guide (since: 'specs' / 'vendor') are appended to
+     the catalog; sorting by code keeps every group in the ordering-information
+     order the guide and the vendor both use. */
+  for (const g of groups) g.items.sort(byCode);
   return groups.map(g => `
     ${groups.length > 1 ? `<div class="group-head">${esc(g.name)}</div>` : ''}
     <div class="cards">${g.items.map(o => optionCard(o, state.sel)).join('')}</div>`).join('');
@@ -286,7 +292,7 @@ function renderBasebandHw () {
   }
   const wideband = mm === 'B13XT';
   const group = wideband ? 'Wideband baseband' : 'Standard baseband';
-  const opts = OPTIONS.filter(o => o.section === 'bb-hw' && o.group === group);
+  const opts = OPTIONS.filter(o => o.section === 'bb-hw' && o.group === group).sort(byCode);
   const other = OPTIONS.filter(o => o.section === 'bb-hw' && o.group !== group && state.sel[o.id]);
   return `
     <div class="issue info">
@@ -311,6 +317,7 @@ function renderExtras () {
           <div class="card-top"><span class="opt-id">${esc(it.id)}</span>
             ${suggested ? '<span class="chip met">suggested for this configuration</span>' : ''}</div>
           <p class="opt-name">${esc(it.name)}</p>
+          ${it.note ? `<p class="opt-note">${esc(it.note)}</p>` : ''}
           <div class="opt-meta"><span class="opt-order">${esc(it.order)}</span></div>
         </div>
       </div>`;

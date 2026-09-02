@@ -30,13 +30,42 @@ clicked under four configurations and the chains reconstructed across them:
 - `X` with "Requires SMW-K511!" – blocked; K511 is the first thing missing.
 - `X` with "SMW-K16 in 1st Path is required!" – the path B licence can only be
   ordered once the path A licence is; the vendor enforces that ordering for
-  every per-path option.
+  the per-path options of the Baseband and Digital Standards tabs. The RF-tab
+  options (K22, K23, K24, K553, K554, K720) are separate rows per path with
+  their own prerequisites and no ordering rule. Our quantity model ("2 ×" is
+  the path B licence, allowed once the second unit's condition holds) is
+  equivalent, so nothing changed for it.
 - `blank` with "... is fundamentally allowed" – nothing blocks it.
 - `TICK` – selected in that baseline.
 - A `FAIL locator.click` entry is a capture artefact (a hidden placeholder
   cell), not a rule.
 - "oder" / "und" / "Pfad" are German for or / and / path; a few messages mix
   languages.
+
+## What the comparison changed, and what it did not
+
+Adopted from the vendor (each option's note says so): K553 and K554 are one
+licence per RF path with the path's own frequency floor (6 GHz, 20 GHz); B83
+accepts B1040N; B82 and B84 accept either path A rear-connector option; K546
+needs B90; K544 needs a baseband generator; K75 needs four fading simulators;
+B15 comes once with one B9 and never once with two; K108, K109, K122, K123 and
+K128 need the wideband generator; K146 runs on K115; the K69/K81/K175 second
+unit counts K55 and K115 together; the GNSS channel packs and waveform
+packages are capped by the instrument ceilings (612 channels, 250 waveforms)
+rather than by an arbitrary per-pack number; K980 and K309 got their order
+numbers; fourteen newer options were added.
+
+Kept against the vendor, with the guide as the primary source: K548 twice with
+two generators (vendor: once); K134's base-standard list (vendor: shorter);
+K122 without K97 (vendor: accepts it); K17 once (vendor agrees, the second
+column is a placeholder); B93 as an option (vendor: a spare-SSD accessory);
+K477 and K253 (not offered online). K441's vendor rule points at a
+non-existent "K257", a transposition of K527.
+
+Not modelled: the vendor's portable and timed (1/3/6/12 month) licence
+variants, the pre-selected 3-month trial licence T0 (listed as an accessory),
+the service and training tabs, and the path-A-first ordering of path B
+licences.
 
 ## Presentation
 

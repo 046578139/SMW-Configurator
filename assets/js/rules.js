@@ -424,13 +424,30 @@ export function validate (sel) {
       section: 'std-wiq' });
   }
 
+  /* --- GNSS channel ceiling -------------------------------------- */
+  const gnssExtra = (sel.K136 || 0) * 6 + (sel.K137 || 0) * 12 + (sel.K138 || 0) * 24 + (sel.K139 || 0) * 48;
+  if (gnssExtra > 588) {
+    add(errors, { id: 'gnss-channels-max', title: 'Too many GNSS channels',
+      detail: `R&S®SMW-B9/-B9F comes with 24 GNSS channels and the extensions may add 588 more (612 in total); this configuration adds ${gnssExtra}.`,
+      section: 'std-int' });
+  }
+
+  /* --- two wideband generators take 0, 2 or 4 fading simulators --- */
+  const wgen = (sel.B9 || 0) + (sel.B9F || 0);
+  if (wgen >= 2 && sel.B15 === 1) {
+    add(errors, { id: 'b15-odd', title: 'R&S®SMW-B15 quantity not available',
+      detail: 'With two R&S®SMW-B9/-B9F, R&S®SMW-B15 can only be installed 0, 2 or 4 times.',
+      section: 'fading', option: 'B15', setQty: ['B15', 2] });
+  }
+
   /* --- advisory checks ------------------------------------------- */
   if (mm && !['B9', 'B9F', 'B10'].some(id => sel[id])) {
     add(warnings, { id: 'no-generator', title: 'No baseband generator',
       detail: 'Without R&S®SMW-B10 or -B9 the instrument produces CW and analog modulation only – no digital standards, ARB playback or fading.',
       section: 'bb-hw', fix: [mm === 'B13XT' ? 'B9' : 'B10'] });
   }
-  if (sel.K555 && !sel['SMW-ZKK'] && !sel['SMW-ZKV']) {
+  /* accessories are not selectable, so the combiner kit is always worth naming */
+  if (sel.K555) {
     add(info, { id: 'k555-combiner', title: 'R&S®SMW-K555 needs an external power combiner',
       detail: 'Add the R&S®SMW-ZKK (40 GHz) or R&S®SMW-ZKV (67 GHz) combiner kit, plus an analyzer or power meter.',
       section: 'extras' });

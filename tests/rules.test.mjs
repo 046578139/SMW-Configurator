@@ -161,9 +161,13 @@ test('the fading simulator only comes in 1, 2 or 4 units', () => {
   assert.ok(ok({ ...base, B14: 4 }));
 });
 
-test('R&S SMW-B15 needs two generators before four units are possible', () => {
-  assert.deepEqual(qtyChoices(BY_ID.B15, { B1003: 1, B13XT: 1, B9: 1 }), [2]);
-  assert.deepEqual(qtyChoices(BY_ID.B15, { B1003: 1, B13XT: 1, B9: 2 }), [2, 4]);
+test('R&S SMW-B15 comes once with one generator; two or four need two (guide step 14, vendor)', () => {
+  assert.deepEqual(qtyChoices(BY_ID.B15, { B1003: 1, B13XT: 1, B9: 1 }), [1]);
+  assert.deepEqual(qtyChoices(BY_ID.B15, { B1003: 1, B13XT: 1, B9: 2 }), [1, 2, 4]);
+  // with two generators a single unit is offered by the stepper but refused by
+  // the validator, which points at the next permitted quantity
+  const odd = validate({ B1003: 1, B13XT: 1, B9: 2, B15: 1 }).errors.find(e => e.id === 'b15-odd');
+  assert.deepEqual(odd?.setQty, ['B15', 2]);
 });
 
 test('WinIQSIM2 waveform packages stop at 250 registered waveforms', () => {

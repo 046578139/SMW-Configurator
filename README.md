@@ -11,7 +11,7 @@ dependencies. Open `index.html` and it runs.
 
 ## What it does
 
-**Checks the rules, rather than just collecting clicks.** All 239 options carry
+**Checks the rules, rather than just collecting clicks.** All 253 options carry
 their prerequisites, conflicts and quantity limits from the configuration guide.
 Selecting R&S®SMW-K512 without R&S®SMW-K511 is not silently accepted — the
 Checks panel names what is missing and offers to add it. *Fix issues* follows
@@ -142,6 +142,21 @@ Everything is transcribed from Rohde & Schwarz product documentation, kept in
 | `SMWZKK_ZKV_datsw_en_3683823822_v0200.pdf` | combiner kits for R&S®SMW-K555 |
 | `WIC5GMobiledevicetestingmisc3609763192.pdf` | 5G device test context |
 | `docs/photos/*.jpg` | Rohde & Schwarz product photographs; `assets/img/` holds the resized copies the page uses |
+| `../vendor/` | the R&S online configurator, captured 2026-09-02: every option it lists, its rule message for every option under four baseline configurations, and the RF path matrix |
+
+The vendor's own configurator is the second source. It was compared with the
+catalog option by option (`docs/vendor/rules-summary.txt` is the readable
+form): the RF path matrix, the O-variant rules, the deeper chassis and the
+phase-noise pairing all matched. Where the vendor's rule engine was stricter
+than guide v06.00 and the specifications or the vendor's newer knowledge
+agreed – K554 needs 20 GHz, K546 needs phase coherence, K75 needs four fading
+simulators, K108/K109/K122/K123/K128 need the wideband generator – the
+catalog follows the vendor and says so in the option's note. Where the guide
+is explicit and the vendor merely lays things out differently (K548 once per
+instrument, path B licences ordered after path A, timed and portable
+licences), the guide stands and `docs/vendor/README.md` records the
+difference. Fourteen options the vendor lists but the guide does not (K180 to
+K185, K480 to K485, K111, K363) carry a chip saying where they come from.
 
 The configuration guide is version 06.00 (May 2024). Five options appear only in
 the specifications document (version 31.00) — R&S®SMW-K508, ‑K554, ‑K556, ‑K573
