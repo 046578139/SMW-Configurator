@@ -177,23 +177,42 @@ test('group titles never overflow their box', () => {
 
 /* ------------------------------------------------------------------ ruler */
 
-test('the frequency scale starts at the instrument minimum', () => {
+test('the scale expands where the options differ, without hiding the rest', () => {
   const svg = renderRuler(derive({ B13: 1, B10: 1, B1003: 1 }));
-  const [, vbW] = svg.match(/viewBox="0 0 ([\d.]+) [\d.]+"/).map(Number);
-  // the coverage bar begins at the axis origin, not inset from it
+
+  // the coverage bar still begins at the very left, because the option does
+  // cover everything below the expanded range
   const bar = svg.match(/<rect x="([\d.]+)" y="[\d.]+" width="([\d.]+)" height="9"/);
   assert.ok(bar, 'a coverage bar is drawn');
-  const axis = svg.match(/<line x1="([\d.]+)" y1="[\d.]+" x2="([\d.]+)"[^>]*stroke="var\(--line\)"/);
-  assert.equal(Number(bar[1]), Number(axis[1]), 'the bar starts where the axis starts');
-  assert.match(svg, /Every option starts at 100 kHz/);
+  assert.equal(Number(bar[1]), 4, 'the bar starts at the left edge');
+
+  // and the compressed segment is labelled rather than dropped
+  assert.match(svg, /100 k</);
+  assert.match(svg, /LF–UHF/);
+  assert.match(svg, /Every option covers 100 kHz upward/);
 });
 
-test('the scale names the radio bands across the whole range', () => {
-  const svg = renderRuler(derive({ B13: 1, B10: 1, B1067: 1 }));
-  for (const band of ['LF', 'MF', 'HF', 'VHF', 'UHF', 'L', 'S', 'C', 'X', 'Ku', 'K', 'Ka', 'V']) {
-    assert.match(svg, new RegExp(`>${band} band<`), `${band} band is missing`);
+test('adjacent frequency options are far enough apart to tell apart', () => {
+  // the old scale ran from 100 kHz, which put 3 GHz at 77% of the width and
+  // left the closest pair of options 0.7% apart
+  const endOf = id => {
+    const svg = renderRuler(derive({ B13: 1, B10: 1, [id]: 1 }));
+    const m = svg.match(/<rect x="[\d.]+" y="[\d.]+" width="([\d.]+)" height="9"/);
+    return Number(m[1]);
+  };
+  const ladder = ['B1003', 'B1006', 'B1007', 'B1012', 'B1020', 'B1031', 'B1040', 'B1044', 'B1056', 'B1067'];
+  const widths = ladder.map(endOf);
+
+  for (let i = 1; i < widths.length; i++) {
+    assert.ok(widths[i] > widths[i - 1], `${ladder[i]} should reach past ${ladder[i - 1]}`);
   }
-  for (const m of ['FR1', 'FR2 mmWave']) assert.match(svg, new RegExp(m));
+  // the tightest pair, 40 and 44 GHz, must still be visibly different
+  const total = 352 - 4;
+  const gaps = widths.slice(1).map((w, i) => (w - widths[i]) / total * 100);
+  assert.ok(Math.min(...gaps) > 1.5,
+    `closest options only ${Math.min(...gaps).toFixed(1)}% apart`);
+  // and the lowest option should not be crammed against the right hand end
+  assert.ok(widths[0] / total < 0.45, '3 GHz should sit well inside the scale');
 });
 
 test('the bar length follows the frequency option', () => {

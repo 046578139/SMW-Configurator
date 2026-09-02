@@ -35,6 +35,16 @@ absent, or moved to the other face, the rear bays fill as baseband modules are
 added, and it says so plainly when a configuration needs more modules than the
 photographed instrument carries.
 
+**The frequency scale shows what your choice changed.** Every frequency option
+covers 100 kHz upward and they differ only in the upper limit, so a scale
+starting at 100 kHz spends most of its width on a range identical for every
+configuration. This one runs 1 GHz to 67 GHz, where 3 GHz sits at 26% of the
+width instead of 77% and the closest pair of options is 2.3% apart instead of
+0.7%. The shared coverage below 1 GHz is compressed behind an axis break rather
+than dropped, and each bar runs through it. Bands are named across the whole
+range: the IEEE radar letters L, S, C, X, Ku, K, Ka and V, with 5G FR1 and FR2
+beneath.
+
 The schematic is the view that matches *any* configuration exactly. The
 connectors drawn are the ones the specifications say that configuration arrives
 with:

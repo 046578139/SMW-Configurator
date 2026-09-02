@@ -281,93 +281,106 @@ function block (x, y, w, h, it) {
  * Logarithmic frequency ruler
  * ======================================================================== */
 
-const F_MIN = 1e-4;   // 100 kHz in GHz - the lower limit of every frequency option
-const F_MAX = 67;     // the highest option, R&S(R)SMW-B1067
-
-const posOf = f => (Math.log10(Math.max(f, F_MIN)) - Math.log10(F_MIN)) /
-                   (Math.log10(F_MAX) - Math.log10(F_MIN));
-
-/**
- * Radio bands across the instrument's range, in GHz.
+/*
+ * The frequency scale.
  *
- * Below 1 GHz these are the ITU designations; from 1 GHz up they are the IEEE
- * radar letters, which is how this equipment is usually talked about. The
- * ranges are contiguous so the strip reads as one scale.
+ * Every frequency option covers 100 kHz upward and they differ only in the
+ * upper limit, so a scale running from 100 kHz spends about 85% of its width
+ * on a range identical for every configuration and crushes the part that
+ * varies into the end: 3 GHz landed at 77% and the closest pair of options,
+ * 40 and 44 GHz, ended up 0.7% apart.
+ *
+ * The axis therefore runs 1 GHz to 67 GHz, where 3 GHz sits at 26% and that
+ * closest pair is 2.3% apart. The shared coverage below 1 GHz is not dropped -
+ * that would misrepresent the instrument - but compressed into a marked
+ * segment at the left, behind an axis break, which each bar runs through.
  */
+
+const F_LO = 1;       // where the expanded part of the axis begins, in GHz
+const F_MAX = 67;     // the highest option, R&S(R)SMW-B1067
+const F_FLOOR = 1e-4; // 100 kHz: the lower limit of every frequency option
+
+/** Radio bands within the expanded range: the IEEE radar letters. */
 const BANDS = [
-  [1e-4, 3e-4, 'LF'], [3e-4, 3e-3, 'MF'], [3e-3, 0.03, 'HF'],
-  [0.03, 0.3, 'VHF'], [0.3, 1, 'UHF'],
   [1, 2, 'L'], [2, 4, 'S'], [4, 8, 'C'], [8, 12, 'X'],
   [12, 18, 'Ku'], [18, 27, 'K'], [27, 40, 'Ka'], [40, F_MAX, 'V']
 ];
 
-/** The mobile bands the configurator is most often used against. */
 const MOBILE = [
-  [0.41, 7.125, 'FR1'],
-  [24.25, 52.6, 'FR2', 'FR2 mmWave']
+  [F_LO, 7.125, 'FR1', '5G NR FR1, 410 MHz to 7.125 GHz'],
+  [24.25, 52.6, 'FR2', '5G NR FR2 mmWave']
 ];
+
+const TICKS = [1, 2, 3, 6, 10, 20, 40, 67];
 
 export function renderRuler (d) {
   const W = 356, H = 92;
-  const x0 = 4, x1 = W - 4, span = x1 - x0;
+  const x0 = 4, x1 = W - 4;
+  const TAIL = 32;                 // the compressed segment below 1 GHz
+  const GAP = 9;                   // where the axis break sits
+  const xA = x0 + TAIL + GAP;      // start of the expanded axis
+  const span = x1 - xA;
+
   const bandY = 6, bandH = 13;
   const mobY = 21, mobH = 10;
   const barY = 38;
   const axisY = 66;
 
-  const ticks = [
-    [1e-4, '100 k'], [1e-3, '1 M'], [1e-2, '10 M'], [0.1, '100 M'],
-    [1, '1 G'], [6, '6 G'], [20, '20 G'], [67, '67 G']
-  ];
-
-  const seg = (lo, hi) => {
-    const a = x0 + posOf(lo) * span;
-    return { x: a, w: (x0 + posOf(hi) * span) - a };
-  };
+  const at = f => xA + ((Math.log10(Math.min(Math.max(f, F_LO), F_MAX)) - Math.log10(F_LO)) /
+    (Math.log10(F_MAX) - Math.log10(F_LO))) * span;
 
   const bands = BANDS.map(([lo, hi, name], i) => {
-    const { x, w } = seg(lo, hi);
-    // a letter needs room; where there is none the band still shows as a slot
-    const fits = w > name.length * 3.8 + 1.5;
+    const x = at(lo), w = at(hi) - x;
     return `<g><title>${esc(name)} band</title>
       <rect x="${x.toFixed(1)}" y="${bandY}" width="${w.toFixed(1)}" height="${bandH}"
         fill="var(--text-faint)" fill-opacity="${i % 2 ? '.10' : '.05'}"/>
       <line x1="${x.toFixed(1)}" y1="${bandY}" x2="${x.toFixed(1)}" y2="${bandY + bandH}"
         stroke="var(--line)" stroke-opacity=".5"/>
-      ${fits ? `<text x="${(x + w / 2).toFixed(1)}" y="${bandY + 9}" font-size="6.6"
-        fill="var(--text-dim)" text-anchor="middle" letter-spacing=".04em"
-        font-family="ui-monospace,monospace">${esc(name)}</text>` : ''}
-    </g>`;
+      <text x="${(x + w / 2).toFixed(1)}" y="${bandY + 9}" font-size="6.8" fill="var(--text-dim)"
+        text-anchor="middle" letter-spacing=".04em"
+        font-family="ui-monospace,monospace">${esc(name)}</text></g>`;
   }).join('');
 
-  const mobile = MOBILE.map(([lo, hi, name, longName]) => {
-    const { x, w } = seg(lo, hi);
-    return `<g><title>5G NR ${esc(longName || name)}</title>
+  const mobile = MOBILE.map(([lo, hi, name, full]) => {
+    const x = at(lo), w = at(hi) - x;
+    return `<g><title>${esc(full)}</title>
       <rect x="${x.toFixed(1)}" y="${mobY}" width="${w.toFixed(1)}" height="${mobH}" rx="2"
         fill="var(--accent-2)" fill-opacity=".14" stroke="var(--accent-2)" stroke-opacity=".35"/>
-      ${w > name.length * 3.9 + 3 ? `<text x="${(x + w / 2).toFixed(1)}" y="${mobY + 7.4}"
-        font-size="6.4" fill="var(--accent-2)" text-anchor="middle"
-        font-family="ui-monospace,monospace">${esc(name)}</text>` : ''}
-    </g>`;
+      <text x="${(x + w / 2).toFixed(1)}" y="${mobY + 7.4}" font-size="6.4" fill="var(--accent-2)"
+        text-anchor="middle" font-family="ui-monospace,monospace">${esc(name)}</text></g>`;
   }).join('');
 
   const bar = (f, y, colour, label) => {
     if (!f) return '';
-    const w = posOf(f) * span;
-    const inside = w > span - 46;
-    const tx = inside ? x0 + w - 6 : x0 + w + 6;
+    const end = at(f);
+    // the bar begins in the compressed segment, because the option covers it
     return `
-      <rect x="${x0}" y="${y}" width="${w.toFixed(1)}" height="9" rx="4.5"
+      <rect x="${x0}" y="${y}" width="${(end - x0).toFixed(1)}" height="9" rx="4.5"
         fill="${colour}" fill-opacity=".22" stroke="${colour}" stroke-width="1"/>
-      <rect x="${x0}" y="${y}" width="${w.toFixed(1)}" height="9" rx="4.5" fill="${colour}" fill-opacity=".35"/>
-      <text x="${tx.toFixed(1)}" y="${y + 7.4}" font-size="8" fill="${inside ? 'var(--bg)' : colour}"
-        font-weight="${inside ? 700 : 400}" text-anchor="${inside ? 'end' : 'start'}"
+      <rect x="${x0}" y="${y}" width="${(end - x0).toFixed(1)}" height="9" rx="4.5"
+        fill="${colour}" fill-opacity=".35"/>
+      <text x="${(end + 6).toFixed(1)}" y="${y + 7.4}" font-size="8" fill="${colour}"
         font-family="ui-monospace,monospace">${esc(label)}</text>`;
   };
+
+  /* The break: a band of page colour with two slashes, drawn over everything so
+     a bar visibly passes through a discontinuity rather than a plain gap. */
+  const bx = x0 + TAIL;
+  const brk = `
+    <rect x="${bx}" y="${bandY - 1}" width="${GAP}" height="${axisY - bandY + 2}"
+      fill="var(--surface)"/>
+    <path d="M${bx + 2} ${axisY + 3}l4 -${axisY - bandY + 4}M${bx + 5.5} ${axisY + 3}l4 -${axisY - bandY + 4}"
+      stroke="var(--line)" stroke-width="1"/>`;
 
   return `
 <svg viewBox="0 0 ${W} ${H}" role="img"
   aria-label="Frequency coverage against the radio bands">
+  <!-- everything below 1 GHz, which every option covers, compressed -->
+  <rect x="${x0}" y="${bandY}" width="${TAIL}" height="${bandH}"
+    fill="var(--text-faint)" fill-opacity=".05"/>
+  <text x="${x0 + TAIL / 2}" y="${bandY + 9}" font-size="6" fill="var(--text-faint)"
+    text-anchor="middle" font-family="ui-monospace,monospace">LF–UHF</text>
+
   ${bands}
   ${mobile}
 
@@ -376,16 +389,24 @@ export function renderRuler (d) {
   ${d.freqA ? '' : `<text x="${x0 + 4}" y="${barY + 7.4}" font-size="7.5" fill="var(--text-faint)"
     font-family="ui-monospace,monospace">no frequency option chosen</text>`}
 
-  <line x1="${x0}" y1="${axisY}" x2="${x1}" y2="${axisY}" stroke="var(--line)"/>
-  ${ticks.map(([f, label], i) => {
-    const tx = x0 + posOf(f) * span;
-    const anchor = i === 0 ? 'start' : i === ticks.length - 1 ? 'end' : 'middle';
+  ${brk}
+
+  <line x1="${x0}" y1="${axisY}" x2="${bx}" y2="${axisY}" stroke="var(--line)"/>
+  <line x1="${xA}" y1="${axisY}" x2="${x1}" y2="${axisY}" stroke="var(--line)"/>
+  <line x1="${x0}" y1="${axisY}" x2="${x0}" y2="${axisY + 4}" stroke="var(--line)"/>
+  <text x="${x0}" y="${axisY + 14}" font-size="7.5" fill="var(--text-faint)"
+    font-family="ui-monospace,monospace">100 k</text>
+
+  ${TICKS.map(f => {
+    const tx = at(f);
     return `<line x1="${tx.toFixed(1)}" y1="${axisY}" x2="${tx.toFixed(1)}" y2="${axisY + 4}" stroke="var(--line)"/>
       <text x="${tx.toFixed(1)}" y="${axisY + 14}" font-size="7.5" fill="var(--text-faint)"
-        text-anchor="${anchor}" font-family="ui-monospace,monospace">${label}</text>`;
+        text-anchor="${f === F_MAX ? 'end' : 'middle'}"
+        font-family="ui-monospace,monospace">${f} G</text>`;
   }).join('')}
+
   <text x="${x0}" y="${H - 2}" font-size="7" fill="var(--text-faint)"
-    >Every option starts at 100 kHz; the bar shows its upper limit.</text>
+    >Every option covers 100 kHz upward; the scale expands where they differ.</text>
   <text x="${x1}" y="${H - 2}" font-size="7" fill="var(--text-faint)" text-anchor="end">Hz, logarithmic</text>
 </svg>`;
 }
