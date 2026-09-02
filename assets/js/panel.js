@@ -405,39 +405,161 @@ export function renderFront (d, sel) {
 </svg>`;
 }
 
-export function renderRear (d, W = 812) {
+/**
+ * The rear panel, arranged as the instrument arranges it: a fixed input/output
+ * column down the left, the system row and mains inlet across the top, and the
+ * plug-in module bays stacked below.
+ *
+ * That arrangement is also how the rear grows with the configuration - one bay
+ * per installed baseband generator or fading simulator - so the drawing extends
+ * downward as modules are added rather than reflowing. The RF cut-outs in the
+ * left column open up when B81 to B84 move an output to this face.
+ */
+export function renderRear (d) {
   const p = d.panel;
+  const W = 1000;
 
-  const groups = REAR_PANEL
+  const item = (label, kind, type) => ({ label, kind, type });
+  const byLabel = {};
+  for (const g of REAR_PANEL) for (const i of g.items) byLabel[i.label] = i;
+  const pick = label => byLabel[label] || item(label, 'bnc', 'BNC female');
+
+  /* --- left column: reference, trigger, user, LO, GPIB ------------------- */
+  const COL_X = 46, SUB = 70, ROW = 34;
+  const pairs = [
+    ['REF IN', 'REF OUT'], ['INST TRG A', 'INST TRG B'],
+    ['USER 4', 'USER 5'], ['EFC', 'USER 6'], ['LO IN', 'LO OUT']
+  ];
+  const leftCol = pairs.map(([a, b], r) => {
+    const y = 42 + r * ROW;
+    return connector(COL_X, y, SUB, pick(a), tint(pick(a)))
+      + connector(COL_X + SUB, y, SUB, pick(b), tint(pick(b)));
+  }).join('');
+
+  // the RF cut-outs, blanked until an option puts an output on this face
+  const cutout = (cx, cy, on, label, colour) => on
+    ? `<circle cx="${cx}" cy="${cy}" r="15" fill="#0d1520" stroke="${colour}" stroke-width="2"/>
+       <circle cx="${cx}" cy="${cy}" r="7.5" fill="#060b12" stroke="${colour}" stroke-opacity=".6" stroke-width=".8"/>
+       <circle cx="${cx}" cy="${cy}" r="2.4" fill="${colour}"/>
+       <text x="${cx}" y="${cy + 26}" font-size="7" fill="${colour}" text-anchor="middle"
+         font-family="ui-monospace,monospace">${esc(label)}</text>`
+    : `<circle cx="${cx}" cy="${cy}" r="15" fill="#151d29" stroke="#33415a" stroke-width="1.2"/>
+       <text x="${cx}" y="${cy + 26}" font-size="7" fill="#3f4b5e" text-anchor="middle"
+         font-family="ui-monospace,monospace">${esc(label)}</text>`;
+
+  const rfCutouts = `
+    ${cutout(COL_X + 35, 232, p.rearRfA, 'RF A', 'var(--accent)')}
+    ${cutout(COL_X + 105, 232, p.rearRfB, 'RF B', 'var(--accent-2)')}`;
+
+  const gpib = `
+    <path d="M${COL_X + 12} 300h116l-6 20h-104z" fill="#123a6b" stroke="#2f6bb5" stroke-width="1.2"
+      stroke-linejoin="round"/>
+    ${Array.from({ length: 12 }, (_, i) =>
+      `<circle cx="${COL_X + 22 + i * 9}" cy="308" r="1.5" fill="#5b90d0"/>`).join('')}
+    <text x="${COL_X + 70}" y="336" font-size="7" fill="#7fa8dc" text-anchor="middle"
+      font-family="ui-monospace,monospace">IEEE 488</text>`;
+
+  /* --- top: system drive, host ports, mains ------------------------------ */
+  const SYS_X = 202;
+  const hostPorts = ['DISPLAY PORT', 'HDMI', 'LAN', 'USB', 'USB DEVICE']
+    .map((l, i) => connector(SYS_X + 8 + i * 78, 74, 78, pick(l), tint(pick(l)))).join('');
+
+  const systemRow = `
+    <rect x="${SYS_X}" y="36" width="404" height="26" rx="3" fill="#1b2534" stroke="#3a4a63"/>
+    <circle cx="${SYS_X + 16}" cy="49" r="6" fill="#0f1620" stroke="#4a5b76"/>
+    <circle cx="${SYS_X + 388}" cy="49" r="6" fill="#0f1620" stroke="#4a5b76"/>
+    <text x="${SYS_X + 202}" y="52" font-size="7.5" fill="#8895a8" text-anchor="middle"
+      letter-spacing=".1em" font-family="ui-monospace,monospace">SYSTEM DRIVE</text>
+    ${hostPorts}`;
+
+  const MAINS_X = 640;
+  const mains = `
+    <rect x="${MAINS_X}" y="36" width="312" height="82" rx="3" fill="#141c28" stroke="#33415a"/>
+    <text x="${MAINS_X + 16}" y="56" font-size="6.4" fill="#7d8da3"
+      font-family="ui-monospace,monospace">AC 100…240 V / 50…60 Hz</text>
+    <text x="${MAINS_X + 16}" y="68" font-size="6.4" fill="#7d8da3"
+      font-family="ui-monospace,monospace">AC 100…120 V / 400 Hz</text>
+    <text x="${MAINS_X + 16}" y="80" font-size="6.4" fill="#7d8da3"
+      font-family="ui-monospace,monospace">max. ${
+        // the specifications give the higher rated current for B13XT or B94L
+        d.chassis === 'deep' || p.hsDigital ? '8.9…4.9' : '7.3…4.6'} A</text>
+    <rect x="${MAINS_X + 210}" y="52" width="22" height="34" rx="2" fill="#0f1620" stroke="#4a5b76"/>
+    <rect x="${MAINS_X + 213}" y="55" width="16" height="14" rx="1" fill="#2a3442"/>
+    <path d="M${MAINS_X + 250} 56h44v30h-44z" fill="#0f1620" stroke="#4a5b76" stroke-width="1.2"/>
+    ${[0, 1, 2].map(i => `<rect x="${MAINS_X + 258 + i * 12}" y="64" width="5" height="9" rx="1" fill="#4a5b76"/>`).join('')}
+    <text x="${MAINS_X + 272}" y="100" font-size="6.4" fill="#5d6e88" text-anchor="middle"
+      font-family="ui-monospace,monospace">MAINS</text>`;
+
+  /* --- module bays -------------------------------------------------------- */
+  const BAY_X = 202, BAY_W = 750, BAY_H = 56, BAY_GAP = 6, BAY_TOP = 128;
+
+  const bays = p.modules.map((kind, i) => {
+    const y = BAY_TOP + i * (BAY_H + BAY_GAP);
+    const items = MODULE_PANELS[kind].items;
+    const slot = (BAY_W - 16) / items.length;
+    const ports = items.map((it, n) =>
+      connector(BAY_X + 8 + n * slot, y + 12, slot, it, tint(it)));
+    return `
+      <rect x="${BAY_X}" y="${y}" width="${BAY_W}" height="${BAY_H}" rx="3"
+        fill="#131c29" stroke="#2b3a51"/>
+      <text x="${BAY_X + 6}" y="${y + 9}" font-size="5.8" fill="#4a5a72"
+        letter-spacing=".08em" font-family="ui-monospace,monospace"
+        >${esc(`${MODULE_PANELS[kind].label.toUpperCase()} ${i + 1}`)}</text>
+      ${ports.join('')}`;
+  }).join('');
+
+  const bayCount = p.modules.length;
+  const bodyH = Math.max(402, BAY_TOP + bayCount * (BAY_H + BAY_GAP) + 22);
+  const H = bodyH + 16;
+
+  /* --- groups that are not carried by a module ---------------------------- */
+  const extras = REAR_PANEL
+    .filter(g => g.group === 'Analog I/Q outputs' || g.group === 'Digital I/Q')
     .map(g => ({ ...g, items: present(g.items, p) }))
     .filter(g => g.items.length);
+  const extraY = BAY_TOP + bayCount * (BAY_H + BAY_GAP);
+  const extraBay = extras.length
+    ? (() => {
+      const items = extras.flatMap(g => g.items);
+      const slot = (BAY_W - 16) / Math.max(items.length, 1);
+      return `
+        <rect x="${BAY_X}" y="${extraY}" width="${BAY_W}" height="${BAY_H}" rx="3"
+          fill="#131c29" stroke="#2b3a51"/>
+        <text x="${BAY_X + 6}" y="${extraY + 9}" font-size="5.8" fill="#4a5a72"
+          letter-spacing=".08em" font-family="ui-monospace,monospace">ANALOG AND DIGITAL I/Q OUTPUTS</text>
+        ${items.map((it, n) => connector(BAY_X + 8 + n * slot, extraY + 12, slot, it, tint(it))).join('')}`;
+    })()
+    : '';
 
-  // one block per installed module, in the order the modules are fitted
-  const moduleGroups = p.modules.map((kind, i) => ({
-    group: `${MODULE_PANELS[kind].label} ${i + 1}`,
-    items: MODULE_PANELS[kind].items
-  }));
-
-  const fixed = packGroups(groups, 22, 24, W - 44);
-  const mods = packGroups(moduleGroups, 22, 24 + fixed.height + 14, W - 44);
-  const bodyH = 24 + fixed.height + 14 + mods.height + 18;
+  const fullH = extras.length ? Math.max(H, extraY + BAY_H + 38) : H;
+  const fullBody = fullH - 16;
 
   return `
-<svg viewBox="0 0 ${W} ${bodyH + 16}" role="img"
+<svg viewBox="0 0 ${W} ${fullH}" role="img"
   aria-label="Rear panel of the configured R&S SMW200A">
   ${CHASSIS}
-  <rect x="10" y="6" width="${W - 20}" height="${bodyH}" rx="7" fill="url(#pcase)" stroke="#3b4a63"/>
-  ${ears(bodyH, W)}
-  ${fixed.markup}
-  ${moduleGroups.length ? `<line x1="22" y1="${18 + fixed.height + 8}" x2="${W - 22}"
-    y2="${18 + fixed.height + 8}" stroke="#2b3a51" stroke-dasharray="3 3"/>` : ''}
-  ${mods.markup}
-  <text x="26" y="${bodyH + 1}" font-size="7.5" fill="#5d6e88" letter-spacing=".16em"
-    font-family="ui-monospace,monospace">${
-      p.modules.length ? `${p.modules.length} MODULE BLOCK${p.modules.length === 1 ? '' : 'S'} FITTED`
-        : 'NO BASEBAND MODULES'}</text>
-  <text x="${W - 26}" y="${bodyH + 1}" font-size="7.5" fill="#5d6e88" text-anchor="end"
-    letter-spacing=".1em" font-family="ui-monospace,monospace">REAR</text>
+
+  <rect x="3" y="4" width="33" height="${fullBody - 4}" rx="9" fill="#22344a" stroke="#38536f"/>
+  <rect x="964" y="4" width="33" height="${fullBody - 4}" rx="9" fill="#22344a" stroke="#38536f"/>
+
+  <rect x="34" y="8" width="932" height="${fullBody - 12}" rx="4" fill="url(#pcase)" stroke="#3b4a63"/>
+  <rect x="34" y="8" width="932" height="22" rx="3" fill="#79838f"/>
+  <rect x="34" y="${fullBody - 18}" width="932" height="14" rx="3" fill="#79838f"/>
+
+  <!-- left hand input and output column -->
+  <rect x="40" y="34" width="152" height="${fullBody - 60}" rx="3" fill="#0f1620" stroke="#2b3a51"/>
+  ${leftCol}
+  ${rfCutouts}
+  ${gpib}
+
+  ${systemRow}
+  ${mains}
+  ${bays}
+  ${extraBay}
+
+  ${bayCount ? '' : `<text x="${BAY_X + BAY_W / 2}" y="${BAY_TOP + 30}" font-size="8"
+    fill="#4a5a72" text-anchor="middle" letter-spacing=".1em"
+    font-family="ui-monospace,monospace">NO BASEBAND MODULES FITTED</text>`}
 </svg>`;
 }
 

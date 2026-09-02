@@ -137,6 +137,31 @@ test('a relocated or absent RF output leaves a blanking plate', () => {
     'the range belongs with the connector, which is now on the rear');
 });
 
+test('the rear shows the rated current the configuration draws', () => {
+  // the specifications give 7.3 A to 4.6 A for B13/B13T, and the higher
+  // 8.9 A to 4.9 A once B13XT or the deeper chassis B94L is fitted
+  assert.match(renderRear(derive({ B13: 1, B10: 1, B1003: 1 })), /7\.3…4\.6 A/);
+  assert.match(renderRear(derive({ B13XT: 1, B9: 1, B1003: 1 })), /8\.9…4\.9 A/);
+  // B94L is added for these path combinations by the resolver, not by derive,
+  // so a hand built selection has to carry it
+  assert.match(renderRear(derive({ B13T: 1, B10: 1, B1012: 1, B2012: 1, B94L: 1 })), /8\.9…4\.9 A/);
+});
+
+test('one module bay is drawn per installed module', () => {
+  const count = svg => (svg.match(/BASEBAND GENERATOR/g) || []).length;
+  assert.equal(count(renderRear(derive({ B13: 1, B10: 1, B1003: 1 }))), 1);
+  assert.equal(count(renderRear(derive({ B13T: 1, B10: 2, B14: 2, B1003: 1, B2003: 1 }))), 4);
+  assert.match(renderRear(derive({ B13: 1, B1003: 1 })), /NO BASEBAND MODULES FITTED/);
+});
+
+test('the rear RF cut-outs open only when an option puts an output there', () => {
+  const plain = renderRear(derive({ B13: 1, B10: 1, B1003: 1 }));
+  const moved = renderRear(derive({ B13: 1, B10: 1, B1003: 1, B81: 1 }));
+  const live = svg => (svg.match(/stroke="var\(--accent\)" stroke-width="2"/g) || []).length;
+  assert.equal(live(plain), 0, 'nothing on the rear until B81 to B84 is fitted');
+  assert.equal(live(moved) > 0, true, 'B81 opens the path A cut-out');
+});
+
 test('group titles never overflow their box', () => {
   const d = derive({ B13T: 1, B1003: 1, B2003: 1, B10: 2, B14: 2, K16: 1, K18: 1 });
   // the narrow preview width is the tight case
