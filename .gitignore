@@ -7,3 +7,6 @@ assets/js/_*.mjs
 
 # screenshots the browser suites write
 tests/browser/out/
+
+# python bytecode from tools/vendor
+__pycache__/

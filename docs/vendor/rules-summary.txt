@@ -1,0 +1,850 @@
+274 codes
+SMW-B1003 1428.4700.02
+    [default RF Optio -] TICK  Frequency Options 1st Path: 1428.4700.02 is fundamentally allowed
+    [   std2 RF Optio -] TICK  Frequency Options 1st Path: 1428.4700.02 is fundamentally allowed
+SMW-B1044 1428.5507.02
+    [    wb2 RF Optio -] TICK  Frequency Options 1st Path: 1428.5507.02 is fundamentally allowed
+SMW-B1067 1428.8106.02
+    [    hf1 RF Optio -] TICK  Frequency Options 1st Path: 1428.8106.02 is fundamentally allowed
+? 
+    [default RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadA: NOVALUE is fundamentally allowed
+    [    hf1 RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadA: NOVALUE is fundamentally allowed
+    [   std2 RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadA: NOVALUE is fundamentally allowed
+    [    wb2 RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadA: NOVALUE is fundamentally allowed
+    [default RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadB: NOVALUE is fundamentally allowed
+    [    hf1 RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadB: NOVALUE is fundamentally allowed
+    [   std2 RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadB: NOVALUE is fundamentally allowed
+    [    wb2 RF Optio -] TICK  FM_PhiM_und_Low_Phase_Noise_PfadB: NOVALUE is fundamentally allowed
+SMW-K22 1413.3249.02
+    [default RF Optio -] X     Requires frequency option in path 2!
+    [    hf1 RF Optio -] X     Requires frequency option in path 2!
+SMW-K23 1413.3284.02
+    [default RF Optio -] X     Requires SMW-B13T or SMW-B13XT!
+SMW-K24 1413.3332.02
+    [default RF Optio -] X     Requires SMW-B13T or SMW-B13XT!
+SMW-K553 1414.6758.02
+    [default RF Optio -] X     Not possible with SMW-B1003B1006, B1007 or higher required.
+    [   std2 RF Optio -] X     Not possible with SMW-B1003B1006, B1007 or higher required.
+    [default RF Optio -] X     Requires frequency option in path 2!
+    [    hf1 RF Optio -] X     Requires frequency option in path 2!
+    [   std2 RF Optio -] X     Not possible with SMW-B2003B2006, B2007 or higher required.
+SMW-K554 1413.7309.02
+    [default RF Optio -] X     SMW-B1020 or higher required.
+    [   std2 RF Optio -] X     SMW-B1020 or higher required.
+    [default RF Optio -] X     SMW-B2020 or higher required.
+    [    hf1 RF Optio -] X     SMW-B2020 or higher required.
+    [   std2 RF Optio -] X     SMW-B2020 or higher required.
+SMW-K720 1413.7438.02
+    [default RF Optio -] X     Requires SMW-B13T oder SMW-B13XT
+    [default RF Optio -] X     Requires SMW-B2003, B2006, B2007, B2012 or SMW-2020!
+    [    hf1 RF Optio -] X     Requires SMW-B2003, B2006, B2007, B2012 or SMW-2020!
+    [    wb2 RF Optio -] X     Requires SMW-B2003, B2006, B2007, B2012 or SMW-2020!
+SMW-B81 1413.5893.02
+    [    hf1 RF Optio -] X     Requires SMW-B1006 oder SMW-B1003!
+    [    wb2 RF Optio -] X     Requires SMW-B1006 oder SMW-B1003!
+SMW-B83 1414.0937.02
+    [default RF Optio -] X     Requires SMW-B1020/ B1031/ B1040/ B1040N!
+    [    hf1 RF Optio -] X     Requires SMW-B1020/ B1031/ B1040/ B1040N!
+    [   std2 RF Optio -] X     Requires SMW-B1020/ B1031/ B1040/ B1040N!
+    [    wb2 RF Optio -] X     Requires SMW-B1020/ B1031/ B1040/ B1040N!
+SMW-B13 1413.2807.02
+    [default Baseband -] TICK  Basisband Main Module: 1413.2807.02 is fundamentally allowed
+SMW-B13T 1413.3003.02
+    [   std2 Baseband -] TICK  Basisband Main Module: 1413.3003.02 is fundamentally allowed
+SMW-B13XT 1413.8005.02
+    [    hf1 Baseband -] TICK  Basisband Main Module: 1413.8005.02 is fundamentally allowed
+    [    wb2 Baseband -] TICK  Basisband Main Module: 1413.8005.02 is fundamentally allowed
+SMW-B10 1413.1200.02
+    [default Baseband B] X     SMW-B10 in 1st Path is required!
+    [   std2 Baseband A] TICK  SMW_B10_Pfad_A: SMW-B10 is fundamentally allowed
+    [   std2 Baseband B] TICK  SMW_B10_Pfad_B: SMW-B10 is fundamentally allowed
+SMW-K511 1413.6860.02
+    [default Baseband A] X     Requires SMW-B10!
+    [default Baseband B] X     Requires SMW-B10 in Path B!
+    [   std2 Baseband B] X     SMW-K511 in 1st Path is required!
+SMW-K512 1413.6919.02
+    [default Baseband A] X     Requires SMW-K511!
+    [default Baseband B] X     Requires SMW-K511 in Path B!
+    [   std2 Baseband A] X     Requires SMW-K511!
+    [   std2 Baseband B] X     Requires SMW-K511 in Path B!
+SMW-K522 1413.6960.02
+    [default Baseband A] X     Requires SMW-B10!
+    [default Baseband B] X     Requires SMW-B10 in Path B!
+    [   std2 Baseband B] X     SMW-K522 in 1st Path is required!
+SMW-K16 1413.3384.02
+    [default Baseband B] X     Requires SMW-B13T!
+    [   std2 Baseband B] X     SMW-K16 in 1st Path is required!
+SMW-K18 1413.3432.02
+    [default Baseband B] X     Requires SMW-B13T!
+    [   std2 Baseband B] X     SMW-K18 in 1st Path is required!
+SMW-K62 1413.3484.02
+    [    hf1 Baseband B] X     SMW-K62 in 1st Path is required!
+    [    wb2 Baseband B] X     SMW-K62 in 1st Path is required!
+SMW-K80 1414.6187.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K501 1413.9218.02
+    [default Baseband A] X     Requires SMW-B10!
+    [default Baseband B] X     Requires SMW-B10 in Path B!
+    [   std2 Baseband B] X     SMW-K501 in 1st Path is required!
+SMW-K540 1413.7215.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-K17!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires SMW-K17!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K541 1413.7267.02
+    [    hf1 Baseband B] X     SMW-K541 in 1st Path is required!
+    [    wb2 Baseband B] X     SMW-K541 in 1st Path is required!
+SMW-K544 1414.3707.02
+    [    hf1 Baseband B] X     SMW-K544 in 1st Path is required!
+    [    wb2 Baseband B] X     SMW-K544 in 1st Path is required!
+SMW-K546 1414.6487.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-B90 and 2x SMW-K541!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires SMW-B90 and 2x SMW-K541!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K548 1414.6641.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K551 1413.9724.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-B9 or B9F and SMW-K19!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires SMW-B9 or B9F and SMW-K19!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K575 1434.8379.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+SMW-K810 1414.6341.02
+    [    hf1 Baseband A] X     Requires 1x SMW-K62!
+    [    hf1 Baseband B] X     Requires 2x SMW-K62!
+    [    wb2 Baseband A] X     Requires 1x SMW-K62!
+    [    wb2 Baseband B] X     Requires 2x SMW-K62!
+SMW-K811 1414.6364.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+SMW-B14 1413.1500.02
+    [default Baseband A] X     Requires SMW-B10!
+    [default Baseband B] X     SMW-B14 in 1st Path is required!
+SMW-K71 1413.3532.02
+    [    hf1 Baseband A] X     Requires SMW-B15!
+    [    hf1 Baseband B] X     Requires SMW-B15 in Path B!
+    [    wb2 Baseband A] X     Requires SMW-B15!
+    [    wb2 Baseband B] X     Requires SMW-B15 in Path B!
+SMW-K72 1413.3584.02
+    [    hf1 Baseband A] X     Requires SMW-B15!
+    [    hf1 Baseband B] X     Requires SMW-B15 in Path B!
+    [    wb2 Baseband A] X     Requires SMW-B15!
+    [    wb2 Baseband B] X     Requires SMW-B15 in Path B!
+SMW-K73 1414.2300.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-B15, 2x K72 and K74!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires SMW-B15, 2x K72 and K74!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K74 1413.3632.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-B13XT, SMW-B9/F and min. 2x SMW-B15!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires SMW-B13XT, SMW-B9/F and min. 2x SMW-B15!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K75 1413.9576.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-K74, 2x SMW-B9/F and 4x SMW-B14!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires SMW-K74, 2x SMW-B9/F and 4x SMW-B14!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K76 1413.9624.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-B13XT and 2x SMW-B9/F!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K78 1414.1833.02
+    [default Baseband A] X     Requires SMW-B14!
+    [default Baseband B] X     Requires second or fourth SMW-B14!
+    [   std2 Baseband A] X     Requires SMW-B14!
+    [   std2 Baseband B] X     Requires second or fourth SMW-B14!
+SMW-K550 1413.7315.02
+    [default Baseband -] X     Requires SMW-K76 and 2x SMW-B10!
+    [   std2 Baseband -] X     Requires SMW-K76 and 2x SMW-B10!
+SMW-K820 1414.2581.02
+    [    hf1 Baseband A] X     Requires SMW-B15!
+    [    hf1 Baseband B] X     Requires SMW-B15 in Path B!
+    [    wb2 Baseband A] X     Requires SMW-B15!
+    [    wb2 Baseband B] X     Requires SMW-B15 in Path B!
+SMW-K821 1414.4403.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires SMW-K74 and x4 SMWB15!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires SMW-K74 and x4 SMWB15!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-B9 1413.7350.02
+    [    hf1 Baseband A] TICK  SMW_B9_Pfad_A: SMW-B9 is fundamentally allowed
+    [    wb2 Baseband A] TICK  SMW_B9_Pfad_A: SMW-B9 is fundamentally allowed
+    [    wb2 Baseband B] TICK  SMW_B9_Pfad_B: SMW-B9 is fundamentally allowed
+SMW-B9F 1434.7808.02
+    [    hf1 Baseband A] X     Not with SMW-B9 possible!
+    [    hf1 Baseband B] X     SMW-B9F in 1st Path is required!
+    [    wb2 Baseband A] X     Not with SMW-B9 possible!
+    [    wb2 Baseband B] X     SMW-B9F in 1st Path is required!
+SMW-K515 1413.9360.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+    [    wb2 Baseband B] X     SMW-K515 in 1st Path is required!
+SMW-K525 1414.6129.02
+    [    hf1 Baseband B] X     SMW-K525 in 1st Path is required!
+    [    wb2 Baseband B] X     SMW-K525 in 1st Path is required!
+SMW-K527 1414.6158.02
+    [    hf1 Baseband A] X     Requires SMW-K525!
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+    [    wb2 Baseband A] X     Requires SMW-K525!
+    [    wb2 Baseband B] X     Requires second SMW-K525!
+SMW-K17 1414.2346.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K19 1414.3865.02
+    [    hf1 Baseband B] X     SMW-K19 in 1st Path is required!
+    [    wb2 Baseband B] X     SMW-K19 in 1st Path is required!
+SMW-K502 1413.9260.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+    [    wb2 Baseband B] X     SMW-K502 in 1st Path is required!
+SMW-K503 1414.3620.02
+    [    hf1 Baseband A] X     Requires SMW-B9/F and SMW-K502!
+    [    hf1 Baseband B] X     Requires SMW-B9/F and SMW-K502 in Path B!
+    [    wb2 Baseband A] X     Requires SMW-B9/F and SMW-K502!
+    [    wb2 Baseband B] X     Requires SMW-B9/F and SMW-K502 in Path B!
+SMW-K504 1414.3665.02
+    [    hf1 Baseband A] X     Requires SMW-K503!
+    [    hf1 Baseband B] X     Requires second SMW-K503!
+    [    wb2 Baseband A] X     Requires SMW-K503!
+    [    wb2 Baseband B] X     Requires second SMW-K503!
+SMW-K506 1413.3555.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+    [    wb2 Baseband B] X     SMW-K506 in 1st Path is required!
+SMW-K507 1414.6206.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+    [    wb2 Baseband B] X     SMW-K507 in 1st Path is required!
+SMW-K508 1434.8256.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+    [    wb2 Baseband B] X     SMW-K508 in 1st Path is required!
+SMW-K555 1414.6229.02
+    [default Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    hf1 Baseband A] X     Requires 1x SMW-B9/F or 1x SMW-B10 and 1x SMW-K527!
+    [    hf1 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [   std2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+    [    wb2 Baseband A] X     Requires 1x SMW-B9/F or 1x SMW-B10 and 1x SMW-K527!
+    [    wb2 Baseband B] blank FAIL locator.click: Timeout 10000ms exceeded. | Call log: | [2m  - waiting for locat
+SMW-K556 1434.8310.02
+    [    hf1 Baseband B] X     Requires SMW-B9/F in Path B!
+SMW-K573 1434.9146.02
+    [    hf1 Baseband A] X     Requires 1x SMW-K508!
+    [    hf1 Baseband B] X     Requires 2x SMW-K508!
+    [    wb2 Baseband A] X     Requires 1x SMW-K508!
+    [    wb2 Baseband B] X     Requires 2x SMW-K508!
+SMW-B15 1414.4710.02
+    [    hf1 Baseband B] X     SMW-B15 in 1st Path is required!
+    [    wb2 Baseband A] X     With 2x SMW-B9/F only 0x, 2x or 4x SMW-B15 possible!
+    [    wb2 Baseband B] X     With 2x SMW-B9/F only 0x, 2x or 4x SMW-B15 possible!
+SMW-K822 1414.6712.02
+    [    hf1 Baseband A] X     Requires SMW-B15!
+    [    hf1 Baseband B] X     Requires SMW-B15 in Path B!
+    [    wb2 Baseband A] X     Requires SMW-B15!
+    [    wb2 Baseband B] X     Requires SMW-B15 in Path B!
+SMW-K823 1414.6735.02
+    [    hf1 Baseband A] X     Requires SMW-K822 in Path A
+    [    hf1 Baseband B] X     Requires SMW-K822 in Path B
+    [    wb2 Baseband A] X     Requires SMW-K822 in Path A
+    [    wb2 Baseband B] X     Requires SMW-K822 in Path B
+SMW-B2003 1428.5707.02
+    [default RF Optio -] X     Requires SMW-B13T or SMW-B13XT!
+    [   std2 RF Optio -] TICK  Frequency Options 2. Path: 1428.5707.02 is fundamentally allowed
+SMW-B719 1428.7500.02
+    [default RF Optio -] X     Requires SMW-B709 and SMW-B20xx
+    [    hf1 RF Optio -] X     Requires SMW-B709 and SMW-B20xx
+    [   std2 RF Optio -] X     Requires SMW-B709 and SMW-B20xx
+    [    wb2 RF Optio -] X     Requires SMW-B709 and SMW-B20xx
+SMW-B720 1428.6903.02
+    [default RF Optio -] X     Requires SMW-B710 and SMW-B20xx
+    [    hf1 RF Optio -] X     Requires SMW-B710 and SMW-B20xx
+    [   std2 RF Optio -] X     Requires SMW-B710 and SMW-B20xx
+    [    wb2 RF Optio -] X     Requires SMW-B710 and SMW-B20xx
+SMW-B721 1428.7100.02
+    [default RF Optio -] X     Requires SMW-B711 and SMW-B20xx
+    [    hf1 RF Optio -] X     Requires SMW-B711 and SMW-B20xx
+    [   std2 RF Optio -] X     Requires SMW-B711 and SMW-B20xx
+    [    wb2 RF Optio -] X     Requires SMW-B711 and SMW-B20xx
+SMW-B82 1413.5941.02
+    [default RF Optio -] X     Requires SMW-B2003/B2006 and SMW-B81/B83 !
+    [    hf1 RF Optio -] X     Requires SMW-B2003/B2006 and SMW-B81/B83 !
+    [   std2 RF Optio -] X     Requires SMW-B2003/B2006 and SMW-B81/B83 !
+    [    wb2 RF Optio -] X     Requires SMW-B2003/B2006 and SMW-B81/B83 !
+SMW-B84 1414.1033.02
+    [default RF Optio -] X     Requires SMW-B2020 and SMW-B81/B83!
+    [    hf1 RF Optio -] X     Requires SMW-B2020 and SMW-B81/B83!
+    [   std2 RF Optio -] X     Requires SMW-B2020 and SMW-B81/B83!
+    [    wb2 RF Optio -] X     Requires SMW-B2020 and SMW-B81/B83!
+SMW-B94L 1438.8150.02
+    [    wb2 RF Optio -] TICK  None
+SMW-K144 1414.4990.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K148 1414.6664.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K144!
+    [   std2 Digital  -] X     Requires one SMW-K144!
+    [    wb2 Digital  -] X     Requires one SMW-K144!
+SMW-K171 1413.7280.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K148!
+    [   std2 Digital  -] X     Requires one SMW-K148!
+    [    wb2 Digital  -] X     Requires one SMW-K148!
+SMW-K170 1413.8640.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K145 1414.6506.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K144!
+    [   std2 Digital  -] X     Requires one SMW-K144!
+    [    wb2 Digital  -] X     Requires one SMW-K144!
+SMW-K184 1434.9169.02
+    [default Digital  -] X     Requires one SMW-K144!
+    [    hf1 Digital  -] X     Requires one SMW-K144!
+    [   std2 Digital  -] X     Requires one SMW-K144!
+    [    wb2 Digital  -] X     Requires one SMW-K144!
+SMW-K55 1413.4180.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K84 1413.5435.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K55!
+    [   std2 Digital  -] X     Requires one SMW-K55!
+    [    wb2 Digital  -] X     Requires one SMW-K55!
+SMW-K85 1413.5487.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K55!
+    [   std2 Digital  -] X     Requires one SMW-K55!
+    [    wb2 Digital  -] X     Requires one SMW-K55!
+SMW-K112 1413.8505.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K55!
+    [   std2 Digital  -] X     Requires one SMW-K55!
+    [    wb2 Digital  -] X     Requires one SMW-K55!
+SMW-K113 1414.1933.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K55!
+    [   std2 Digital  -] X     Requires one SMW-K55!
+    [    wb2 Digital  -] X     Requires one SMW-K55!
+SMW-K119 1414.3542.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K55!
+    [   std2 Digital  -] X     Requires one SMW-K55!
+    [    wb2 Digital  -] X     Requires one SMW-K55!
+SMW-K69 1413.4480.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K55 or SMW-K115!
+    [   std2 Digital  -] X     Requires one SMW-K55 or SMW-K115!
+    [    wb2 Digital  -] X     Requires one SMW-K55 or SMW-K115!
+SMW-K81 1413.4539.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K55, SMW-K115 or SMW-K144!
+    [   std2 Digital  -] X     Requires one SMW-K55, SMW-K115 or SMW-K144!
+    [    wb2 Digital  -] X     Requires one SMW-K55, SMW-K115 or SMW-K144!
+SMW-K175 1413.3261.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K144 or SMW-K55!
+    [   std2 Digital  -] X     Requires one SMW-K144 or SMW-K55!
+    [    wb2 Digital  -] X     Requires one SMW-K144 or SMW-K55!
+SMW-K115 1414.2723.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K143 1414.6064.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K115!
+    [   std2 Digital  -] X     Requires one SMW-K115!
+    [    wb2 Digital  -] X     Requires one SMW-K115!
+SMW-K146 1414.6564.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K115!
+    [   std2 Digital  -] X     Requires one SMW-K115!
+    [    wb2 Digital  -] X     Requires one SMW-K115!
+SMW-K42 1413.3784.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K83 1413.4580.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K42!
+    [   std2 Digital  -] X     Requires one SMW-K42!
+    [    wb2 Digital  -] X     Requires one SMW-K42!
+SMW-K40 1413.3684.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K41 1413.3732.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K40!
+    [   std2 Digital  -] X     Requires one SMW-K40!
+    [    wb2 Digital  -] X     Requires one SMW-K40!
+SMW-K46 1413.3884.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K47 1413.3932.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K87 1413.6519.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K47!
+    [   std2 Digital  -] X     Requires one SMW-K47!
+    [    wb2 Digital  -] X     Requires one SMW-K47!
+SMW-K50 1413.4039.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K51 1413.4080.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K50!
+    [   std2 Digital  -] X     Requires one SMW-K50!
+    [    wb2 Digital  -] X     Requires one SMW-K50!
+SMW-K118 1414.3465.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K68 1413.4439.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K54 1413.4139.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K86 1413.5635.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K54!
+    [   std2 Digital  -] X     Requires one SMW-K54!
+    [    wb2 Digital  -] X     Requires one SMW-K54!
+SMW-K142 1414.3259.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K54!
+    [   std2 Digital  -] X     Requires one SMW-K54!
+    [    wb2 Digital  -] X     Requires one SMW-K54!
+SMW-K147 1413.6677.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K54!
+    [   std2 Digital  -] X     Requires one SMW-K54!
+    [    wb2 Digital  -] X     Requires one SMW-K54!
+SMW-K185 1434.9223.02
+    [default Digital  -] X     Requires one SMW-K54!
+    [    hf1 Digital  -] X     Requires one SMW-K54!
+    [   std2 Digital  -] X     Requires one SMW-K54!
+    [    wb2 Digital  -] X     Requires one SMW-K54!
+SMW-K141 1414.1333.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [    hf1 Digital  -] X     Requires SMW-K525!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+    [    wb2 Digital  -] X     Requires SMW-K525!
+SMW-K177 1434.8191.02
+    [default Digital  -] X     Requires SMW-K525!
+    [    hf1 Digital  -] X     Requires SMW-K525!
+    [   std2 Digital  -] X     Requires SMW-K525!
+    [    wb2 Digital  -] X     Requires SMW-K525!
+SMW-K60 1413.4239.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K117 1414.3336.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K60!
+    [   std2 Digital  -] X     Requires one SMW-K60!
+    [    wb2 Digital  -] X     Requires one SMW-K60!
+SMW-K178 1434.8279.02
+    [default Digital  -] X     Requires one SMW-K117!
+    [    hf1 Digital  -] X     Requires one SMW-K117!
+    [   std2 Digital  -] X     Requires one SMW-K117!
+    [    wb2 Digital  -] X     Requires one SMW-K117!
+SMW-K180 1434.8433.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K149 1414.6912.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+SMW-K181 1434.9017.02
+    [default Digital  -] X     Requires one SMW-K149!
+    [    hf1 Digital  -] X     Requires one SMW-K149!
+    [   std2 Digital  -] X     Requires one SMW-K149!
+    [    wb2 Digital  -] X     Requires one SMW-K149!
+SMW-K182 1434.9052.02
+    [default Digital  -] X     Requires one SMW-K181!
+    [    hf1 Digital  -] X     Requires one SMW-K181!
+    [   std2 Digital  -] X     Requires one SMW-K181!
+    [    wb2 Digital  -] X     Requires one SMW-K181!
+SMW-K131 1414.6464.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K89 1413.6619.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K52 1413.6090.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K116 1414.2630.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K130 1414.3788.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K169 1413.8711.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K176 1413.8686.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K116!
+    [   std2 Digital  -] X     Requires one SMW-K116!
+    [    wb2 Digital  -] X     Requires one SMW-K116!
+SMW-K183 1434.9100.02
+    [default Digital  -] X     Requires one SMW-K116!
+    [    hf1 Digital  -] X     Requires one SMW-K116!
+    [   std2 Digital  -] X     Requires one SMW-K116!
+    [    wb2 Digital  -] X     Requires one SMW-K116!
+SMW-K355 1414.3742.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K61 1413.4280.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K114 1414.1985.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K542 1413.9876.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K444 1414.5022.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K448 1414.6687.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires SMW-K444
+    [   std2 Digital  -] X     Requires SMW-K444
+    [    wb2 Digital  -] X     Requires SMW-K444
+SMW-K471 1413.7296.02
+    [default Digital  -] X     Requires SMW-K448!
+    [    hf1 Digital  -] X     Requires SMW-K448!
+    [   std2 Digital  -] X     Requires SMW-K448!
+    [    wb2 Digital  -] X     Requires SMW-K448!
+SMW-K470 1413.8663.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K484 1434.9181.02
+    [default Digital  -] X     Requires SMW-K444!
+    [    hf1 Digital  -] X     Requires SMW-K444!
+    [   std2 Digital  -] X     Requires SMW-K444!
+    [    wb2 Digital  -] X     Requires SMW-K444!
+SMW-K255 1413.5235.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K284 1413.5535.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K255!
+    [   std2 Digital  -] X     Requires one SMW-K255!
+    [    wb2 Digital  -] X     Requires one SMW-K255!
+SMW-K285 1413.5587.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K255!
+    [   std2 Digital  -] X     Requires one SMW-K255!
+    [    wb2 Digital  -] X     Requires one SMW-K255!
+SMW-K412 1413.8557.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K255!
+    [   std2 Digital  -] X     Requires one SMW-K255!
+    [    wb2 Digital  -] X     Requires one SMW-K255!
+SMW-K413 1414.2030.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K255!
+    [   std2 Digital  -] X     Requires one SMW-K255!
+    [    wb2 Digital  -] X     Requires one SMW-K255!
+SMW-K419 1414.3588.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K255!
+    [   std2 Digital  -] X     Requires one SMW-K255!
+    [    wb2 Digital  -] X     Requires one SMW-K255!
+SMW-K415 1414.2769.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K443 1414.6093.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires SMW-K415!
+    [   std2 Digital  -] X     Requires SMW-K415!
+    [    wb2 Digital  -] X     Requires SMW-K415!
+SMW-K446 1414.6587.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires SMW-K415!
+    [   std2 Digital  -] X     Requires SMW-K415!
+    [    wb2 Digital  -] X     Requires SMW-K415!
+SMW-K242 1413.4839.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K283 1413.6290.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K242!
+    [   std2 Digital  -] X     Requires one SMW-K242!
+    [    wb2 Digital  -] X     Requires one SMW-K242!
+SMW-K240 1413.4739.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K241 1413.4780.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K240!
+    [   std2 Digital  -] X     Requires one SMW-K240!
+    [    wb2 Digital  -] X     Requires one SMW-K240!
+SMW-K246 1413.4939.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K247 1413.4980.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K287 1413.6560.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K247!
+    [   std2 Digital  -] X     Requires one SMW-K247!
+    [    wb2 Digital  -] X     Requires one SMW-K247!
+SMW-K250 1413.5087.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K251 1413.5135.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K250!
+    [   std2 Digital  -] X     Requires one SMW-K250!
+    [    wb2 Digital  -] X     Requires one SMW-K250!
+SMW-K418 1414.3507.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K268 1413.5387.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K254 1413.5187.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K286 1413.5687.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K254!
+    [   std2 Digital  -] X     Requires one SMW-K254!
+    [    wb2 Digital  -] X     Requires one SMW-K254!
+SMW-K442 1414.3294.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K254!
+    [   std2 Digital  -] X     Requires one SMW-K254!
+    [    wb2 Digital  -] X     Requires one SMW-K254!
+SMW-K447 1413.6683.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K254!
+    [   std2 Digital  -] X     Requires one SMW-K254!
+    [    wb2 Digital  -] X     Requires one SMW-K254!
+SMW-K485 1434.9246.02
+    [default Digital  -] X     Requires one SMW-K254!
+    [    hf1 Digital  -] X     Requires one SMW-K254!
+    [   std2 Digital  -] X     Requires one SMW-K254!
+    [    wb2 Digital  -] X     Requires one SMW-K254!
+SMW-K441 1414.1385.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K257!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+    [    wb2 Digital  -] X     Requires one SMW-K257!
+SMW-K260 1413.5287.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K417 1414.3371.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K260!
+    [   std2 Digital  -] X     Requires one SMW-K260!
+    [    wb2 Digital  -] X     Requires one SMW-K260!
+SMW-K478 1434.8291.02
+    [default Digital  -] X     Requires one SMW-K417!
+    [    hf1 Digital  -] X     Requires one SMW-K417!
+    [   std2 Digital  -] X     Requires one SMW-K417!
+    [    wb2 Digital  -] X     Requires one SMW-K417!
+SMW-K431 1414.6441.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K480 1434.8456.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K449 1414.6958.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+SMW-K481 1434.9030.02
+    [default Digital  -] X     Requires one SMW-K449!
+    [    hf1 Digital  -] X     Requires one SMW-K449!
+    [   std2 Digital  -] X     Requires one SMW-K449!
+    [    wb2 Digital  -] X     Requires one SMW-K449!
+SMW-K482 1434.9075.02
+    [default Digital  -] X     Requires one SMW-K481!
+    [    hf1 Digital  -] X     Requires one SMW-K481!
+    [   std2 Digital  -] X     Requires one SMW-K481!
+    [    wb2 Digital  -] X     Requires one SMW-K481!
+SMW-K289 1413.6654.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K244 1413.4880.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K266 1413.7015.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K294 1413.7067.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K407 1413.7115.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K297 1414.6287.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K298 1414.3171.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K432 1414.6629.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K423 1413.3410.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K252 1413.6190.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K416 1414.2681.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K469 1413.9130.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K476 1413.9076.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one SMW-K416!
+    [   std2 Digital  -] X     Requires one SMW-K416!
+    [    wb2 Digital  -] X     Requires one SMW-K416!
+SMW-K483 1434.9123.02
+    [default Digital  -] X     Requires one SMW-K416!
+    [    hf1 Digital  -] X     Requires one SMW-K416!
+    [   std2 Digital  -] X     Requires one SMW-K416!
+    [    wb2 Digital  -] X     Requires one SMW-K416!
+SMW-K430 1414.3820.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K261 1413.5335.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K262 1413.6460.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K414 3636.0434.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K44 1413.3832.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K66 1413.4380.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K94 1414.1485.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K97 1414.6258.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K98 1414.1533.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K106 1414.2923.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 Digital  -] X     Requires SMW-K44!
+    [   std2 Digital  -] X     Requires SMW-K44!
+    [    wb2 Digital  -] X     Requires SMW-K44!
+SMW-K107 1414.1585.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K108 1414.2975.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+SMW-K109 1414.3013.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+SMW-K111 1414.3059.02
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K122 1414.6993.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one of the following options: K44, K66, K94, K97, K98, K107, K123, K132
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+    [    wb2 Digital  -] X     Requires one of the following options: K44, K66, K94, K97, K98, K107, K123, K132
+SMW-K123 1413.3310.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+SMW-K128 1413.3361.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+SMW-K129 1434.8410.02
+    [default Digital  -] X     Requires one SMW-B9/F!
+    [    hf1 Digital  -] X     Requires one of the following options: K44, K98, K66, K94, K97, K107, K123, K128, K132
+    [   std2 Digital  -] X     Requires one SMW-B9/F!
+    [    wb2 Digital  -] X     Requires one of the following options: K44, K98, K66, K94, K97, K107, K123, K128, K132
+SMW-K132 1414.6606.02
+    [default Digital  -] X     Requires one SMW-B9/F or SMW-B10!
+SMW-K134 1414.6770.02
+    [default Digital  -] X     Requires one SMW-B9/F
+    [    hf1 Digital  -] X     Requires SMW-K44, -K66, -K94, -K98, -K107 or -K132!
+    [   std2 Digital  -] X     Requires one SMW-B9/F
+    [    wb2 Digital  -] X     Requires SMW-K44, -K66, -K94, -K98, -K107 or -K132!
+SMW-K135 1414.6793.02
+    [default Digital  -] X     Requires one SMW-B9/F and und SMW-K134
+    [    hf1 Digital  -] X     Requires one SMW-B9/F and und SMW-K134
+    [   std2 Digital  -] X     Requires one SMW-B9/F and und SMW-K134
+    [    wb2 Digital  -] X     Requires one SMW-B9/F and und SMW-K134
+SMW-K360 1414.2800.02
+    [default Digital  -] X     Requires SMW-K44 and SMW-K94!
+    [    hf1 Digital  -] X     Requires SMW-K44 and SMW-K94!
+    [   std2 Digital  -] X     Requires SMW-K44 and SMW-K94!
+    [    wb2 Digital  -] X     Requires SMW-K44 and SMW-K94!
+SMW-K361 1414.2846.02
+    [default Digital  -] X     Requires SMW-K44, -K66 and SMW-K106!
+    [    hf1 Digital  -] X     Requires SMW-K44, -K66 and SMW-K106!
+    [   std2 Digital  -] X     Requires SMW-K44, -K66 and SMW-K106!
+    [    wb2 Digital  -] X     Requires SMW-K44, -K66 and SMW-K106!
+SMW-K362 1414.6406.02
+    [default Digital  -] X     Requires SMW-K44, -K66, -K94, K97, K98, K107 or SMW-K132!
+    [    hf1 Digital  -] X     Requires SMW-K44, -K66, -K94, K97, K98, K107 or SMW-K132!
+    [   std2 Digital  -] X     Requires SMW-K44, -K66, -K94, K97, K98, K107 or SMW-K132!
+    [    wb2 Digital  -] X     Requires SMW-K44, -K66, -K94, K97, K98, K107 or SMW-K132!
+SMW-K363 1434.8179.02
+    [default Digital  -] X     Requires SMW-K44 and SMW-K66 and SMW-K94 and SMW-K107 and SMW-K108!
+    [    hf1 Digital  -] X     Requires SMW-K44 and SMW-K66 and SMW-K94 and SMW-K107 and SMW-K108!
+    [   std2 Digital  -] X     Requires SMW-K44 and SMW-K66 and SMW-K94 and SMW-K107 and SMW-K108!
+    [    wb2 Digital  -] X     Requires SMW-K44 and SMW-K66 and SMW-K94 and SMW-K107 and SMW-K108!
+SMW-K200 1414.6870.75
+    [default Digital  -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K300 1413.8805.02
+    [default External -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K301 1413.9776.02
+    [default External -] X     Requires SMW-K300!
+    [    hf1 External -] X     Requires SMW-K300!
+    [   std2 External -] X     Requires SMW-K300!
+    [    wb2 External -] X     Requires SMW-K300!
+SMW-K302 1413.8857.02
+    [default External -] X     Requires SMW-K301!
+    [    hf1 External -] X     Requires SMW-K301!
+    [   std2 External -] X     Requires SMW-K301!
+    [    wb2 External -] X     Requires SMW-K301!
+SMW-K304 1413.8957.02
+    [default External -] X     Requires SMW-B9F, -K300, -K301 and -K502!
+    [    hf1 External -] X     Requires SMW-B9F, -K300, -K301 and -K502!
+    [   std2 External -] X     Requires SMW-B9F, -K300, -K301 and -K502!
+    [    wb2 External -] X     Requires SMW-B9F, -K300, -K301 and -K502!
+SMW-K306 1413.9053.02
+    [default External -] X     Requires one SMW-B10 or SMW-B9/F!
+    [    hf1 External -] X     Requires SMW-K301 and SMW-K502!
+    [   std2 External -] X     Requires SMW-K301 and SMW-K502!
+    [    wb2 External -] X     Requires SMW-K301 and SMW-K502!
+SMW-K307 1413.3510.02
+    [default External -] X     Requires SMW-K306
+    [    hf1 External -] X     Requires SMW-K306
+    [   std2 External -] X     Requires SMW-K306
+    [    wb2 External -] X     Requires SMW-K306
+SMW-K308 1414.1433.02
+    [default External -] X     Requires SMW-K301!
+    [    hf1 External -] X     Requires SMW-K301!
+    [   std2 External -] X     Requires SMW-K301!
+    [    wb2 External -] X     Requires SMW-K301!
+SMW-K309 1414.6706.02
+    [default External -] X     Requires SMW-K301!
+    [    hf1 External -] X     Requires SMW-K301!
+    [   std2 External -] X     Requires SMW-K301!
+    [    wb2 External -] X     Requires SMW-K301!
+SMW-K315 1414.6529.02
+    [default External -] X     Requires 2x SMW-B9, 2x SMW-K502, 2x SMW-B15 and 2x SMW-K301/SMW-K503
+    [    hf1 External -] X     Requires 2x SMW-B9, 2x SMW-K502, 2x SMW-B15 and 2x SMW-K301/SMW-K503
+    [   std2 External -] X     Requires 2x SMW-B9, 2x SMW-K502, 2x SMW-B15 and 2x SMW-K301/SMW-K503
+    [    wb2 External -] X     Requires 2x SMW-B9, 2x SMW-K502, 2x SMW-B15 and 2x SMW-K301/SMW-K503
+SMW-K350 1413.9160.02
+    [default External -] X     Requires one SMW-B10 or SMW-B9/F!
+SMW-K545 1414.6429.02
+    [default External -] X     Requires SMW-K544, SMW-K61 and SMW-B90!
+    [    hf1 External -] X     Requires SMW-K544, SMW-K61 and SMW-B90!
+    [   std2 External -] X     Requires SMW-K544, SMW-K61 and SMW-B90!
+    [    wb2 External -] X     Requires SMW-K544, SMW-K61 and SMW-B90!
+SMW-T0 1414.6970.23
+    [default Other Op -] TICK  Extras: 1414.6970.23 is fundamentally allowed
+    [    hf1 Other Op -] TICK  Extras: 1414.6970.23 is fundamentally allowed
+    [   std2 Other Op -] TICK  Extras: 1414.6970.23 is fundamentally allowed
+    [    wb2 Other Op -] TICK  Extras: 1414.6970.23 is fundamentally allowed
+1036.4790.00 1036.4790.00
+    [default Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    hf1 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [   std2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    wb2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+1036.4802.00 1036.4802.00
+    [default Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    hf1 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [   std2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    wb2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+1036.4777.00 1036.4777.00
+    [default Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    hf1 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [   std2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    wb2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+1036.4783.00 1036.4783.00
+    [default Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    hf1 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [   std2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+    [    wb2 Other Op -] X     Only possible with SMW-B1012/ -B2012/ -B1020/ -B2020/ -B1031/ -B2031/ -B1040 /-B1040N!
+3588.9654.00 3588.9654.00
+    [default Other Op -] X     Only possible with SMW-B1044/ -B2044/ -B1044N/ -BB2044N/ -B1056/ -B1056N/ -B1067/ -B1067N!
+    [   std2 Other Op -] X     Only possible with SMW-B1044/ -B2044/ -B1044N/ -BB2044N/ -B1056/ -B1056N/ -B1067/ -B1067N!
+    [    wb2 Other Op -] X     Only possible with SMW-B1044/ -B2044/ -B1044N/ -BB2044N/ -B1056/ -B1056N/ -B1067/ -B1067N!
+3628.4728.02 3628.4728.02
+    [default Other Op -] X     Only possible with SMW-B1044/ -B1044N/ -B2044/ -B2044N!
+    [    hf1 Other Op -] X     Only possible with SMW-B1044/ -B1044N/ -B2044/ -B2044N!
+    [   std2 Other Op -] X     Only possible with SMW-B1044/ -B1044N/ -B2044/ -B2044N!
+SMW-B2044 1438.8350.02
+    [    wb2 RF Optio -] TICK  Frequency Options 2. Path: 1438.8350.02 is fundamentally allowed

@@ -1,0 +1,7519 @@
+{
+ "source": "https://configurator.rohde-schwarz.com/app/ch5c/ch5start?-AppName%3Ddefault+-configknb%3Dconfig.SMW200A",
+ "captured": "2026-09-02",
+ "tabs": [
+  {
+   "name": "RF Options 1st Path",
+   "groups": [
+    {
+     "name": "Frequency Options 1st Path",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B1003",
+         "order": "1428.4700.02",
+         "desig": "Frequency range : 100 kHz to 3 GHz for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-on",
+           "status": "TICK"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1003",
+          "1428.4700.02",
+          "Frequency range : 100 kHz to 3 GHz for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1006",
+         "order": "1428.4800.02",
+         "desig": "Frequency range: 100 kHz to 6 GHz for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1006",
+          "1428.4800.02",
+          "Frequency range: 100 kHz to 6 GHz for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1007",
+         "order": "1428.7700.02",
+         "desig": "Frequency range: 100 kHz to 7.5 GHz, RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1007",
+          "1428.7700.02",
+          "Frequency range: 100 kHz to 7.5 GHz, RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1012",
+         "order": "1428.4900.02",
+         "desig": "Frequency range: 100 kHz to 12.75 GHz, RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1012",
+          "1428.4900.02",
+          "Frequency range: 100 kHz to 12.75 GHz, RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1020",
+         "order": "1428.5107.02",
+         "desig": "Frequency range: 100 kHz to 20 GHz for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1020",
+          "1428.5107.02",
+          "Frequency range: 100 kHz to 20 GHz for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1031",
+         "order": "1428.5307.02",
+         "desig": "Frequency range: 100 kHz to 31.8 GHz, RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1031",
+          "1428.5307.02",
+          "Frequency range: 100 kHz to 31.8 GHz, RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1040",
+         "order": "1428.8506.02",
+         "desig": "Frequency range: 100 kHz to 40 GHz for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1040",
+          "1428.8506.02",
+          "Frequency range: 100 kHz to 40 GHz for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1040N",
+         "order": "1428.8606.02",
+         "desig": "Frequency: 100 kHz to 40 GHz,RF path A,BW 550 MHz (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1040N",
+          "1428.8606.02",
+          "Frequency: 100 kHz to 40 GHz,RF path A,BW 550 MHz (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1044",
+         "order": "1428.5507.02",
+         "desig": "Frequency range: 100 kHz to 44 GHz for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1044",
+          "1428.5507.02",
+          "Frequency range: 100 kHz to 44 GHz for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1044N",
+         "order": "1428.5407.02",
+         "desig": "Frequency: 100 kHz to 44 GHz,RF path A,BW 550 MHz (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1044N",
+          "1428.5407.02",
+          "Frequency: 100 kHz to 44 GHz,RF path A,BW 550 MHz (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1044O",
+         "order": "1442.0144.02",
+         "desig": "100 kHz - 44 GHz,RF path A, BW lim. in 31.8-37 GHz (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1044O",
+          "1442.0144.02",
+          "100 kHz - 44 GHz,RF path A, BW lim. in 31.8-37 GHz (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1056",
+         "order": "1438.9357.02",
+         "desig": "Frequency range: 100 kHz to 56 GHz for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1056",
+          "1438.9357.02",
+          "Frequency range: 100 kHz to 56 GHz for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1056N",
+         "order": "1438.9457.02",
+         "desig": "Frequency: 100 kHz to 56 GHz,RF path A,BW 550 MHz (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1056N",
+          "1438.9457.02",
+          "Frequency: 100 kHz to 56 GHz,RF path A,BW 550 MHz (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1056O",
+         "order": "1442.0244.02",
+         "desig": "100 kHz - 56 GHz,RF path A, BW lim. in 31.8-37 GHz (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1056O",
+          "1442.0244.02",
+          "100 kHz - 56 GHz,RF path A, BW lim. in 31.8-37 GHz (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1067",
+         "order": "1428.8106.02",
+         "desig": "Frequency range: 100 kHz to 67 GHz for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1067",
+          "1428.8106.02",
+          "Frequency range: 100 kHz to 67 GHz for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1067N",
+         "order": "1428.8306.02",
+         "desig": "Frequency: 100 kHz to 67 GHz,RF path A,BW 550 MHz (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1067N",
+          "1428.8306.02",
+          "Frequency: 100 kHz to 67 GHz,RF path A,BW 550 MHz (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B1067O",
+         "order": "1442.0344.02",
+         "desig": "100 kHz - 67 GHz,RF path A, BW lim. in 31.8-37 GHz (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B1067O",
+          "1442.0344.02",
+          "100 kHz - 67 GHz,RF path A, BW lim. in 31.8-37 GHz (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Low Phase Noise 1st Path",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": null,
+         "order": null,
+         "desig": "Ø",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-on",
+           "status": "TICK"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "Ø"
+         ]
+        },
+        {
+         "code": "SMW-B709",
+         "order": "1428.7300.02",
+         "desig": "Low phase noise, RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B709",
+          "1428.7300.02",
+          "Low phase noise, RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B710",
+         "order": "1428.6503.02",
+         "desig": "Improved close in phase noise for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B710",
+          "1428.6503.02",
+          "Improved close in phase noise for RF path A (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B711",
+         "order": "1428.6703.02",
+         "desig": "Ultra low phase noise for RF path A (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B711",
+          "1428.6703.02",
+          "Ultra low phase noise for RF path A (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Phase Coherence",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B90",
+         "order": "1413.5841.02",
+         "desig": "Phase coherence (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B90",
+          "1413.5841.02",
+          "Phase coherence (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Other RF Options",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K22",
+         "order": "1413.3249.02",
+         "desig": "Pulse modulator (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K22",
+          "1413.3249.02",
+          "Pulse modulator (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K23",
+         "order": "1413.3284.02",
+         "desig": "High performance pulse generator (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K23",
+          "1413.3284.02",
+          "High performance pulse generator (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K24",
+         "order": "1413.3332.02",
+         "desig": "Multi function generator (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K24",
+          "1413.3332.02",
+          "Multi function generator (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K553",
+         "order": "1414.6758.02",
+         "desig": "External Frontend Control (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K553",
+          "1414.6758.02",
+          "External Frontend Control (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K554",
+         "order": "1413.7309.02",
+         "desig": "External Multiplier Control (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K554",
+          "1413.7309.02",
+          "External Multiplier Control (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K703",
+         "order": "1413.7380.02",
+         "desig": "100 MHz, 1GHz reference input/output (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K703",
+          "1413.7380.02",
+          "100 MHz, 1GHz reference input/output (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K704",
+         "order": "1414.6541.02",
+         "desig": "Flexible reference input (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K704",
+          "1414.6541.02",
+          "Flexible reference input (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K720",
+         "order": "1413.7438.02",
+         "desig": "AM / FM / PhiM (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K720",
+          "1413.7438.02",
+          "AM / FM / PhiM (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K739",
+         "order": "1413.7167.02",
+         "desig": "Differential analog I/Q inputs for RF path A (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K739",
+          "1413.7167.02",
+          "Differential analog I/Q inputs for RF path A (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Rear Connector",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B81",
+         "order": "1413.5893.02",
+         "desig": "Rear panel connectors for RF path A and I/Q (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B81",
+          "1413.5893.02",
+          "Rear panel connectors for RF path A and I/Q (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B83",
+         "order": "1414.0937.02",
+         "desig": "Rear connectors RF path A (20/31.8/40GHz) and I/Q (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B83",
+          "1414.0937.02",
+          "Rear connectors RF path A (20/31.8/40GHz) and I/Q (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Baseband",
+   "groups": [
+    {
+     "name": "Baseband Main Module",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B13",
+         "order": "1413.2807.02",
+         "desig": "Baseband main module, one I/Q path to RF section (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-on",
+           "status": "TICK"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B13",
+          "1413.2807.02",
+          "Baseband main module, one I/Q path to RF section (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B13T",
+         "order": "1413.3003.02",
+         "desig": "Baseband main module, two I/Q paths to RF section (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B13T",
+          "1413.3003.02",
+          "Baseband main module, two I/Q paths to RF section (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B13XT",
+         "order": "1413.8005.02",
+         "desig": "Wideband baseband main module, 2 I/Q paths to RF (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B13XT",
+          "1413.8005.02",
+          "Wideband baseband main module, 2 I/Q paths to RF (HW opt.)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Standard baseband Options",
+       "options": []
+      }
+     ]
+    },
+    {
+     "name": "Standard baseband generator",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B10",
+         "order": "1413.1200.02",
+         "desig": "Baseband generator with realtime coder and ARB (HW opt.)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "blank"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B10",
+          "1413.1200.02",
+          "Baseband generator with realtime coder and ARB (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-K511",
+         "order": "1413.6860.02",
+         "desig": "ARB memory extension to 512 MSamples (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K511",
+          "1413.6860.02",
+          "ARB memory extension to 512 MSamples (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K512",
+         "order": "1413.6919.02",
+         "desig": "ARB memory extension to 1 GSamples (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K512",
+          "1413.6919.02",
+          "ARB memory extension to 1 GSamples (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K522",
+         "order": "1413.6960.02",
+         "desig": "Baseband extension to 160MHz RF bandwidth (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K522",
+          "1413.6960.02",
+          "Baseband extension to 160MHz RF bandwidth (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Standard baseband enhancements",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K16",
+         "order": "1413.3384.02",
+         "desig": "Differential analog I/Q outputs (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "blank"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K16",
+          "SMW-K16",
+          "SMW-K16",
+          "1413.3384.02",
+          "Differential analog I/Q outputs (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K18",
+         "order": "1413.3432.02",
+         "desig": "Digital baseband output (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "blank"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K18",
+          "SMW-K18",
+          "SMW-K18",
+          "1413.3432.02",
+          "Digital baseband output (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K62",
+         "order": "1413.3484.02",
+         "desig": "Additional white Gaussian noise (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "blank"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K62",
+          "SMW-K62",
+          "SMW-K62",
+          "1413.3484.02",
+          "Additional white Gaussian noise (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K80",
+         "order": "1414.6187.02",
+         "desig": "Bit Error Rate Tester (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K80",
+          "Dummy_K80",
+          "SMW-K80",
+          "1414.6187.02",
+          "Bit Error Rate Tester (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K501",
+         "order": "1413.9218.02",
+         "desig": "Extended sequencing for R&S®SMW-B10 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K501",
+          "SMW-K501",
+          "SMW-K501",
+          "1413.9218.02",
+          "Extended sequencing for R&S®SMW-B10 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K540",
+         "order": "1413.7215.02",
+         "desig": "Envelope tracking (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K540",
+          "SMW-K540",
+          "SMW-K540",
+          "1413.7215.02",
+          "Envelope tracking (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K541",
+         "order": "1413.7267.02",
+         "desig": "AM/AM, AM/PM Predistortion (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K541",
+          "SMW-K541",
+          "SMW-K541",
+          "1413.7267.02",
+          "AM/AM, AM/PM Predistortion (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K544",
+         "order": "1414.3707.02",
+         "desig": "User-defined frequency response correction (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K544",
+          "SMW-K544",
+          "SMW-K544",
+          "1414.3707.02",
+          "User-defined frequency response correction (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K546",
+         "order": "1414.6487.02",
+         "desig": "Digital Doherty (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K546",
+          "Dummy_K546",
+          "SMW-K546",
+          "1414.6487.02",
+          "Digital Doherty (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K548",
+         "order": "1414.6641.02",
+         "desig": "Crest factor reduction (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K548",
+          "Dummy_K548",
+          "SMW-K548",
+          "1414.6641.02",
+          "Crest factor reduction (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K551",
+         "order": "1413.9724.02",
+         "desig": "Slow IQ (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K551",
+          "Dummy_K551",
+          "SMW-K551",
+          "1413.9724.02",
+          "Slow IQ (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K575",
+         "order": "1434.8379.02",
+         "desig": "RF linearization (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K575",
+          "SMW-K575",
+          "SMW-K575",
+          "1434.8379.02",
+          "RF linearization (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K810",
+         "order": "1414.6341.02",
+         "desig": "Enhanced noise generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K810",
+          "SMW-K810",
+          "SMW-K810",
+          "1414.6341.02",
+          "Enhanced noise generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K811",
+         "order": "1414.6364.02",
+         "desig": "Notched signals (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K811",
+          "SMW-K811",
+          "SMW-K811",
+          "1414.6364.02",
+          "Notched signals (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Fading",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B14",
+         "order": "1413.1500.02",
+         "desig": "Fading simulator (HW opt.)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B14",
+          "SMW-B14",
+          "SMW-B14",
+          "1413.1500.02",
+          "Fading simulator (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-K71",
+         "order": "1413.3532.02",
+         "desig": "Dynamic fading (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K71",
+          "SMW-K71",
+          "SMW-K71",
+          "1413.3532.02",
+          "Dynamic fading (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K72",
+         "order": "1413.3584.02",
+         "desig": "Enhanced fading models incl. Gauss- and Watterson-fading(SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K72",
+          "SMW-K72",
+          "SMW-K72",
+          "1413.3584.02",
+          "Enhanced fading models incl. Gauss- and Watterson-fading(SL)"
+         ]
+        },
+        {
+         "code": "SMW-K73",
+         "order": "1414.2300.02",
+         "desig": "OTA-MIMO Fading Enhancements (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K73",
+          "SMW-K73",
+          "1414.2300.02",
+          "OTA-MIMO Fading Enhancements (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K74",
+         "order": "1413.3632.02",
+         "desig": "MIMO fading and routing (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K74",
+          "SMW-K74",
+          "1413.3632.02",
+          "MIMO fading and routing (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K75",
+         "order": "1413.9576.02",
+         "desig": "Higher Order MIMO (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K75",
+          "SMW-K75",
+          "1413.9576.02",
+          "Higher Order MIMO (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K76",
+         "order": "1413.9624.02",
+         "desig": "Multiple Baseband Entities (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K76",
+          "SMW-K76",
+          "1413.9624.02",
+          "Multiple Baseband Entities (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K78",
+         "order": "1414.1833.02",
+         "desig": "Radar echo generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K78",
+          "SMW-K78",
+          "SMW-K78",
+          "1414.1833.02",
+          "Radar echo generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K550",
+         "order": "1413.7315.02",
+         "desig": "Stream Extender (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K550",
+          "SMW-K550",
+          "1413.7315.02",
+          "Stream Extender (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K820",
+         "order": "1414.2581.02",
+         "desig": "Customized Dynamic fading (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K820",
+          "SMW-K820",
+          "SMW-K820",
+          "1414.2581.02",
+          "Customized Dynamic fading (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K821",
+         "order": "1414.4403.02",
+         "desig": "MIMO subsets (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K821",
+          "SMW-K821",
+          "1414.4403.02",
+          "MIMO subsets (SL)"
+         ]
+        }
+       ],
+       "notes": [
+        "4x SMW-B14"
+       ]
+      },
+      {
+       "name": "Wideband baseband Options",
+       "options": []
+      }
+     ]
+    },
+    {
+     "name": "Wideband baseband generator",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B9",
+         "order": "1413.7350.02",
+         "desig": "Wideband baseband generator, 500 MHz, 256 MS (HW opt.)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B9",
+          "1413.7350.02",
+          "Wideband baseband generator, 500 MHz, 256 MS (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B9F",
+         "order": "1434.7808.02",
+         "desig": "Wideband Baseband High Signal Dynamics (HW Opt)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B9F",
+          "1434.7808.02",
+          "Wideband Baseband High Signal Dynamics (HW Opt)"
+         ]
+        },
+        {
+         "code": "SMW-K515",
+         "order": "1413.9360.02",
+         "desig": "ARB memory extension to 2 Gsamples (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K515",
+          "1413.9360.02",
+          "ARB memory extension to 2 Gsamples (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K525",
+         "order": "1414.6129.02",
+         "desig": "Baseband extension to 1 GHz RF bandwidth (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K525",
+          "1414.6129.02",
+          "Baseband extension to 1 GHz RF bandwidth (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K527",
+         "order": "1414.6158.02",
+         "desig": "Baseband extension to 2 GHz RF bandwidth (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K527",
+          "1414.6158.02",
+          "Baseband extension to 2 GHz RF bandwidth (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Wideband baseband enhancements",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K17",
+         "order": "1414.2346.02",
+         "desig": "Wideband differential analog I/Q outputs (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K17",
+          "Dummy_K17",
+          "SMW-K17",
+          "1414.2346.02",
+          "Wideband differential analog I/Q outputs (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K19",
+         "order": "1414.3865.02",
+         "desig": "Digital baseband output for SMW wideband baseband (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K19",
+          "SMW-K19",
+          "SMW-K19",
+          "1414.3865.02",
+          "Digital baseband output for SMW wideband baseband (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K62",
+         "order": "1413.3484.02",
+         "desig": "Additional white Gaussian noise (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K62",
+          "SMW-K62",
+          "SMW-K62",
+          "1413.3484.02",
+          "Additional white Gaussian noise (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K80",
+         "order": "1414.6187.02",
+         "desig": "Bit Error Rate Tester (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K80",
+          "Dummy_K80",
+          "SMW-K80",
+          "1414.6187.02",
+          "Bit Error Rate Tester (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K502",
+         "order": "1413.9260.02",
+         "desig": "Wideband Ext. Sequencing for R&S®SMW-B9 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K502",
+          "SMW-K502",
+          "SMW-K502",
+          "1413.9260.02",
+          "Wideband Ext. Sequencing for R&S®SMW-B9 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K503",
+         "order": "1414.3620.02",
+         "desig": "Realtime Control Interface (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K503",
+          "SMW-K503",
+          "SMW-K503",
+          "1414.3620.02",
+          "Realtime Control Interface (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K504",
+         "order": "1414.3665.02",
+         "desig": "High speed upgrade of PDW rate (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K504",
+          "SMW-K504",
+          "SMW-K504",
+          "1414.3665.02",
+          "High speed upgrade of PDW rate (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K506",
+         "order": "1413.3555.02",
+         "desig": "Agile Sequencing (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K506",
+          "SMW-K506",
+          "SMW-K506",
+          "1413.3555.02",
+          "Agile Sequencing (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K507",
+         "order": "1414.6206.02",
+         "desig": "ARB Ethernet Upload (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K507",
+          "SMW-K507",
+          "SMW-K507",
+          "1414.6206.02",
+          "ARB Ethernet Upload (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K508",
+         "order": "1434.8256.02",
+         "desig": "SMW-K508 IQ STREAMING",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K508",
+          "SMW-K508",
+          "SMW-K508",
+          "1434.8256.02",
+          "SMW-K508 IQ STREAMING"
+         ]
+        },
+        {
+         "code": "SMW-K540",
+         "order": "1413.7215.02",
+         "desig": "Envelope tracking (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K540",
+          "Dummy_K540",
+          "SMW-K540",
+          "1413.7215.02",
+          "Envelope tracking (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K541",
+         "order": "1413.7267.02",
+         "desig": "AM/AM, AM/PM Predistortion (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K541",
+          "SMW-K541",
+          "SMW-K541",
+          "1413.7267.02",
+          "AM/AM, AM/PM Predistortion (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K544",
+         "order": "1414.3707.02",
+         "desig": "User-defined frequency response correction (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K544",
+          "SMW-K544",
+          "SMW-K544",
+          "1414.3707.02",
+          "User-defined frequency response correction (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K546",
+         "order": "1414.6487.02",
+         "desig": "Digital Doherty (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K546",
+          "Dummy_K546",
+          "SMW-K546",
+          "1414.6487.02",
+          "Digital Doherty (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K548",
+         "order": "1414.6641.02",
+         "desig": "Crest factor reduction (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K548",
+          "Dummy_K548",
+          "SMW-K548",
+          "1414.6641.02",
+          "Crest factor reduction (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K551",
+         "order": "1413.9724.02",
+         "desig": "Slow IQ (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K551",
+          "Dummy_K551",
+          "SMW-K551",
+          "1413.9724.02",
+          "Slow IQ (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K555",
+         "order": "1414.6229.02",
+         "desig": "Bandwidth Extension (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": true,
+         "inputs": [],
+         "texts": [
+          "SMW-K555",
+          "Dummy_K555",
+          "SMW-K555",
+          "1414.6229.02",
+          "Bandwidth Extension (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K556",
+         "order": "1434.8310.02",
+         "desig": "Customized digital input (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K556",
+          "SMW-K556",
+          "SMW-K556",
+          "1434.8310.02",
+          "Customized digital input (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K573",
+         "order": "1434.9146.02",
+         "desig": "Dynamic Offset Control (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K573",
+          "SMW-K573",
+          "SMW-K573",
+          "1434.9146.02",
+          "Dynamic Offset Control (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K575",
+         "order": "1434.8379.02",
+         "desig": "RF linearization (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K575",
+          "SMW-K575",
+          "SMW-K575",
+          "1434.8379.02",
+          "RF linearization (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K810",
+         "order": "1414.6341.02",
+         "desig": "Enhanced noise generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K810",
+          "SMW-K810",
+          "SMW-K810",
+          "1414.6341.02",
+          "Enhanced noise generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K811",
+         "order": "1414.6364.02",
+         "desig": "Notched signals (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K811",
+          "SMW-K811",
+          "SMW-K811",
+          "1414.6364.02",
+          "Notched signals (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Wideband Fading",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B15",
+         "order": "1414.4710.02",
+         "desig": "Fading Simulator and signal processor (HW opt.)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B15",
+          "1414.4710.02",
+          "Fading Simulator and signal processor (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-K71",
+         "order": "1413.3532.02",
+         "desig": "Dynamic fading (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K71",
+          "SMW-K71",
+          "1413.3532.02",
+          "Dynamic fading (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K72",
+         "order": "1413.3584.02",
+         "desig": "Enhanced fading models incl. Gauss- and Watterson-fading(SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K72",
+          "SMW-K72",
+          "1413.3584.02",
+          "Enhanced fading models incl. Gauss- and Watterson-fading(SL)"
+         ]
+        },
+        {
+         "code": "SMW-K73",
+         "order": "1414.2300.02",
+         "desig": "OTA-MIMO Fading Enhancements (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K73",
+          "SMW-K73",
+          "1414.2300.02",
+          "OTA-MIMO Fading Enhancements (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K74",
+         "order": "1413.3632.02",
+         "desig": "MIMO fading and routing (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K74",
+          "SMW-K74",
+          "1413.3632.02",
+          "MIMO fading and routing (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K75",
+         "order": "1413.9576.02",
+         "desig": "Higher Order MIMO (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K75",
+          "SMW-K75",
+          "1413.9576.02",
+          "Higher Order MIMO (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K76",
+         "order": "1413.9624.02",
+         "desig": "Multiple Baseband Entities (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K76",
+          "SMW-K76",
+          "1413.9624.02",
+          "Multiple Baseband Entities (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K820",
+         "order": "1414.2581.02",
+         "desig": "Customized Dynamic fading (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K820",
+          "SMW-K820",
+          "1414.2581.02",
+          "Customized Dynamic fading (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K821",
+         "order": "1414.4403.02",
+         "desig": "MIMO subsets (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K821",
+          "SMW-K821",
+          "1414.4403.02",
+          "MIMO subsets (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K822",
+         "order": "1414.6712.02",
+         "desig": "Fading Bandwidth Extension to 400 MHz (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K822",
+          "SMW-K822",
+          "1414.6712.02",
+          "Fading Bandwidth Extension to 400 MHz (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K823",
+         "order": "1414.6735.02",
+         "desig": "Fading Bandwidth Extension to 800 MHz (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-disabled",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-disabled",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K823",
+          "SMW-K823",
+          "1414.6735.02",
+          "Fading Bandwidth Extension to 800 MHz (SL)"
+         ]
+        }
+       ],
+       "notes": [
+        "4x SMW-B15"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "RF Options 2. Path",
+   "groups": [
+    {
+     "name": "Frequency Options 2. Path",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": null,
+         "order": null,
+         "desig": "no 2. RF Path",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-on",
+           "status": "TICK"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "no 2. RF Path"
+         ]
+        },
+        {
+         "code": "SMW-B2003",
+         "order": "1428.5707.02",
+         "desig": "Frequency range: 100 kHz to 3 GHz for RF path B (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B2003",
+          "1428.5707.02",
+          "Frequency range: 100 kHz to 3 GHz for RF path B (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Low Phase Noise 2. Path",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": null,
+         "order": null,
+         "desig": "Ø",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-on",
+           "status": "TICK"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "Ø"
+         ]
+        },
+        {
+         "code": "SMW-B719",
+         "order": "1428.7500.02",
+         "desig": "Low phase noise, RF path B (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B719",
+          "1428.7500.02",
+          "Low phase noise, RF path B (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B720",
+         "order": "1428.6903.02",
+         "desig": "Improved close in phase noise for RF path B (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B720",
+          "1428.6903.02",
+          "Improved close in phase noise for RF path B (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B721",
+         "order": "1428.7100.02",
+         "desig": "Ultra low phase noise for RF path B (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "radio-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B721",
+          "1428.7100.02",
+          "Ultra low phase noise for RF path B (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Other RF Options",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K22",
+         "order": "1413.3249.02",
+         "desig": "Pulse modulator (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K22",
+          "1413.3249.02",
+          "Pulse modulator (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K23",
+         "order": "1413.3284.02",
+         "desig": "High performance pulse generator (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K23",
+          "1413.3284.02",
+          "High performance pulse generator (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K24",
+         "order": "1413.3332.02",
+         "desig": "Multi function generator (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K24",
+          "1413.3332.02",
+          "Multi function generator (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K553",
+         "order": "1414.6758.02",
+         "desig": "External Frontend Control (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K553",
+          "1414.6758.02",
+          "External Frontend Control (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K554",
+         "order": "1413.7309.02",
+         "desig": "External Multiplier Control (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K554",
+          "1413.7309.02",
+          "External Multiplier Control (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K720",
+         "order": "1413.7438.02",
+         "desig": "AM / FM / PhiM (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K720",
+          "1413.7438.02",
+          "AM / FM / PhiM (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Rear Connector",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B82",
+         "order": "1413.5941.02",
+         "desig": "Rear panel connectors for RF path B (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B82",
+          "1413.5941.02",
+          "Rear panel connectors for RF path B (HW opt.)"
+         ]
+        },
+        {
+         "code": "SMW-B84",
+         "order": "1414.1033.02",
+         "desig": "Rear panel connectors RF path B (20 GHz) (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B84",
+          "1414.1033.02",
+          "Rear panel connectors RF path B (20 GHz) (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Platform options",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-B94L",
+         "order": "1438.8150.02",
+         "desig": "Deeper chassis (HW opt.)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-disabled",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-B94L",
+          "1438.8150.02",
+          "Deeper chassis (HW opt.)"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Digital Standards / WinIQSIM2",
+   "groups": [
+    {
+     "name": "(none)",
+     "subgroups": [
+      {
+       "name": "Portable",
+       "options": []
+      },
+      {
+       "name": "Timed 1 Month",
+       "options": []
+      },
+      {
+       "name": "Timed 3 Months",
+       "options": []
+      },
+      {
+       "name": "Timed 6 Months",
+       "options": []
+      },
+      {
+       "name": "Timed 12 Months",
+       "options": [],
+       "notes": [
+        "> Expand all | > Collapse all",
+        "Type | Order No. | Designation"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Digital Standards",
+     "subgroups": [
+      {
+       "name": "Cellular standards",
+       "options": [
+        {
+         "code": "SMW-K144",
+         "order": "1414.4990.02",
+         "desig": "5G NR Release 15 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K144",
+          "1414.4990.02",
+          "5G NR Release 15 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K148",
+         "order": "1414.6664.02",
+         "desig": "5G NR Release 16 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K148",
+          "1414.6664.02",
+          "5G NR Release 16 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K171",
+         "order": "1413.7280.02",
+         "desig": "5G NR Release 17/18/19 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K171",
+          "1413.7280.02",
+          "5G NR Release 17/18/19 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K170",
+         "order": "1413.8640.02",
+         "desig": "5G-NR Sidelink (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K170",
+          "1413.8640.02",
+          "5G-NR Sidelink (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K145",
+         "order": "1414.6506.02",
+         "desig": "5G NR Closed-Loop BS Test (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K145",
+          "1414.6506.02",
+          "5G NR Closed-Loop BS Test (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K184",
+         "order": "1434.9169.02",
+         "desig": "Beyond 5G (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K184",
+          "1434.9169.02",
+          "Beyond 5G (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K55",
+         "order": "1413.4180.02",
+         "desig": "LTE Release 8 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K55",
+          "1413.4180.02",
+          "LTE Release 8 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K84",
+         "order": "1413.5435.02",
+         "desig": "LTE Release 9 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K84",
+          "1413.5435.02",
+          "LTE Release 9 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K85",
+         "order": "1413.5487.02",
+         "desig": "LTE Release 10 (LTE Advanced) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K85",
+          "1413.5487.02",
+          "LTE Release 10 (LTE Advanced) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K112",
+         "order": "1413.8505.02",
+         "desig": "LTE Release 11 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K112",
+          "1413.8505.02",
+          "LTE Release 11 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K113",
+         "order": "1414.1933.02",
+         "desig": "LTE Release 12 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K113",
+          "1414.1933.02",
+          "LTE Release 12 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K119",
+         "order": "1414.3542.02",
+         "desig": "LTE Release 13/14/15 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K119",
+          "1414.3542.02",
+          "LTE Release 13/14/15 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K69",
+         "order": "1413.4480.02",
+         "desig": "LTE closed-loop BS test,HARQ feedback, timing adj.(SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K69",
+          "1413.4480.02",
+          "LTE closed-loop BS test,HARQ feedback, timing adj.(SL)"
+         ]
+        },
+        {
+         "code": "SMW-K81",
+         "order": "1413.4539.02",
+         "desig": "Logfile generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K81",
+          "1413.4539.02",
+          "Logfile generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K175",
+         "order": "1413.3261.02",
+         "desig": "U-Plane generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K175",
+          "1413.3261.02",
+          "U-Plane generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K115",
+         "order": "1414.2723.02",
+         "desig": "Cellular IoT Release 13 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K115",
+          "1414.2723.02",
+          "Cellular IoT Release 13 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K143",
+         "order": "1414.6064.02",
+         "desig": "Cellular IoT Release 14 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K143",
+          "1414.6064.02",
+          "Cellular IoT Release 14 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K146",
+         "order": "1414.6564.02",
+         "desig": "Cellular IoT Release 15/16/17 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K146",
+          "1414.6564.02",
+          "Cellular IoT Release 15/16/17 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K42",
+         "order": "1413.3784.02",
+         "desig": "3GPP FDD (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K42",
+          "1413.3784.02",
+          "3GPP FDD (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K83",
+         "order": "1413.4580.02",
+         "desig": "3GPP FDD HSPA/HSPA+, enhanced BS/MS tests (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K83",
+          "1413.4580.02",
+          "3GPP FDD HSPA/HSPA+, enhanced BS/MS tests (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K40",
+         "order": "1413.3684.02",
+         "desig": "GSM/EDGE (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K40",
+          "1413.3684.02",
+          "GSM/EDGE (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K41",
+         "order": "1413.3732.02",
+         "desig": "EDGE Evolution (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K41",
+          "1413.3732.02",
+          "EDGE Evolution (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K46",
+         "order": "1413.3884.02",
+         "desig": "CDMA2000 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K46",
+          "1413.3884.02",
+          "CDMA2000 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K47",
+         "order": "1413.3932.02",
+         "desig": "1xEV-DO Rev.A (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K47",
+          "1413.3932.02",
+          "1xEV-DO Rev.A (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K87",
+         "order": "1413.6519.02",
+         "desig": "1xEV-DO Rev. B (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K87",
+          "1413.6519.02",
+          "1xEV-DO Rev. B (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K50",
+         "order": "1413.4039.02",
+         "desig": "TD-SCDMA (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K50",
+          "1413.4039.02",
+          "TD-SCDMA (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K51",
+         "order": "1413.4080.02",
+         "desig": "TD-SCDMA enhanced BS/MS tests (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K51",
+          "1413.4080.02",
+          "TD-SCDMA enhanced BS/MS tests (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K118",
+         "order": "1414.3465.02",
+         "desig": "Verizon 5GTF Signals (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K118",
+          "1414.3465.02",
+          "Verizon 5GTF Signals (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K68",
+         "order": "1413.4439.02",
+         "desig": "TETRA Release 2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K68",
+          "1413.4439.02",
+          "TETRA Release 2 (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Wireless connectivity standards",
+       "options": [
+        {
+         "code": "SMW-K54",
+         "order": "1413.4139.02",
+         "desig": "IEEE 802.11a/b/g/n/j/p (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K54",
+          "1413.4139.02",
+          "IEEE 802.11a/b/g/n/j/p (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K86",
+         "order": "1413.5635.02",
+         "desig": "IEEE 802.11ac (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K86",
+          "1413.5635.02",
+          "IEEE 802.11ac (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K142",
+         "order": "1414.3259.02",
+         "desig": "Digital Standard IEEE 802.11ax (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K142",
+          "1414.3259.02",
+          "Digital Standard IEEE 802.11ax (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K147",
+         "order": "1413.6677.02",
+         "desig": "IEEE 802.11be (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K147",
+          "1413.6677.02",
+          "IEEE 802.11be (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K185",
+         "order": "1434.9223.02",
+         "desig": "IEEE 802.11bn (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K185",
+          "1434.9223.02",
+          "IEEE 802.11bn (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K141",
+         "order": "1414.1333.02",
+         "desig": "IEEE 802.11ad (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K141",
+          "1414.1333.02",
+          "IEEE 802.11ad (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K177",
+         "order": "1434.8191.02",
+         "desig": "IEEE 802.11ay (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K177",
+          "1434.8191.02",
+          "IEEE 802.11ay (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K60",
+         "order": "1413.4239.02",
+         "desig": "Bluetooth® incl. Enhanced Data Rate (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K60",
+          "1413.4239.02",
+          "Bluetooth® incl. Enhanced Data Rate (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K117",
+         "order": "1414.3336.02",
+         "desig": "Bluetooth® 5.x (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K117",
+          "1414.3336.02",
+          "Bluetooth® 5.x (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K178",
+         "order": "1434.8279.02",
+         "desig": "Bluetooth® 6.0 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K178",
+          "1434.8279.02",
+          "Bluetooth® 6.0 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K180",
+         "order": "1434.8433.02",
+         "desig": "IEEE 802.15.4 OQPSK (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K180",
+          "1434.8433.02",
+          "IEEE 802.15.4 OQPSK (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K149",
+         "order": "1414.6912.02",
+         "desig": "HRP UWB (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K149",
+          "1414.6912.02",
+          "HRP UWB (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K181",
+         "order": "1434.9017.02",
+         "desig": "HRP UWB MMS (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K181",
+          "1434.9017.02",
+          "HRP UWB MMS (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K182",
+         "order": "1434.9052.02",
+         "desig": "HRP UWB Sensing (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K182",
+          "1434.9052.02",
+          "HRP UWB Sensing (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K131",
+         "order": "1414.6464.02",
+         "desig": "LoRa® (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K131",
+          "1414.6464.02",
+          "LoRa® (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K89",
+         "order": "1413.6619.02",
+         "desig": "NFC A/B/F (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K89",
+          "1413.6619.02",
+          "NFC A/B/F (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Broadcast / Digital Video Standards",
+       "options": [
+        {
+         "code": "SMW-K52",
+         "order": "1413.6090.02",
+         "desig": "DVB-H/T (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K52",
+          "1413.6090.02",
+          "DVB-H/T (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "SatCom Standards",
+       "options": [
+        {
+         "code": "SMW-K116",
+         "order": "1414.2630.02",
+         "desig": "DVB-S2/DVB-S2X (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K116",
+          "1414.2630.02",
+          "DVB-S2/DVB-S2X (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K130",
+         "order": "1414.3788.02",
+         "desig": "OneWeb User-Defined Signal Generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K130",
+          "1414.3788.02",
+          "OneWeb User-Defined Signal Generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K169",
+         "order": "1413.8711.02",
+         "desig": "DVB-RCS2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K169",
+          "1413.8711.02",
+          "DVB-RCS2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K176",
+         "order": "1413.8686.02",
+         "desig": "DVB-S2X-E (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K176",
+          "1413.8686.02",
+          "DVB-S2X-E (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K183",
+         "order": "1434.9100.02",
+         "desig": "DVB-S2/S2X Annex-M (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K183",
+          "1434.9100.02",
+          "DVB-S2/S2X Annex-M (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K355",
+         "order": "1414.3742.02",
+         "desig": "OneWeb Reference Signals (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K355",
+          "1414.3742.02",
+          "OneWeb Reference Signals (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Other standards and modulation systems",
+       "options": [
+        {
+         "code": "SMW-K61",
+         "order": "1413.4280.02",
+         "desig": "Multi carrier CW signal generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K61",
+          "1413.4280.02",
+          "Multi carrier CW signal generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K114",
+         "order": "1414.1985.02",
+         "desig": "OFDM signal generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K114",
+          "1414.1985.02",
+          "OFDM signal generation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K542",
+         "order": "1413.9876.02",
+         "desig": "Baseband power sweep (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K542",
+          "1413.9876.02",
+          "Baseband power sweep (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Digital Standards WinIQSIM2",
+     "subgroups": [
+      {
+       "name": "Cellular standards",
+       "options": [
+        {
+         "code": "SMW-K444",
+         "order": "1414.5022.02",
+         "desig": "5G NR Release 15 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K444",
+          "1414.5022.02",
+          "5G NR Release 15 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K448",
+         "order": "1414.6687.02",
+         "desig": "5G NR Release 16 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K448",
+          "1414.6687.02",
+          "5G NR Release 16 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K471",
+         "order": "1413.7296.02",
+         "desig": "5G NR Release 17/18/19 (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K471",
+          "1413.7296.02",
+          "5G NR Release 17/18/19 (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K470",
+         "order": "1413.8663.02",
+         "desig": "5G-NR Sidelink (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K470",
+          "1413.8663.02",
+          "5G-NR Sidelink (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K484",
+         "order": "1434.9181.02",
+         "desig": "Beyond 5G (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K484",
+          "1434.9181.02",
+          "Beyond 5G (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K255",
+         "order": "1413.5235.02",
+         "desig": "LTE Release 8 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K255",
+          "1413.5235.02",
+          "LTE Release 8 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K284",
+         "order": "1413.5535.02",
+         "desig": "LTE Release 9 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K284",
+          "1413.5535.02",
+          "LTE Release 9 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K285",
+         "order": "1413.5587.02",
+         "desig": "LTE Release 10 (LTE Advanced) with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K285",
+          "1413.5587.02",
+          "LTE Release 10 (LTE Advanced) with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K412",
+         "order": "1413.8557.02",
+         "desig": "LTE Release 11 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K412",
+          "1413.8557.02",
+          "LTE Release 11 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K413",
+         "order": "1414.2030.02",
+         "desig": "LTE Release 12 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K413",
+          "1414.2030.02",
+          "LTE Release 12 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K419",
+         "order": "1414.3588.02",
+         "desig": "LTE Release 13/14/15 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K419",
+          "1414.3588.02",
+          "LTE Release 13/14/15 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K415",
+         "order": "1414.2769.02",
+         "desig": "Cellular IoT Release 13 with R&S®WINIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K415",
+          "1414.2769.02",
+          "Cellular IoT Release 13 with R&S®WINIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K443",
+         "order": "1414.6093.02",
+         "desig": "Cellular IoT Release 14 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K443",
+          "1414.6093.02",
+          "Cellular IoT Release 14 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K446",
+         "order": "1414.6587.02",
+         "desig": "Cellular IoT Release 15/16/17 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K446",
+          "1414.6587.02",
+          "Cellular IoT Release 15/16/17 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K242",
+         "order": "1413.4839.02",
+         "desig": "3GPP FDD with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K242",
+          "1413.4839.02",
+          "3GPP FDD with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K283",
+         "order": "1413.6290.02",
+         "desig": "3GPP FDD HSPA/HSPA+, enh. BS/MS tests w. R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K283",
+          "1413.6290.02",
+          "3GPP FDD HSPA/HSPA+, enh. BS/MS tests w. R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K240",
+         "order": "1413.4739.02",
+         "desig": "GSM/EDGE with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K240",
+          "1413.4739.02",
+          "GSM/EDGE with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K241",
+         "order": "1413.4780.02",
+         "desig": "EDGE Evolution with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K241",
+          "1413.4780.02",
+          "EDGE Evolution with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K246",
+         "order": "1413.4939.02",
+         "desig": "CDMA2000 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K246",
+          "1413.4939.02",
+          "CDMA2000 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K247",
+         "order": "1413.4980.02",
+         "desig": "1xEV-DO Rev.A with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K247",
+          "1413.4980.02",
+          "1xEV-DO Rev.A with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K287",
+         "order": "1413.6560.02",
+         "desig": "1xEV-DO Rev. B with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K287",
+          "1413.6560.02",
+          "1xEV-DO Rev. B with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K250",
+         "order": "1413.5087.02",
+         "desig": "TD-SCDMA with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K250",
+          "1413.5087.02",
+          "TD-SCDMA with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K251",
+         "order": "1413.5135.02",
+         "desig": "TD-SCDMA enhanced BS/MS tests with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K251",
+          "1413.5135.02",
+          "TD-SCDMA enhanced BS/MS tests with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K418",
+         "order": "1414.3507.02",
+         "desig": "Verizon 5GTF Signals with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K418",
+          "1414.3507.02",
+          "Verizon 5GTF Signals with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K268",
+         "order": "1413.5387.02",
+         "desig": "TETRA Release 2 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K268",
+          "1413.5387.02",
+          "TETRA Release 2 with R&S®WinIQSIM2 (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Wireless connectivity standards",
+       "options": [
+        {
+         "code": "SMW-K254",
+         "order": "1413.5187.02",
+         "desig": "IEEE 802.11a/b/g/n/j/p with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K254",
+          "1413.5187.02",
+          "IEEE 802.11a/b/g/n/j/p with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K286",
+         "order": "1413.5687.02",
+         "desig": "IEEE 802.11ac with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K286",
+          "1413.5687.02",
+          "IEEE 802.11ac with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K442",
+         "order": "1414.3294.02",
+         "desig": "Digital Standard IEEE 802.11ax with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K442",
+          "1414.3294.02",
+          "Digital Standard IEEE 802.11ax with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K447",
+         "order": "1413.6683.02",
+         "desig": "IEEE 802.11be (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K447",
+          "1413.6683.02",
+          "IEEE 802.11be (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K485",
+         "order": "1434.9246.02",
+         "desig": "IEEE 802.11bn (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K485",
+          "1434.9246.02",
+          "IEEE 802.11bn (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K441",
+         "order": "1414.1385.02",
+         "desig": "IEEE 802.11ad (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K441",
+          "1414.1385.02",
+          "IEEE 802.11ad (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K260",
+         "order": "1413.5287.02",
+         "desig": "Bluetooth® incl. Enhanced Data Rate with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K260",
+          "1413.5287.02",
+          "Bluetooth® incl. Enhanced Data Rate with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K417",
+         "order": "1414.3371.02",
+         "desig": "Bluetooth® 5.x with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K417",
+          "1414.3371.02",
+          "Bluetooth® 5.x with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K478",
+         "order": "1434.8291.02",
+         "desig": "Bluetooth® 6.0 (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K478",
+          "1434.8291.02",
+          "Bluetooth® 6.0 (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K431",
+         "order": "1414.6441.02",
+         "desig": "LoRa® (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K431",
+          "1414.6441.02",
+          "LoRa® (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K480",
+         "order": "1434.8456.02",
+         "desig": "IEEE 802.15.4 OQPSK (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K480",
+          "1434.8456.02",
+          "IEEE 802.15.4 OQPSK (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K449",
+         "order": "1414.6958.02",
+         "desig": "HRP UWB (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K449",
+          "1414.6958.02",
+          "HRP UWB (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K481",
+         "order": "1434.9030.02",
+         "desig": "HRP UWB MMS (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K481",
+          "1434.9030.02",
+          "HRP UWB MMS (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K482",
+         "order": "1434.9075.02",
+         "desig": "HRP UWB Sensing (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K482",
+          "1434.9075.02",
+          "HRP UWB Sensing (WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K289",
+         "order": "1413.6654.02",
+         "desig": "NFC A/B/F with R&S?WinIQSIM2",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K289",
+          "1413.6654.02",
+          "NFC A/B/F with R&S?WinIQSIM2"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Navigation standards",
+       "options": [
+        {
+         "code": "SMW-K244",
+         "order": "1413.4880.02",
+         "desig": "GPS 1 satellite with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K244",
+          "1413.4880.02",
+          "GPS 1 satellite with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K266",
+         "order": "1413.7015.02",
+         "desig": "Galileo 1 satellite with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K266",
+          "1413.7015.02",
+          "Galileo 1 satellite with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K294",
+         "order": "1413.7067.02",
+         "desig": "Glonass 1 satellite with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K294",
+          "1413.7067.02",
+          "Glonass 1 satellite with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K407",
+         "order": "1413.7115.02",
+         "desig": "BeiDou 1 satellite with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K407",
+          "1413.7115.02",
+          "BeiDou 1 satellite with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K297",
+         "order": "1414.6287.02",
+         "desig": "IRNSS (1 SV, WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K297",
+          "1414.6287.02",
+          "IRNSS (1 SV, WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K298",
+         "order": "1414.3171.02",
+         "desig": "Mod. GPS w. R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K298",
+          "1414.3171.02",
+          "Mod. GPS w. R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K432",
+         "order": "1414.6629.02",
+         "desig": "MOD. BEIDOU (1 SV, WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K432",
+          "1414.6629.02",
+          "MOD. BEIDOU (1 SV, WinIQSIM2) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K423",
+         "order": "1413.3410.02",
+         "desig": "MOD. GLONASS (1 SV, WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K423",
+          "1413.3410.02",
+          "MOD. GLONASS (1 SV, WinIQSIM2) (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Broadcast / Digital Video Standards",
+       "options": [
+        {
+         "code": "SMW-K252",
+         "order": "1413.6190.02",
+         "desig": "DVB-H/T with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K252",
+          "1413.6190.02",
+          "DVB-H/T with R&S®WinIQSIM2 (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "SatCom Standards",
+       "options": [
+        {
+         "code": "SMW-K416",
+         "order": "1414.2681.02",
+         "desig": "DVB-S2/DVB-S2X with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K416",
+          "1414.2681.02",
+          "DVB-S2/DVB-S2X with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K469",
+         "order": "1413.9130.02",
+         "desig": "DVB-RCS2 with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K469",
+          "1413.9130.02",
+          "DVB-RCS2 with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K476",
+         "order": "1413.9076.02",
+         "desig": "DVB-S2X-E with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K476",
+          "1413.9076.02",
+          "DVB-S2X-E with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K483",
+         "order": "1434.9123.02",
+         "desig": "DVB-S2/S2X Annex-M (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K483",
+          "1434.9123.02",
+          "DVB-S2/S2X Annex-M (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K430",
+         "order": "1414.3820.02",
+         "desig": "OneWeb User-Defined Signal Generation w. R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K430",
+          "1414.3820.02",
+          "OneWeb User-Defined Signal Generation w. R&S®WinIQSIM2 (SL)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Other standards and modulation systems",
+       "options": [
+        {
+         "code": "SMW-K261",
+         "order": "1413.5335.02",
+         "desig": "Multi carrier CW signal generation with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K261",
+          "1413.5335.02",
+          "Multi carrier CW signal generation with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K262",
+         "order": "1413.6460.02",
+         "desig": "AWGN with R&S®WinIQSIM2 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K262",
+          "1413.6460.02",
+          "AWGN with R&S®WinIQSIM2 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K414",
+         "order": "3636.0434.02",
+         "desig": "OFDM Signal Generation (WinIQSIM2) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K414",
+          "3636.0434.02",
+          "OFDM Signal Generation (WinIQSIM2) (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "GNSS",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K44",
+         "order": "1413.3832.02",
+         "desig": "GPS (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K44",
+          "1413.3832.02",
+          "GPS (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K66",
+         "order": "1413.4380.02",
+         "desig": "Galileo (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K66",
+          "1413.4380.02",
+          "Galileo (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K94",
+         "order": "1414.1485.02",
+         "desig": "Glonass (max. 24 chan.) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K94",
+          "1414.1485.02",
+          "Glonass (max. 24 chan.) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K97",
+         "order": "1414.6258.02",
+         "desig": "IRNSS (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K97",
+          "1414.6258.02",
+          "IRNSS (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K98",
+         "order": "1414.1533.02",
+         "desig": "Mod. GPS (max. 24 chan.) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K98",
+          "1414.1533.02",
+          "Mod. GPS (max. 24 chan.) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K106",
+         "order": "1414.2923.02",
+         "desig": "SBAS/QZSS (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K106",
+          "1414.2923.02",
+          "SBAS/QZSS (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K107",
+         "order": "1414.1585.02",
+         "desig": "BeiDou (max. 24 chan.) (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K107",
+          "1414.1585.02",
+          "BeiDou (max. 24 chan.) (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K108",
+         "order": "1414.2975.02",
+         "desig": "Real World Scenarios (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K108",
+          "1414.2975.02",
+          "Real World Scenarios (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K109",
+         "order": "1414.3013.02",
+         "desig": "RT Interfaces (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K109",
+          "1414.3013.02",
+          "RT Interfaces (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K111",
+         "order": "1414.3059.02",
+         "desig": "GBAS (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K111",
+          "1414.3059.02",
+          "GBAS (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K122",
+         "order": "1414.6993.02",
+         "desig": "RTK Virtual Reference Station (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K122",
+          "1414.6993.02",
+          "RTK Virtual Reference Station (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K123",
+         "order": "1413.3310.02",
+         "desig": "Modernized Glonass (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K123",
+          "1413.3310.02",
+          "Modernized Glonass (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K128",
+         "order": "1413.3361.02",
+         "desig": "P(Y)-/M-/PRS-Noise (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K128",
+          "1413.3361.02",
+          "P(Y)-/M-/PRS-Noise (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K129",
+         "order": "1434.8410.02",
+         "desig": "Matched-Spectrum GNSS Interferer (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K129",
+          "1434.8410.02",
+          "Matched-Spectrum GNSS Interferer (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K132",
+         "order": "1414.6606.02",
+         "desig": "Modernized BeiDou (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K132",
+          "1414.6606.02",
+          "Modernized BeiDou (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K134",
+         "order": "1414.6770.02",
+         "desig": "Upgrade to Dual-Frequency (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K134",
+          "1414.6770.02",
+          "Upgrade to Dual-Frequency (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K135",
+         "order": "1414.6793.02",
+         "desig": "Upgrade to Triple-Frequency GNSS (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K135",
+          "1414.6793.02",
+          "Upgrade to Triple-Frequency GNSS (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K360",
+         "order": "1414.2800.02",
+         "desig": "eraGlonass Test Suite (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K360",
+          "1414.2800.02",
+          "eraGlonass Test Suite (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K361",
+         "order": "1414.2846.02",
+         "desig": "eCall Test Suite (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K361",
+          "1414.2846.02",
+          "eCall Test Suite (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K362",
+         "order": "1414.6406.02",
+         "desig": "GNSS Test Suite (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K362",
+          "1414.6406.02",
+          "GNSS Test Suite (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K363",
+         "order": "1434.8179.02",
+         "desig": "Car Navigation Test Suite (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K363",
+          "1434.8179.02",
+          "Car Navigation Test Suite (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K136",
+         "order": "1414.6812.02",
+         "desig": "Add 6 GNSS channels (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [
+          "24"
+         ],
+         "texts": [
+          "0",
+          "SMW-K136",
+          "1414.6812.02",
+          "Add 6 GNSS channels (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K137",
+         "order": "1414.6835.02",
+         "desig": "Add 12 GNSS channels (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "0",
+          "SMW-K137",
+          "1414.6835.02",
+          "Add 12 GNSS channels (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K138",
+         "order": "1414.6858.02",
+         "desig": "Add 24 GNSS channels (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "0",
+          "SMW-K138",
+          "1414.6858.02",
+          "Add 24 GNSS channels (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K139",
+         "order": "1414.6935.02",
+         "desig": "Add 48 GNSS channels (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "0",
+          "SMW-K139",
+          "1414.6935.02",
+          "Add 48 GNSS channels (SL)"
+         ]
+        }
+       ],
+       "notes": [
+        "Amount of GNSS-Channel: | To activate please select B13XT and B9 or B9F and K44, K66, K94, K98, K107 or K132",
+        "Adopt"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Waveform Packages (max. 250 waveforms per instrument can be registered)",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K200",
+         "order": "1414.6870.71",
+         "desig": "Waveform Package (1 Waveform) (QI)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [
+          "0"
+         ],
+         "texts": [
+          "SMW-K200",
+          "1414.6870.71",
+          "Waveform Package (1 Waveform) (QI)"
+         ]
+        },
+        {
+         "code": "SMW-K200",
+         "order": "1414.6870.72",
+         "desig": "Waveform Package (5 Waveforms) (QV)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [
+          "0"
+         ],
+         "texts": [
+          "SMW-K200",
+          "1414.6870.72",
+          "Waveform Package (5 Waveforms) (QV)"
+         ]
+        },
+        {
+         "code": "SMW-K200",
+         "order": "1414.6870.75",
+         "desig": "Waveform Package (50 Waveforms) (QL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [
+          "0"
+         ],
+         "texts": [
+          "SMW-K200",
+          "1414.6870.75",
+          "Waveform Package (50 Waveforms) (QL)"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "External PC Software",
+   "groups": [
+    {
+     "name": "Pulse Sequencer Software",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K300",
+         "order": "1413.8805.02",
+         "desig": "Pulse sequencing (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K300",
+          "1413.8805.02",
+          "Pulse sequencing (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K301",
+         "order": "1413.9776.02",
+         "desig": "Enhanced pulse sequencing (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K301",
+          "1413.9776.02",
+          "Enhanced pulse sequencing (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K302",
+         "order": "1413.8857.02",
+         "desig": "Radar Platforms (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K302",
+          "1413.8857.02",
+          "Radar Platforms (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K304",
+         "order": "1413.8957.02",
+         "desig": "Moving Emitters and Receiver (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K304",
+          "1413.8957.02",
+          "Moving Emitters and Receiver (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K306",
+         "order": "1413.9053.02",
+         "desig": "Multiple Emitters (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K306",
+          "1413.9053.02",
+          "Multiple Emitters (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K307",
+         "order": "1413.3510.02",
+         "desig": "Extends interleaved emitters for Pulse Sequencer to 512 (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K307",
+          "1413.3510.02",
+          "Extends interleaved emitters for Pulse Sequencer to 512 (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K308",
+         "order": "1414.1433.02",
+         "desig": "Direction Finding (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K308",
+          "1414.1433.02",
+          "Direction Finding (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K309",
+         "order": "1414.6706.02",
+         "desig": "Import of 2D Maps in Pulse Sequencer software (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K309",
+          "1414.6706.02",
+          "Import of 2D Maps in Pulse Sequencer software (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K315",
+         "order": "1414.6529.02",
+         "desig": "Pulse-on-pulse simulation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K315",
+          "1414.6529.02",
+          "Pulse-on-pulse simulation (SL)"
+         ]
+        },
+        {
+         "code": "SMW-K350",
+         "order": "1413.9160.02",
+         "desig": "DFS signal generation (SL)",
+         "cols": [
+          {
+           "path": "Path A",
+           "ctrl": "box-off",
+           "status": "X"
+          },
+          {
+           "path": "Path B",
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K350",
+          "1413.9160.02",
+          "DFS signal generation (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "RF Ports Alignment Software",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K545",
+         "order": "1414.6429.02",
+         "desig": "Automated RF Port Alignment (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K545",
+          "1414.6429.02",
+          "Automated RF Port Alignment (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Other Options and Extras",
+   "groups": [
+    {
+     "name": "Trial license",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-T0",
+         "order": "1414.6970.23",
+         "desig": "Trial license (3 Months) (3M)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-on",
+           "status": "TICK"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-T0",
+          "1414.6970.23",
+          "Trial license (3 Months) (3M)"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "T0 contains following options: SMWK16, -K17, -K22, -K23, -K24, -K44, -K61, -K62, -K66, -K94, -K107, -K300, -K301, -K302, -K304, -K306, -K307, -K309, -K502, -K540, -K541, -K542, -K544, -K548, -K703, -K704, -K720, -K739, -K810 and -K811",
+       "options": []
+      }
+     ]
+    },
+    {
+     "name": "Other Options",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-K980",
+         "order": "1414.6893.02",
+         "desig": "HUMS (SL)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-K980",
+          "1414.6893.02",
+          "HUMS (SL)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Extras",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "ZZA-KN4B",
+         "order": "1703.1346.00",
+         "desig": "19 INCH ADAPTER 4HU 1/1",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "ZZA-KN4B",
+          "1703.1346.00",
+          "19 INCH ADAPTER 4HU 1/1"
+         ]
+        },
+        {
+         "code": "TS-USB1",
+         "order": "6124.2531.00",
+         "desig": "USB serial adapter",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TS-USB1",
+          "6124.2531.00",
+          "USB serial adapter"
+         ]
+        },
+        {
+         "code": null,
+         "order": "1208.3213.00",
+         "desig": "Cable for connecting digital IQ interfaces (0.5M)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "1208.3213.00",
+          "Cable for connecting digital IQ interfaces (0.5M)"
+         ]
+        },
+        {
+         "code": null,
+         "order": "3716.5425.00",
+         "desig": "DR LVDS ST-ST 26P 2M",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "3716.5425.00",
+          "DR LVDS ST-ST 26P 2M"
+         ]
+        },
+        {
+         "code": null,
+         "order": "1414.1910.02",
+         "desig": "SPARE SSD FOR SMW200A",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": null,
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [
+          "0"
+         ],
+         "texts": [
+          "1414.1910.02",
+          "SPARE SSD FOR SMW200A"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Adapters",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": null,
+         "order": "1036.4790.00",
+         "desig": "Testport adapter, 2.92 mm female",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "1036.4790.00",
+          "Testport adapter, 2.92 mm female"
+         ]
+        },
+        {
+         "code": null,
+         "order": "1036.4802.00",
+         "desig": "Testport adapter, 2.92 mm male",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "1036.4802.00",
+          "Testport adapter, 2.92 mm male"
+         ]
+        },
+        {
+         "code": null,
+         "order": "1036.4777.00",
+         "desig": "Testport adapter, N female",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "1036.4777.00",
+          "Testport adapter, N female"
+         ]
+        },
+        {
+         "code": null,
+         "order": "1036.4783.00",
+         "desig": "Testport adapter, N male",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "1036.4783.00",
+          "Testport adapter, N male"
+         ]
+        },
+        {
+         "code": null,
+         "order": "3588.9654.00",
+         "desig": "RPC-1.85 ADAPTOR JACK-JACK",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "3588.9654.00",
+          "RPC-1.85 ADAPTOR JACK-JACK"
+         ]
+        },
+        {
+         "code": null,
+         "order": "3628.4728.02",
+         "desig": "Coaxial Adapter Connector 1.85mm (f), 2.92mm (f)",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "X"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "RPC2.9-1.8",
+          "3628.4728.02",
+          "Coaxial Adapter Connector 1.85mm (f), 2.92mm (f)"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Power combiner kits",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": "SMW-ZKK",
+         "order": "1434.7908.02",
+         "desig": "Combiner Kit 40 GHz",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-ZKK",
+          "1434.7908.02",
+          "Combiner Kit 40 GHz"
+         ]
+        },
+        {
+         "code": "SMW-ZKV",
+         "order": "1434.7989.02",
+         "desig": "Combiner Kit 67 GHz",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "SMW-ZKV",
+          "1434.7989.02",
+          "Combiner Kit 67 GHz"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Service Options",
+   "groups": [
+    {
+     "name": "(none)",
+     "subgroups": [
+      {
+       "name": "Manufacturer calibration",
+       "options": []
+      },
+      {
+       "name": "Accredited calibration",
+       "options": [],
+       "notes": [
+        "Coverage Duration | 3 Years"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Calibration Coverage",
+     "subgroups": [
+      {
+       "name": "Manufacturer calibration",
+       "options": []
+      },
+      {
+       "name": "Accredited calibration",
+       "options": [],
+       "notes": [
+        "Coverage Duration | 5 Years",
+        "Type | Order No. | Designation"
+       ]
+      }
+     ],
+     "notes": [
+      "Calibration Coverage | Standard Calibration Coverage | Optional Calibration Coverage | Standard Calibration Coverage",
+      "Extended Calibration Coverage | Extended Calibration Coverage"
+     ]
+    },
+    {
+     "name": "ACA & DCV",
+     "subgroups": [
+      {
+       "name": null,
+       "options": [
+        {
+         "code": null,
+         "order": "3599.6468.03",
+         "desig": "R&S®Accredited Calibration for SMW200A 3 / 6 GHz - 1 Channel",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "R&S®ACASMW200A",
+          "3599.6468.03",
+          "R&S®Accredited Calibration for SMW200A 3 / 6 GHz - 1 Channel"
+         ]
+        },
+        {
+         "code": null,
+         "order": "0240.2193.18",
+         "desig": "Dokumentation der Kalibriermesswerte",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "R&S®DCV-2",
+          "0240.2193.18",
+          "Dokumentation der Kalibriermesswerte"
+         ]
+        },
+        {
+         "code": null,
+         "order": "1173.6506.02",
+         "desig": "Papierausdruck der DCV",
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "R&S®DCV-ZP",
+          "1173.6506.02",
+          "Papierausdruck der DCV"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Training",
+   "groups": [
+    {
+     "name": "(none)",
+     "subgroups": [
+      {
+       "name": "Product-specific (quotation item)",
+       "options": []
+      },
+      {
+       "name": "Featured training for SIGNAL GENERATION (ANALOG AND DIGITAL)",
+       "options": [
+        {
+         "code": "TR1-607-6D",
+         "order": "3725.6089.41",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TR1-607-6D",
+          "3725.6089.41",
+          "TR1-607-4D TRAINING, CLASSROOM, DE."
+         ]
+        },
+        {
+         "code": "TR1-608-6D",
+         "order": "3725.6095.41",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TR1-608-6D",
+          "3725.6095.41",
+          "TR1-608-6D TRAINING, CLASSROOM, DE."
+         ]
+        },
+        {
+         "code": "TV1-506-2D",
+         "order": "3698.5269.31",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-506-2D",
+          "3698.5269.31",
+          "Group, Live-Virtual, LTE/ 5G based Broadcast DE"
+         ]
+        },
+        {
+         "code": "TV1-506-2E",
+         "order": "3698.4310.30",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-506-2E",
+          "3698.4310.30",
+          "Group, Live-Virtual, LTE/ 5G based broadcast, EN"
+         ]
+        },
+        {
+         "code": "TV1-512-1D",
+         "order": "3696.6700.31",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-512-1D",
+          "3696.6700.31",
+          "Group, Live-Virtual, Bedienung: SMBV100B & FSV3000, DE"
+         ]
+        },
+        {
+         "code": "TV1-512-1E",
+         "order": "3696.7241.30",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-512-1E",
+          "3696.7241.30",
+          "Group, Live-Virtual, Operation: SMBV100B & FSV3000, EN"
+         ]
+        },
+        {
+         "code": "TV1-515-1D",
+         "order": "3696.6839.31",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-515-1D",
+          "3696.6839.31",
+          "Group, Live-Virtual, Bedienung: SMW200A & FSW, DE"
+         ]
+        },
+        {
+         "code": "TV1-515-1E",
+         "order": "3696.7964.30",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-515-1E",
+          "3696.7964.30",
+          "Group, Live-Virtual, Operation: SMW200A & FSW, EN"
+         ]
+        },
+        {
+         "code": "CO1-103-0E",
+         "order": "3725.6043.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-103-0E",
+          "3725.6043.19",
+          "IEEE Cert Trn, Online, Modern RF Digtal Modulation, en"
+         ]
+        },
+        {
+         "code": "CO1-100-0E",
+         "order": "3725.6014.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-100-0E",
+          "3725.6014.19",
+          "IEEE Cert Trn, Online, RF and Microwave Basics, en"
+         ]
+        },
+        {
+         "code": "CO1-130-0E",
+         "order": "3725.6314.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-130-0E",
+          "3725.6314.19",
+          "IEEE Cert Trn, Online, Phase Noise Measurements, en"
+         ]
+        },
+        {
+         "code": "CO1-131-0E",
+         "order": "3725.6320.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-131-0E",
+          "3725.6320.19",
+          "IEEE Cert Trn, Online, RF Digital Modulation Measurement, en"
+         ]
+        }
+       ]
+      },
+      {
+       "name": "Product-specific (optional quotation item)",
+       "options": []
+      },
+      {
+       "name": "Featured training for SIGNAL GENERATION (ANALOG AND DIGITAL)",
+       "options": [
+        {
+         "code": "TR1-607-6D",
+         "order": "3725.6089.41",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TR1-607-6D",
+          "3725.6089.41",
+          "TR1-607-4D TRAINING, CLASSROOM, DE."
+         ]
+        },
+        {
+         "code": "TR1-608-6D",
+         "order": "3725.6095.41",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TR1-608-6D",
+          "3725.6095.41",
+          "TR1-608-6D TRAINING, CLASSROOM, DE."
+         ]
+        },
+        {
+         "code": "TV1-506-2D",
+         "order": "3698.5269.31",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-506-2D",
+          "3698.5269.31",
+          "Group, Live-Virtual, LTE/ 5G based Broadcast DE"
+         ]
+        },
+        {
+         "code": "TV1-506-2E",
+         "order": "3698.4310.30",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-506-2E",
+          "3698.4310.30",
+          "Group, Live-Virtual, LTE/ 5G based broadcast, EN"
+         ]
+        },
+        {
+         "code": "TV1-512-1D",
+         "order": "3696.6700.31",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-512-1D",
+          "3696.6700.31",
+          "Group, Live-Virtual, Bedienung: SMBV100B & FSV3000, DE"
+         ]
+        },
+        {
+         "code": "TV1-512-1E",
+         "order": "3696.7241.30",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-512-1E",
+          "3696.7241.30",
+          "Group, Live-Virtual, Operation: SMBV100B & FSV3000, EN"
+         ]
+        },
+        {
+         "code": "TV1-515-1D",
+         "order": "3696.6839.31",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-515-1D",
+          "3696.6839.31",
+          "Group, Live-Virtual, Bedienung: SMW200A & FSW, DE"
+         ]
+        },
+        {
+         "code": "TV1-515-1E",
+         "order": "3696.7964.30",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "TV1-515-1E",
+          "3696.7964.30",
+          "Group, Live-Virtual, Operation: SMW200A & FSW, EN"
+         ]
+        },
+        {
+         "code": "CO1-103-0E",
+         "order": "3725.6043.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-103-0E",
+          "3725.6043.19",
+          "IEEE Cert Trn, Online, Modern RF Digtal Modulation, en"
+         ]
+        },
+        {
+         "code": "CO1-100-0E",
+         "order": "3725.6014.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-100-0E",
+          "3725.6014.19",
+          "IEEE Cert Trn, Online, RF and Microwave Basics, en"
+         ]
+        },
+        {
+         "code": "CO1-130-0E",
+         "order": "3725.6314.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-130-0E",
+          "3725.6314.19",
+          "IEEE Cert Trn, Online, Phase Noise Measurements, en"
+         ]
+        },
+        {
+         "code": "CO1-131-0E",
+         "order": "3725.6320.19",
+         "desig": null,
+         "cols": [
+          {
+           "path": null,
+           "ctrl": "box-off",
+           "status": "blank"
+          }
+         ],
+         "dummy_b": false,
+         "inputs": [],
+         "texts": [
+          "CO1-131-0E",
+          "3725.6320.19",
+          "IEEE Cert Trn, Online, RF Digital Modulation Measurement, en"
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
