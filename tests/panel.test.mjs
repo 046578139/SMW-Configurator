@@ -11,6 +11,7 @@ import { derive } from '../assets/js/derive.js';
 import { RF_CONNECTOR, FRONT_PANEL, REAR_PANEL, MODULE_PANELS } from '../assets/js/catalog.js';
 import { renderFront, renderRear, faceCounts, connectorNotes } from '../assets/js/panel.js';
 import { renderRuler, renderChain } from '../assets/js/diagram.js';
+import { renderPhoto } from '../assets/js/photo.js';
 
 const base = { B13: 1, B10: 1 };
 
@@ -229,5 +230,42 @@ test('two drawings on one page do not share element ids', () => {
   const zoom = ids(renderFront(d, {}, 'zoom'));
   for (const id of hero) {
     assert.equal(zoom.has(id), false, `both drawings define #${id}`);
+  }
+});
+
+/* ---------------------------------------------------------- photo overlay */
+
+test('the photograph overlay follows the configuration', () => {
+  const front = sel => renderPhoto(derive(sel), 'front');
+
+  // a single path: RF B is marked absent, path B I/Q with it
+  const one = front({ B13: 1, B10: 1, B1003: 1 });
+  assert.match(one, /RF A/);
+  assert.match(one, /RF B none/, 'path B should read as absent');
+
+  // B81 moves path A and its I/Q to the rear
+  const moved = front({ B13: 1, B10: 1, B1003: 1, B81: 1 });
+  assert.match(moved, /RF A → rear/);
+  assert.equal(/RF A → rear/.test(one), false, 'not relocated without B81');
+
+  // the rear then shows it as fitted there
+  const rear = renderPhoto(derive({ B13: 1, B10: 1, B1003: 1, B81: 1 }), 'rear');
+  assert.match(rear, /RF A/);
+  assert.match(rear, /RF B → front/);
+});
+
+test('the overlay says when a configuration exceeds the photographed instrument', () => {
+  const many = renderPhoto(derive({ B13T: 1, B10: 2, B1003: 1, B2003: 1, B14: 2 }), 'rear');
+  assert.match(many, /more than the photographed instrument carries/);
+  const few = renderPhoto(derive({ B13: 1, B10: 1, B1003: 1 }), 'rear');
+  assert.equal(/more than the photographed/.test(few), false);
+});
+
+test('the overlay shares the photograph geometry and produces no stray numbers', () => {
+  for (const face of ['front', 'rear']) {
+    const svg = renderPhoto(derive({ B13T: 1, B10: 2, B1003: 1, B2003: 1 }), face);
+    assert.match(svg, /viewBox="0 0 1280 720"/, `${face} overlay must match the image`);
+    assert.equal(/NaN|Infinity|undefined/.test(svg), false, `${face} overlay has a bad value`);
+    assert.match(svg, /<img src="[^"]+" alt="/, `${face} has no image`);
   }
 });

@@ -23,11 +23,13 @@ const read = p => readFileSync(resolve(root, p), 'utf8');
 /** Dependency order: every module only imports the ones above it. */
 const MODULES = [
   'assets/js/util.js',
+  'assets/js/photos.js',
   'assets/js/catalog.js',
   'assets/js/rules.js',
   'assets/js/derive.js',
   'assets/js/diagram.js',
   'assets/js/panel.js',
+  'assets/js/photo.js',
   'assets/js/ui.js',
   'assets/js/presets.js',
   'assets/js/app.js'
@@ -68,6 +70,19 @@ function checkModuleList () {
 }
 checkModuleList();
 
+/**
+ * The photographs travel with the standalone page as data URIs. Without this
+ * the file would reference assets/img/, which is exactly what a single file is
+ * supposed to avoid.
+ */
+function inlinePhotos (source) {
+  return source.replace(/'(assets\/img\/[^']+)'/g, (whole, rel) => {
+    const bytes = readFileSync(resolve(root, rel));
+    const type = rel.endsWith('.png') ? 'image/png' : 'image/jpeg';
+    return `'data:${type};base64,${bytes.toString('base64')}'`;
+  });
+}
+
 const css = read('assets/css/app.css');
 const html = read('index.html');
 
@@ -98,7 +113,7 @@ const body = html
   .replace(/<noscript>[\s\S]*?<\/noscript>/, '')
   .trim();
 
-const script = MODULES.map(p => flatten(read(p), p)).join('\n');
+const script = MODULES.map(p => flatten(inlinePhotos(read(p)), p)).join('\n');
 
 const out = process.argv[2] || 'dist/smw200a-configurator.html';
 const page = `<!doctype html>
@@ -129,6 +144,7 @@ boot();
 const styled = page.match(/<style>([\s\S]*?)<\/style>/);
 if (!styled || styled[1].length < css.length) throw new Error('the stylesheet did not survive the build');
 if (/<head>[\s\S]*?<[a-z]+[^<]*?=[^<]*?<style>/.test(page)) throw new Error('a tag in <head> is unterminated');
+if (page.includes('assets/img/')) throw new Error('a photograph was left as a file reference');
 
 mkdirSync(resolve(root, dirname(out)), { recursive: true });
 writeFileSync(resolve(root, out), page);

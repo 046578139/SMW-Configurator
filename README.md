@@ -24,10 +24,20 @@ phase noise levels that must match across paths, the standard/wideband baseband
 split, floating licences, per-RF-path option sets, and quantity steps such as
 the fading simulator's 1 / 2 / 4.
 
-**Shows the instrument, not a list of checkboxes.** Front and rear panel
-elevations follow the configuration, and you can switch faces or open either one
-enlarged. The connectors drawn are the ones the specifications say that
-configuration arrives with:
+**Shows the instrument, not a list of checkboxes.** Two views of it, switched
+with *Photo* / *Schematic*, either face, either one enlarged.
+
+The photograph is of one particular instrument — two RF paths to 44 GHz, every
+connector fitted — so on its own it would misrepresent most configurations.
+What makes it a configurator rather than decoration is the overlay: each
+connector the configuration decides carries a ring saying whether it is fitted,
+absent, or moved to the other face, the rear bays fill as baseband modules are
+added, and it says so plainly when a configuration needs more modules than the
+photographed instrument carries.
+
+The schematic is the view that matches *any* configuration exactly. The
+connectors drawn are the ones the specifications say that configuration arrives
+with:
 
 - the RF output connector type comes from the frequency option, so
   R&S®SMW-B1003 fits an N female and R&S®SMW-B1067 a 1.85 mm female
@@ -78,7 +88,8 @@ node --test
 node tools/build-standalone.mjs        # -> dist/smw200a-configurator.html
 ```
 
-Inlines the stylesheet and every module into a single ~180 kB HTML file that
+Inlines the stylesheet, every module and both photographs into a single
+~400 kB HTML file that
 runs by double-clicking it — no server, no network. Useful for handing the
 configurator to someone who just wants to open it. The builder has no
 dependencies: the modules form a plain chain with no cycles and no clashing
@@ -106,6 +117,7 @@ Everything is transcribed from Rohde & Schwarz product documentation, kept in
 | `WinIQSIM2_specs_en_5213746022_v2200.pdf` | WinIQSIM2 standards |
 | `SMWZKK_ZKV_datsw_en_3683823822_v0200.pdf` | combiner kits for R&S®SMW-K555 |
 | `WIC5GMobiledevicetestingmisc3609763192.pdf` | 5G device test context |
+| `docs/photos/*.jpg` | Rohde & Schwarz product photographs; `assets/img/` holds the resized copies the page uses |
 
 The configuration guide is version 06.00 (May 2024). Five options appear only in
 the specifications document (version 31.00) — R&S®SMW-K508, ‑K554, ‑K556, ‑K573
@@ -122,13 +134,15 @@ assets/js/
   catalog.js            239 options: order numbers, rules, quantity limits
   rules.js              expression parser, validator, autoResolve
   derive.js             selection -> instrument capabilities
-  diagram.js            display, signal chain, frequency ruler (SVG)
+  diagram.js            display, signal chain, frequency scale (SVG)
   panel.js              front and rear panel elevations (SVG)
+  photos.js             where the photographs live; rewritten by the build
+  photo.js              the photographs, with the configuration marked on them
   ui.js                 icon set and stateless render helpers
   presets.js            validated starting points
   app.js                state, rendering, events, export
-tests/rules.test.mjs    28 rule regression tests
-tests/panel.test.mjs    12 panel and connector tests
+tests/rules.test.mjs    rule regression tests
+tests/panel.test.mjs    panel, scale and photo overlay tests
 tools/build-standalone.mjs  single-file build
 ```
 

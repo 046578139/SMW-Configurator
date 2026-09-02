@@ -6,6 +6,7 @@ import { validate, autoResolve, holds, qtyChoices, maxQty, freqA, freqB, mainMod
 import { derive, vitals } from './derive.js';
 import { renderChain, renderRuler } from './diagram.js';
 import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js';
+import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
 import { productCode } from './util.js';
@@ -36,6 +37,7 @@ const state = {
   search: '',
   theme: initialTheme(),
   face: 'front',
+  view: store.get('smw-view') === 'schematic' ? 'schematic' : 'photo',
   panelOpen: false
 };
 
@@ -344,6 +346,7 @@ function colophon () {
     Rohde &amp; Schwarz, and no substitute for a quotation: it carries no prices or
     availability, and R&amp;S states that data without tolerance limits is not binding.
     Confirm any configuration with Rohde &amp; Schwarz before ordering.
+    Product photographs are Rohde &amp; Schwarz's own, shown to identify the instrument.
     R&amp;S® is a registered trademark of Rohde &amp; Schwarz; other marks belong to their owners.
   </div>`;
 }
@@ -458,11 +461,19 @@ function renderHero () {
         <button class="face ${rear ? 'active' : ''}" data-face="rear">
           Rear <span class="face-count">${counts.rear}</span></button>
       </div>
+      <div class="view-switch" role="group" aria-label="How to show the instrument">
+        <button class="view ${state.view === 'photo' ? 'active' : ''}" data-view="photo"
+          title="The instrument as photographed, with your configuration marked on it">Photo</button>
+        <button class="view ${state.view === 'schematic' ? 'active' : ''}" data-view="schematic"
+          title="A drawing that matches any configuration exactly">Schematic</button>
+      </div>
       <button class="btn btn-ghost btn-sm" data-action="enlarge">
         ${icon('search', 14)} Enlarge</button>
     </div>
     <div class="viz viz-panel">
-      ${rear ? renderRear(d, w, 'hero') : renderFront(d, state.sel, 'hero')}
+      ${state.view === 'photo'
+        ? renderPhoto(d, rear ? 'rear' : 'front')
+        : (rear ? renderRear(d, w, 'hero') : renderFront(d, state.sel, 'hero'))}
     </div>
     ${notes.length ? `<div class="conn-notes">${notes.map(n => `
       <div class="conn-note">
@@ -470,8 +481,9 @@ function renderHero () {
         <span class="conn-value">${esc(n.value)}</span>
         ${n.note ? `<span class="conn-sub">${esc(n.note)}</span>` : ''}
       </div>`).join('')}</div>` : ''}
-    <p class="viz-caption">Schematic elevation — connector inventory and types follow
-      the specifications, positions are indicative.</p>
+    <p class="viz-caption">${state.view === 'photo'
+      ? 'Photograph of a fully equipped instrument; the rings mark what this configuration fits.'
+      : 'Schematic elevation — connector inventory and types follow the specifications, positions are indicative.'}</p>
   </section>`;
 }
 
@@ -527,8 +539,15 @@ function toast (message) {
 }
 
 document.addEventListener('click', ev => {
-  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face],[data-swap]');
+  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face],[data-swap],[data-view]');
   if (!t) return;
+
+  if (t.dataset.view) {
+    state.view = t.dataset.view;
+    store.set('smw-view', state.view);
+    $('.hero')?.replaceWith(document.createRange().createContextualFragment(renderHero()));
+    return;
+  }
 
   if (t.dataset.face) {
     state.face = t.dataset.face;
@@ -632,8 +651,9 @@ document.addEventListener('click', ev => {
         <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
       </div>
       <div class="modal-body">
-        <div class="viz viz-wide">${rear
-          ? renderRear(d2, 980, 'zoom') : renderFront(d2, state.sel, 'zoom')}</div>
+        <div class="viz viz-wide">${state.view === 'photo'
+          ? renderPhoto(d2, rear ? 'rear' : 'front')
+          : (rear ? renderRear(d2, 980, 'zoom') : renderFront(d2, state.sel, 'zoom'))}</div>
         <p class="viz-caption">Schematic elevation. The connectors fitted and their types
           follow the specifications; positions on the panel are indicative.</p>
       </div>
