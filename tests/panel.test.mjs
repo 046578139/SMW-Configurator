@@ -115,6 +115,26 @@ test('labels stay in characters that render at label size', () => {
   }
 });
 
+test('the front chassis grows when the connector strip wraps', () => {
+  const d = derive({ B13T: 1, B10: 1, B1003: 1, B2003: 1 });
+  const heightOf = svg => Number(svg.match(/viewBox="0 0 [\d.]+ ([\d.]+)"/)[1]);
+
+  const wide = heightOf(renderFront(d, {}, 900));
+  const narrow = heightOf(renderFront(d, {}, 380));
+  assert.equal(narrow > wide, true,
+    'a narrow panel wraps its connector strip and needs a taller chassis');
+
+  // the wordmark sits inside the chassis; the strip must finish above it
+  for (const w of [900, 640, 500, 430, 380]) {
+    const svg = renderFront(d, {}, w);
+    const h = heightOf(svg) - 16;
+    const labels = [...svg.matchAll(/<text x="[\d.]+" y="([\d.]+)" font-size="6\.6"/g)]
+      .map(m => Number(m[1]));
+    assert.equal(Math.max(...labels) < h - 6, true,
+      `at ${w} a connector label runs into the wordmark`);
+  }
+});
+
 test('group titles never overflow their box', () => {
   const d = derive({ B13T: 1, B1003: 1, B2003: 1, B10: 2, B14: 2, K16: 1, K18: 1 });
   // the narrow preview width is the tight case

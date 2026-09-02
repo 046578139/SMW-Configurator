@@ -191,53 +191,125 @@ const ears = (h, W) => `
   <circle cx="${W - 7}" cy="16" r="2" fill="#0d1520" stroke="#4d5f7d" stroke-width=".7"/>
   <circle cx="${W - 7}" cy="${h - 4}" r="2" fill="#0d1520" stroke="#4d5f7d" stroke-width=".7"/>`;
 
+/** Flows connectors across a width, wrapping, with no group box around them. */
+function connectorRow (items, x, y, w, cols) {
+  const slot = slotWidth(items);
+  const n = cols || Math.max(1, Math.floor(w / slot));
+  const spread = items.length >= n ? w / n : slot;
+  return {
+    markup: items.map((it, i) => connector(
+      x + (i % n) * spread, y + Math.floor(i / n) * SLOT.h, spread, it, tint(it)
+    )).join(''),
+    height: Math.ceil(items.length / n) * SLOT.h
+  };
+}
+
+/**
+ * The front panel, laid out the way the instrument actually is: the soft key
+ * column and power button on the left, the display beside them, the keypad and
+ * rotary control to its right, the utility and RF connectors along the bottom
+ * of the control panel, and the analog I/Q inputs in a column down the right
+ * hand edge.
+ *
+ * The keypad is furniture rather than information, so it is the first thing
+ * dropped when the drawing is narrow and the connectors need the room.
+ */
 export function renderFront (d, sel, W = 812) {
   const p = d.panel;
   const live = d.generators > 0;
-  const bodyH = 238;
 
-  const scale = W / 812;
-  const dispX = 26, dispY = 22, dispW = 330 * scale, dispH = 168;
-  const keyX = dispX + dispW + 22, knobX = keyX + 42;
+  const byGroup = Object.fromEntries(
+    FRONT_PANEL.map(g => [g.group, present(g.items, p)]));
+  const rf = byGroup['RF output'] || [];
+  const iq = byGroup['Analog I/Q modulation inputs'] || [];
+  const util = byGroup['User and utility'] || [];
 
-  // the keypad and the rotary control, fitted to every instrument
-  const keys = [];
-  for (let r = 0; r < 4; r++) {
+  const HANDLE = 13, SOFT_W = 34, IQ_W = 54, KEYPAD_W = 152, MIN_DISP = 148;
+
+  const softX = HANDLE + 5;
+  const dispX = softX + SOFT_W + 9;
+  const iqX = W - HANDLE - IQ_W;
+  const controlRight = iqX - 8;
+  const availW = controlRight - dispX;
+
+  const keypad = availW - KEYPAD_W >= MIN_DISP;
+  const dispW = Math.max(60, availW - (keypad ? KEYPAD_W + 10 : 0));
+  const dispH = 150;
+
+  /* The strip wraps when the panel is narrow, so the chassis has to be measured
+     around it - a fixed height put the wrapped row on top of the wordmark. */
+  const stripItems = util.concat(rf);
+  const stripCols = Math.max(1, Math.floor(availW / slotWidth(stripItems)));
+  const stripH = Math.ceil(stripItems.length / stripCols) * SLOT.h;
+  const FOOT = 14;
+  const bodyH = Math.max(238, 20 + dispH + 10 + stripH + FOOT);
+
+  const strip = connectorRow(stripItems, dispX, bodyH - FOOT - stripH, availW);
+  const iqCol = connectorRow(iq, iqX, 26, IQ_W, 1);
+
+  // soft keys down the left edge, power button below them
+  const soft = [];
+  for (let i = 0; i < 7; i++) {
+    soft.push(`<rect x="${softX}" y="${26 + i * 20}" width="${SOFT_W}" height="15" rx="2.5"
+      fill="${i === 6 ? '#3a2a12' : '#1b2534'}" stroke="${i === 6 ? '#7a5a1e' : '#33415a'}" stroke-width=".8"/>`);
+  }
+  soft.push(`<circle cx="${softX + SOFT_W / 2}" cy="${bodyH - 32}" r="7"
+    fill="#151d29" stroke="#3d4d67" stroke-width="1.1"/>
+    <path d="M${softX + SOFT_W / 2} ${bodyH - 36}v4" stroke="var(--text-faint)" stroke-width="1.2" stroke-linecap="round"/>`);
+
+  let controls = '';
+  if (keypad) {
+    const keyX = dispX + dispW + 12;
+    const rows = [];
+    for (let r = 0; r < 4; r++) {
+      for (let c = 0; c < 4; c++) {
+        rows.push(`<rect x="${keyX + c * 20}" y="${64 + r * 18}" width="16" height="14" rx="2.5"
+          fill="#1b2534" stroke="#33415a" stroke-width=".8"/>`);
+      }
+    }
+    // two rows of hard keys sit above the keypad on the real panel
     for (let c = 0; c < 4; c++) {
-      keys.push(`<rect x="${keyX + c * 21}" y="${58 + r * 19}" width="17" height="15" rx="2.5"
+      rows.push(`<rect x="${keyX + c * 20}" y="26" width="16" height="12" rx="2.5"
+        fill="#1b2534" stroke="#33415a" stroke-width=".8"/>`);
+      rows.push(`<rect x="${keyX + c * 20}" y="42" width="16" height="12" rx="2.5"
         fill="#1b2534" stroke="#33415a" stroke-width=".8"/>`);
     }
+    const knobX = keyX + 108;
+    controls = `${rows.join('')}
+      <circle cx="${knobX}" cy="62" r="25" fill="#1b2534" stroke="#3d4d67" stroke-width="1.4"/>
+      <circle cx="${knobX}" cy="62" r="18" fill="#151d29" stroke="#33415a"/>
+      <circle cx="${knobX}" cy="48" r="2.2" fill="var(--text-faint)"/>
+      <path d="M${knobX} ${105}l7 7-7 7-7-7z M${knobX - 19} ${112}l7-7 7 7-7 7z"
+        fill="none" stroke="#3d4d67" stroke-width="1" transform="translate(9,0)"/>`;
   }
-
-  const groups = FRONT_PANEL
-    .map(g => ({ ...g, items: present(g.items, p) }))
-    .filter(g => g.items.length);
-  const connX = knobX + 40;
-  const packed = packGroups(groups, connX, 26, W - connX - 16);
 
   return `
 <svg viewBox="0 0 ${W} ${bodyH + 16}" role="img"
   aria-label="Front panel of the configured R&S SMW200A">
   ${CHASSIS}
-  <rect x="10" y="6" width="${W - 20}" height="${bodyH}" rx="7" fill="url(#pcase)" stroke="#3b4a63"/>
+  <rect x="${HANDLE}" y="6" width="${W - HANDLE * 2}" height="${bodyH}" rx="6"
+    fill="url(#pcase)" stroke="#3b4a63"/>
   ${ears(bodyH, W)}
 
-  <rect x="${dispX}" y="${dispY}" width="${dispW}" height="${dispH}" rx="5"
+  <!-- control panel field, lighter than the chassis as on the instrument -->
+  <rect x="${dispX + dispW + 6}" y="18" width="${Math.max(0, controlRight - dispX - dispW - 6)}"
+    height="${bodyH - 30}" rx="4" fill="#222c3d" stroke="#33415a" stroke-opacity=".7"/>
+
+  ${soft.join('')}
+
+  <rect x="${dispX}" y="20" width="${dispW}" height="${dispH}" rx="4"
     fill="#04090e" stroke="#16283a"/>
-  ${screenContent(dispX, dispY, dispW, dispH, d, sel, live)}
+  ${screenContent(dispX, 20, dispW, dispH, d, sel, live)}
 
-  ${keys.join('')}
-  <circle cx="${knobX}" cy="160" r="26" fill="#1b2534" stroke="#3d4d67" stroke-width="1.4"/>
-  <circle cx="${knobX}" cy="160" r="19" fill="#151d29" stroke="#33415a"/>
-  <circle cx="${knobX}" cy="145" r="2.4" fill="var(--text-faint)"/>
+  ${controls}
+  ${strip.markup}
+  ${iqCol.markup}
 
-  ${packed.markup}
-
-  <text x="26" y="${bodyH + 1}" font-size="7.5" fill="#5d6e88" letter-spacing=".16em"
+  <text x="${dispX}" y="${bodyH + 1}" font-size="7.5" fill="#5d6e88" letter-spacing=".14em"
     font-family="ui-monospace,monospace">R&amp;S SMW200A VECTOR SIGNAL GENERATOR</text>
-  <text x="${W - 26}" y="${bodyH + 1}" font-size="7.5" fill="#5d6e88" text-anchor="end"
+  <text x="${W - HANDLE - 6}" y="${bodyH + 1}" font-size="7.5" fill="#5d6e88" text-anchor="end"
     letter-spacing=".1em" font-family="ui-monospace,monospace">FRONT${
-      d.chassis === 'deep' ? ' · DEEPER CHASSIS' : ''}</text>
+      d.chassis === 'deep' ? ' \u00b7 DEEPER CHASSIS' : ''}</text>
 </svg>`;
 }
 

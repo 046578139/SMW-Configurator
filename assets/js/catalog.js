@@ -793,11 +793,11 @@ export const FRONT_PANEL = [
     { label: 'Q', sub: 'path B', kind: 'bnc', type: 'BNC female', when: 'iqB' }
   ] },
   { group: 'User and utility', items: [
+    { label: 'USB', kind: 'usb', type: 'USB type A' },
+    { label: 'SENSOR', kind: 'odu', type: '6-pin ODU MINI-SNAP series B' },
     { label: 'USER 1', kind: 'bnc', type: 'BNC female' },
     { label: 'USER 2', kind: 'bnc', type: 'BNC female' },
-    { label: 'USER 3', kind: 'bnc', type: 'BNC female' },
-    { label: 'SENSOR', kind: 'odu', type: '6-pin ODU MINI-SNAP series B' },
-    { label: 'USB', kind: 'usb', type: 'USB type A' }
+    { label: 'USER 3', kind: 'bnc', type: 'BNC female' }
   ] }
 ];
 
