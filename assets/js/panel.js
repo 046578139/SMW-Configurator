@@ -11,7 +11,7 @@
 
 import { esc } from './util.js';
 import { FRONT_PANEL, REAR_PANEL, MODULE_PANELS, CONNECTOR_NOTE } from './catalog.js';
-import { screenContent } from './diagram.js';
+import { screenContent, screenDefs } from './diagram.js';
 
 /* ------------------------------------------------------------ glyphs */
 
@@ -175,9 +175,9 @@ function packGroups (groups, x0, y0, maxW) {
 
 /* ------------------------------------------------------------ faces */
 
-const CHASSIS = `
+const chassisDefs = ns => `
   <defs>
-    <linearGradient id="pcase" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="${ns}-case" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#2b3648"/><stop offset="1" stop-color="#1a2231"/>
     </linearGradient>
   </defs>`;
@@ -274,7 +274,7 @@ function frontPort (cx, cy, kind, label, sub, on, colour) {
   </g>`;
 }
 
-export function renderFront (d, sel) {
+export function renderFront (d, sel, ns = 'front') {
   const p = d.panel;
   const live = d.generators > 0;
 
@@ -360,7 +360,7 @@ export function renderFront (d, sel) {
   return `
 <svg viewBox="0 0 ${FW} ${FH}" role="img"
   aria-label="Front panel of the configured R&S SMW200A">
-  ${CHASSIS}
+  ${chassisDefs(ns)}
 
   <!-- side handles -->
   <rect x="3" y="4" width="33" height="402" rx="9" fill="#22344a" stroke="#38536f"/>
@@ -369,7 +369,7 @@ export function renderFront (d, sel) {
   <rect x="972" y="60" width="17" height="290" rx="8" fill="#1a2838" stroke="#2f4762"/>
 
   <!-- chassis, with the light top cover and base of the real unit -->
-  <rect x="34" y="8" width="932" height="394" rx="4" fill="url(#pcase)" stroke="#3b4a63"/>
+  <rect x="34" y="8" width="932" height="394" rx="4" fill="url(#${ns}-case)" stroke="#3b4a63"/>
   <rect x="34" y="8" width="932" height="13" rx="3" fill="#79838f"/>
   <rect x="34" y="389" width="932" height="13" rx="3" fill="#79838f"/>
   <circle cx="150" cy="404" r="5" fill="#6c7681"/><circle cx="850" cy="404" r="5" fill="#6c7681"/>
@@ -387,7 +387,8 @@ export function renderFront (d, sel) {
   <text x="452" y="45" font-size="8.5" fill="#c3ccd8" text-anchor="middle"
     font-family="ui-sans-serif,system-ui,sans-serif">SMW200A · Vector Signal Generator</text>
   <rect x="166" y="54" width="380" height="314" rx="2" fill="#04090e" stroke="#16283a"/>
-  ${screenContent(166, 54, 380, 314, d, sel, live)}
+  ${screenDefs(ns)}
+  ${screenContent(166, 54, 380, 314, d, sel, live, ns)}
 
   <!-- control field -->
   <rect x="572" y="26" width="306" height="358" rx="3" fill="#b9c0ca" stroke="#8b95a3"/>
@@ -415,7 +416,7 @@ export function renderFront (d, sel) {
  * downward as modules are added rather than reflowing. The RF cut-outs in the
  * left column open up when B81 to B84 move an output to this face.
  */
-export function renderRear (d) {
+export function renderRear (d, ns = 'rear') {
   const p = d.panel;
   const W = 1000;
 
@@ -537,12 +538,12 @@ export function renderRear (d) {
   return `
 <svg viewBox="0 0 ${W} ${fullH}" role="img"
   aria-label="Rear panel of the configured R&S SMW200A">
-  ${CHASSIS}
+  ${chassisDefs(ns)}
 
   <rect x="3" y="4" width="33" height="${fullBody - 4}" rx="9" fill="#22344a" stroke="#38536f"/>
   <rect x="964" y="4" width="33" height="${fullBody - 4}" rx="9" fill="#22344a" stroke="#38536f"/>
 
-  <rect x="34" y="8" width="932" height="${fullBody - 12}" rx="4" fill="url(#pcase)" stroke="#3b4a63"/>
+  <rect x="34" y="8" width="932" height="${fullBody - 12}" rx="4" fill="url(#${ns}-case)" stroke="#3b4a63"/>
   <rect x="34" y="8" width="932" height="22" rx="3" fill="#79838f"/>
   <rect x="34" y="${fullBody - 18}" width="932" height="14" rx="3" fill="#79838f"/>
 

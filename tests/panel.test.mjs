@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { derive } from '../assets/js/derive.js';
 import { RF_CONNECTOR, FRONT_PANEL, REAR_PANEL, MODULE_PANELS } from '../assets/js/catalog.js';
 import { renderFront, renderRear, faceCounts, connectorNotes } from '../assets/js/panel.js';
-import { renderRuler } from '../assets/js/diagram.js';
+import { renderRuler, renderChain } from '../assets/js/diagram.js';
 
 const base = { B13: 1, B10: 1 };
 
@@ -198,4 +198,34 @@ test('the bar length follows the frequency option', () => {
     .match(/<rect x="[\d.]+" y="[\d.]+" width="([\d.]+)" height="9"/)[1]);
   assert.ok(width('B1067') > width('B1020'), '67 GHz should reach further than 20 GHz');
   assert.ok(width('B1020') > width('B1003'), '20 GHz should reach further than 3 GHz');
+});
+
+test('every SVG reference resolves inside its own drawing', () => {
+  // a url(#x) with no matching id renders as no paint, or drops the element
+  // entirely in the case of a filter - and the drawing still looks plausible,
+  // which is how a deleted defs block went unnoticed
+  const d = derive({ B13T: 1, B10: 2, B1044: 1, B2020: 1, B94L: 1, B14: 2, K16: 1, K18: 1 });
+  const drawings = {
+    front: renderFront(d, {}, 'front'),
+    rear: renderRear(d, 980, 'rear'),
+    chain: renderChain(d, { B13T: 1, B10: 2 }),
+    ruler: renderRuler(d)
+  };
+  for (const [name, svg] of Object.entries(drawings)) {
+    const defined = new Set([...svg.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
+    const used = [...svg.matchAll(/url\(#([^)]+)\)/g)].map(m => m[1]);
+    for (const ref of used) {
+      assert.ok(defined.has(ref), `${name} references #${ref} but never defines it`);
+    }
+  }
+});
+
+test('two drawings on one page do not share element ids', () => {
+  const d = derive({ B13: 1, B10: 1, B1003: 1 });
+  const ids = svg => new Set([...svg.matchAll(/\bid="([^"]+)"/g)].map(m => m[1]));
+  const hero = ids(renderFront(d, {}, 'hero'));
+  const zoom = ids(renderFront(d, {}, 'zoom'));
+  for (const id of hero) {
+    assert.equal(zoom.has(id), false, `both drawings define #${id}`);
+  }
 });

@@ -23,7 +23,25 @@ const hash = str => {
  * Front panel
  * ======================================================================== */
 
-export function screenContent (x, y, w, h, d, sel, live) {
+/**
+ * The paint and glow the trace needs. These lived in the defs of the old
+ * instrument drawing; when that was removed the references were left dangling,
+ * which silently dropped the fill beneath the trace. The namespace keeps two
+ * drawings on the same page from sharing ids.
+ */
+export const screenDefs = ns => `
+  <defs>
+    <linearGradient id="${ns}-trace" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="var(--accent)" stop-opacity=".85"/>
+      <stop offset="1" stop-color="var(--accent)" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="${ns}-glow" x="-40%" y="-60%" width="180%" height="240%">
+      <feGaussianBlur stdDeviation="2.2" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>`;
+
+export function screenContent (x, y, w, h, d, sel, live, ns = 'p') {
   const pad = 8;
   const gx = x + pad, gy = y + pad + 12, gw = w - pad * 2, gh = h - pad * 2 - 16;
 
@@ -45,13 +63,13 @@ export function screenContent (x, y, w, h, d, sel, live) {
   <text x="${gx}" y="${y + pad + 7}" font-size="9" fill="var(--accent)" font-family="ui-monospace,monospace"
     letter-spacing=".06em">${esc(head)}</text>
   ${grid.join('')}
-  ${live ? spectrum(gx, gy, gw, gh, d, sel) : flatline(gx, gy, gw, gh)}
+  ${live ? spectrum(gx, gy, gw, gh, d, sel, ns) : flatline(gx, gy, gw, gh)}
   <text x="${gx + gw}" y="${y + pad + 7}" font-size="7.5" fill="#3d6e7d" text-anchor="end"
     font-family="ui-monospace,monospace">${d.paths > 1 ? 'A+B' : 'A'}</text>`;
 }
 
 /** Draws a spectrum whose shape follows the configured signal. */
-function spectrum (x, y, w, h, d, sel) {
+function spectrum (x, y, w, h, d, sel, ns) {
   const seed = hash(Object.keys(sel).sort().join(',') + d.bandwidth);
   const rand = rng(seed);
   const N = 150;
@@ -93,9 +111,9 @@ function spectrum (x, y, w, h, d, sel) {
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join('');
   const area = `${line}L${(x + w).toFixed(1)} ${(y + h).toFixed(1)}L${x.toFixed(1)} ${(y + h).toFixed(1)}Z`;
 
-  return `<path d="${area}" fill="url(#trace)" opacity=".55"/>
+  return `<path d="${area}" fill="url(#${ns}-trace)" opacity=".55"/>
     <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="1.1"
-      stroke-linejoin="round" filter="url(#softGlow)"/>`;
+      stroke-linejoin="round" filter="url(#${ns}-glow)"/>`;
 }
 
 function flatline (x, y, w, h) {

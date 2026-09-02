@@ -462,7 +462,7 @@ function renderHero () {
         ${icon('search', 14)} Enlarge</button>
     </div>
     <div class="viz viz-panel">
-      ${rear ? renderRear(d, w, 'hero') : renderFront(d, state.sel, 'hero')}
+      ${rear ? renderRear(d, w) : renderFront(d, state.sel)}
     </div>
     ${notes.length ? `<div class="conn-notes">${notes.map(n => `
       <div class="conn-note">
@@ -627,7 +627,7 @@ document.addEventListener('click', ev => {
       </div>
       <div class="modal-body">
         <div class="viz viz-wide">${rear
-          ? renderRear(d2, 980, 'zoom') : renderFront(d2, state.sel, 'zoom')}</div>
+          ? renderRear(d2, 980) : renderFront(d2, state.sel)}</div>
         <p class="viz-caption">Schematic elevation. The connectors fitted and their types
           follow the specifications; positions on the panel are indicative.</p>
       </div>
@@ -925,3 +925,5 @@ export function boot () {
     if (Object.keys(sel).length) { state.sel = sel; state.name = name; render(); }
   });
 }
+
+export { decode, encode, state, setQty, syncAuto, load, save, toggle, setPhaseLevel };
