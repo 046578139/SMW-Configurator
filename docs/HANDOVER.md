@@ -10,12 +10,13 @@ open, and the container-level details that cost time to rediscover.
 | | |
 | --- | --- |
 | Repository | `https://github.com/046578139/SMW-Configurator` (public) |
-| Branch | `claude/smw-online-configurator-hahn6b` — also the repository's **default** branch |
+| Branch | `claude/continue-previous-session-lcfkeo` (this container's work); `claude/smw-online-configurator-hahn6b` is the repository's **default** branch and where the earlier work lives |
 | Everything is pushed | there is no work living only in a container |
 | Live preview | https://claude.ai/code/artifact/1134486f-4b7b-4a82-b005-dbe8b2385636 |
 
-There is no `main`. The working branch is the default branch, so pushes to it
-are what GitHub Pages would publish.
+There is no `main`. The default branch is what GitHub Pages would publish;
+the continuation branch has to be merged into it (or opened as a pull request)
+for that to happen.
 
 ## Starting up
 
@@ -112,8 +113,23 @@ Roughly in the order worth doing.
 
 ## Container notes
 
-Small things that cost time in the last container.
+Small things that cost time in the last two containers.
 
+- **Chromium cannot do TLS through the agent proxy as shipped.** In a cloud
+  container every HTTPS request from Playwright's Chromium died with
+  `ERR_CONNECTION_RESET` while `curl` and Node worked, whatever proxy settings
+  it was given. The proxy status endpoint showed the tunnel closing after a
+  ~1.8 kB client hello and 39 bytes back: the upstream rejects Chromium's
+  TLS 1.3 post-quantum key share. Launch with
+  `--disable-features=PostQuantumKyber,UseMLKEM,EncryptedClientHello
+  --ssl-version-max=tls1.2` and it connects normally (see
+  `tools/vendor/driver.mjs`). The browser suites never noticed because they
+  only talk to localhost.
+- **The vendor configurator's entry URL** is on the product page, not the
+  one the browser shows afterwards:
+  `https://configurator.rohde-schwarz.com/app/ch5c/ch5start?-AppName%3Ddefault+-configknb%3Dconfig.SMW200A`.
+  `/app/ch5c/Run` returns 404. `tools/vendor/README.md` explains how the app
+  works and how to re-capture it.
 - **Uploaded PDFs land in `/root/.claude/uploads/`.** Attached *images* do not
   — they arrive in the conversation only, so anything to keep has to be written
   out or committed. The nine source PDFs and the four product photographs are
@@ -121,8 +137,9 @@ Small things that cost time in the last container.
   re-uploaded.
 - **`pypdf` needs a stubbed `cryptography` module** in these images — the real
   one is broken and importing it fails before `pypdf` gets a chance. A stub
-  module on `sys.path` is enough for text extraction. `Pillow` is not installed
-  by default; `pip install pillow` if you need to touch images.
+  package on `sys.path` (an empty `cryptography/__init__.py`) is enough for
+  text extraction; `pip install pypdf` first. `Pillow` is not installed by
+  default; `pip install pillow` if you need to touch images.
 - **Chromium is preinstalled** at `/opt/pw-browsers/chromium` with
   `PLAYWRIGHT_BROWSERS_PATH` and `PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1` already
   set. Run `npm install` as normal — do not run `playwright install`. The
