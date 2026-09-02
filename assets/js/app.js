@@ -362,28 +362,7 @@ function renderPanel () {
 
   let body = '';
   if (state.tab === 'overview') {
-    const counts = faceCounts(d);
-    const notes = connectorNotes(d);
     body = `
-      <div class="face-switch" role="group" aria-label="Panel face">
-        <button class="face ${state.face === 'front' ? 'active' : ''}" data-face="front">
-          Front <span class="face-count">${counts.front}</span></button>
-        <button class="face ${state.face === 'rear' ? 'active' : ''}" data-face="rear">
-          Rear <span class="face-count">${counts.rear}</span></button>
-      </div>
-      <div class="viz viz-panel">
-        ${state.face === 'rear' ? renderRear(d, 430) : renderFront(d, state.sel, 560)}
-        <button class="viz-zoom" data-action="enlarge"
-          title="View the ${state.face} panel larger">${icon('search', 14)} Enlarge</button>
-      </div>
-      ${notes.length ? `<div class="conn-notes">${notes.map(n => `
-        <div class="conn-note">
-          <span class="conn-label">${esc(n.label)}</span>
-          <span class="conn-value">${esc(n.value)}</span>
-          ${n.note ? `<span class="conn-sub">${esc(n.note)}</span>` : ''}
-        </div>`).join('')}</div>` : ''}
-      <p class="viz-caption">Schematic elevation. The connectors fitted and their
-        types follow the specifications; positions on the panel are indicative.</p>
       <div class="pane-title">Frequency coverage</div>
       <div class="viz">${renderRuler(d)}</div>
       <div class="pane-title">Key figures</div>
@@ -437,6 +416,53 @@ function renderPanel () {
   </div>`;
 }
 
+/**
+ * The instrument, drawn at the head of the main column so it is on screen at
+ * every width. It used to live in the side pane, which slides off screen below
+ * 1000px and took the drawing with it.
+ *
+ * The drawing is sized to the space it actually has rather than scaled down to
+ * fit, because the connector labels stop being readable once the SVG is
+ * squeezed much below its natural width.
+ */
+function panelWidth () {
+  const room = ($('#main-inner')?.clientWidth || 900) - 34;
+  return Math.round(Math.max(360, Math.min(880, room)));
+}
+
+function renderHero () {
+  const d = cached.derived;
+  const counts = faceCounts(d);
+  const notes = connectorNotes(d);
+  const rear = state.face === 'rear';
+  const w = panelWidth();
+
+  return `
+  <section class="hero" aria-label="Configured instrument">
+    <div class="hero-head">
+      <div class="face-switch" role="group" aria-label="Panel face">
+        <button class="face ${rear ? '' : 'active'}" data-face="front">
+          Front <span class="face-count">${counts.front}</span></button>
+        <button class="face ${rear ? 'active' : ''}" data-face="rear">
+          Rear <span class="face-count">${counts.rear}</span></button>
+      </div>
+      <button class="btn btn-ghost btn-sm" data-action="enlarge">
+        ${icon('search', 14)} Enlarge</button>
+    </div>
+    <div class="viz viz-panel">
+      ${rear ? renderRear(d, w) : renderFront(d, state.sel, w)}
+    </div>
+    ${notes.length ? `<div class="conn-notes">${notes.map(n => `
+      <div class="conn-note">
+        <span class="conn-label">${esc(n.label)}</span>
+        <span class="conn-value">${esc(n.value)}</span>
+        ${n.note ? `<span class="conn-sub">${esc(n.note)}</span>` : ''}
+      </div>`).join('')}</div>` : ''}
+    <p class="viz-caption">Schematic elevation. The connectors fitted and their types
+      follow the specifications; positions on the panel are indicative.</p>
+  </section>`;
+}
+
 /* ------------------------------------------------------------------ paint */
 
 function render () {
@@ -444,7 +470,7 @@ function render () {
   cached.derived = derive(state.sel);
 
   $('#rail').innerHTML = renderRail();
-  $('#main-inner').innerHTML = (state.search
+  $('#main-inner').innerHTML = renderHero() + (state.search
     ? renderSearch()
     : SECTIONS.map(renderSection).join('')) + colophon();
   $('#panel').innerHTML = renderPanel();
@@ -485,7 +511,11 @@ document.addEventListener('click', ev => {
   const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face]');
   if (!t) return;
 
-  if (t.dataset.face) { state.face = t.dataset.face; $('#panel').innerHTML = renderPanel(); return; }
+  if (t.dataset.face) {
+    state.face = t.dataset.face;
+    $('.hero')?.replaceWith(document.createRange().createContextualFragment(renderHero()));
+    return;
+  }
 
   if (t.dataset.toggle) { toggle(t.dataset.toggle); return; }
   if (t.dataset.level) { setPhaseLevel(t.dataset.level); return; }
@@ -799,6 +829,15 @@ export function boot () {
   if (window.claude?.use) {
     saveHost().then(host => { savingBlocked = !host; }).catch(() => { savingBlocked = true; });
   }
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      const svg = $('.hero .viz-panel > svg');
+      if (svg && Math.abs(svg.viewBox.baseVal.width - panelWidth()) > 40) render();
+    }, 180);
+  });
+
   load();
   syncAuto();
   applyTheme();
