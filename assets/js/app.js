@@ -507,6 +507,12 @@ function render () {
 
 function scrollToSection (id) {
   state.section = id;
+  // the sections are not in the document while search results are showing
+  if (state.search) {
+    state.search = '';
+    $('#search').value = '';
+    render();
+  }
   const el = document.getElementById(`sec-${id}`);
   if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   $$('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.goto === id));
@@ -866,7 +872,6 @@ function downloadCsv () {
   }
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
   download(`${slug()}.csv`, 'text/csv;charset=utf-8', '﻿' + csv);
-  toast('CSV downloaded');
 }
 
 function downloadJson () {
@@ -896,8 +901,17 @@ function applyTheme () {
   if (btn) btn.innerHTML = icon(state.theme === 'dark' ? 'sun' : 'moon', 15);
 }
 
-function openPanel () { state.panelOpen = true; $('#panel').classList.add('open'); }
-function closePanel () { state.panelOpen = false; $('#panel').classList.remove('open'); }
+function openPanel () {
+  state.panelOpen = true;
+  $('#panel').classList.add('open');
+  // the toggle moves clear of the panel's own Export button while it is open
+  document.body.classList.add('panel-open');
+}
+function closePanel () {
+  state.panelOpen = false;
+  $('#panel').classList.remove('open');
+  document.body.classList.remove('panel-open');
+}
 
 export function boot () {
   // a host that sandboxes the frame is the only case where this matters
@@ -907,13 +921,17 @@ export function boot () {
   WIDE.addEventListener('change', render);
 
   let resizeTimer;
+  let drawnAt = 0;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(() => {
-      const svg = $('.hero .viz-panel > svg');
-      if (svg && Math.abs(svg.viewBox.baseVal.width - panelWidth()) > 40) render();
+      // only the rear panel is sized to its container; the front has fixed
+      // proportions, so comparing its viewBox with the width would always differ
+      const want = panelWidth();
+      if (Math.abs(want - drawnAt) > 40) { drawnAt = want; render(); }
     }, 180);
   });
+  drawnAt = panelWidth();
 
   load();
   syncAuto();

@@ -333,7 +333,8 @@ export function renderFront (d, sel, ns = 'front') {
     ${frontPort(692, 338, 'bnc', 'USER 1', '', true)}
     ${frontPort(724, 338, 'bnc', 'USER 2', '', true)}
     ${frontPort(756, 338, 'bnc', 'USER 3', '', true)}
-    ${rfPort(802, 'A', p.rfA ? rangeA : 'on rear panel', p.rfA, 'var(--accent)')}
+    ${rfPort(802, 'A', p.rfA ? rangeA : (p.rearRfA ? 'on rear panel' : 'no frequency option'),
+      p.rfA, 'var(--accent)')}
     ${rfPort(852, 'B', p.rearRfB ? 'on rear panel' : (p.rfB ? rangeB : 'no second path'),
       p.rfB, 'var(--accent-2)')}`;
 
@@ -558,7 +559,8 @@ export function renderRear (d, ns = 'rear') {
   ${bays}
   ${extraBay}
 
-  ${bayCount ? '' : `<text x="${BAY_X + BAY_W / 2}" y="${BAY_TOP + 30}" font-size="8"
+  ${bayCount ? '' : `<text x="${BAY_X + BAY_W / 2}" y="${
+    (extras.length ? extraY + BAY_H + 16 : BAY_TOP + 30)}" font-size="8"
     fill="#4a5a72" text-anchor="middle" letter-spacing=".1em"
     font-family="ui-monospace,monospace">NO BASEBAND MODULES FITTED</text>`}
 </svg>`;

@@ -62,6 +62,22 @@ const countOf = (ids, sel) => ids.reduce((sum, id) => sum + (sel[id] || 0), 0);
  * Returns { ok, need } where `need` lists the unmet atoms on the cheapest
  * path to satisfying the expression.
  */
+/**
+ * True when an option can never be added because the baseband main module
+ * already chosen rules it out - B10 needs B13 or B13T, so it is unreachable on
+ * a B13XT instrument. Used to choose between the branches of an either/or
+ * requirement: offering the standard branch on a wideband instrument sends the
+ * user down a road with no end.
+ */
+function ruledOutByMainModule (id, sel) {
+  const mm = mainModule(sel);
+  const opt = BY_ID[id];
+  if (!mm || !opt?.requires) return false;
+  const expanded = opt.requires.replace(/[A-Z][A-Z0-9]*/g, t => SHORTHAND[t] || t);
+  const named = expanded.match(/B13XT|B13T|B13/g);
+  return !!named && !named.includes(mm);
+}
+
 export function evaluate (node, sel) {
   if (node.ids) {
     const have = countOf(node.ids, sel);
@@ -93,9 +109,15 @@ export function evaluate (node, sel) {
       label: node.or.map(n => n.label).join(' or ') }] };
   }
 
-  // otherwise report the branch nearest to done
+  /* Otherwise report the branch nearest to done - but only among the branches
+     that can still be taken. Two branches are often equally far off, and the
+     first was being chosen regardless of whether the installed main module
+     allows it. */
+  const reachable = results.filter(r =>
+    !r.need.some(n => n.ids.every(id => ruledOutByMainModule(id, sel))));
+  const pool = reachable.length ? reachable : results;
   const deficit = r => r.need.reduce((s, x) => s + (x.n - x.have), 0);
-  const best = results.reduce((a, b) => (deficit(b) < deficit(a) ? b : a));
+  const best = pool.reduce((a, b) => (deficit(b) < deficit(a) ? b : a));
   return { ok: false, need: best.need };
 }
 
@@ -187,7 +209,11 @@ export function validate (sel) {
     add(errors, { id: 'multi-freq-a', title: 'More than one RF path A frequency option',
       detail: 'RF path A takes exactly one frequency option.', section: 'rf-a' });
   }
-  if (['B13', 'B13T', 'B13XT'].filter(id => sel[id]).length > 1) {
+  if (OPTIONS.filter(o => o.step === 5 && o.meta?.path === 'B' && sel[o.id]).length > 1) {
+    add(errors, { id: 'multi-freq-b', title: 'More than one RF path B frequency option',
+      detail: 'RF path B takes exactly one frequency option.', section: 'rf-b' });
+  }
+  if (MAIN_MODULES.filter(id => sel[id]).length > 1) {
     add(errors, { id: 'multi-mm', title: 'More than one baseband main module',
       detail: 'Choose exactly one of R&S®SMW-B13, -B13T or -B13XT.', section: 'baseband' });
   }
@@ -223,14 +249,14 @@ export function validate (sel) {
   if (oOpt && mm && mm !== 'B13XT') {
     add(errors, { id: 'o-needs-b13xt', title: 'R&S®SMW-B13XT required',
       detail: `${label(oOpt)} is not compatible with ${label(mm)}. Use the wideband main module R&S®SMW-B13XT.`,
-      section: 'baseband', fix: ['B13XT'], drop: [mm] });
+      section: 'baseband', swap: [mm, 'B13XT'] });
   }
 
   /* --- second RF path needs two I/Q paths ------------------------ */
   if (b && mm === 'B13') {
     add(errors, { id: 'path-b-needs-b13t', title: 'Second RF path needs two I/Q paths',
       detail: 'RF path B requires R&S®SMW-B13T or -B13XT as the baseband main module.',
-      section: 'baseband', fix: ['B13T'], drop: ['B13'] });
+      section: 'baseband', swap: ['B13', 'B13T'] });
   }
 
   /* --- phase noise level consistency ----------------------------- */
@@ -273,6 +299,20 @@ export function validate (sel) {
           }
           fix.push(id);
           fixQty[id] = Math.max(fixQty[id] || 0, n.n);
+
+          /* Asking for two of something whose second unit has its own condition
+             is only half an answer: raising the quantity alone leaves the
+             requirement unmet and the resolver with nothing that improves. Ask
+             for what lifts the cap as well. */
+          const cand = BY_ID[id];
+          if (n.n > maxQty(cand, sel) && cand.maxReq) {
+            for (const m of evaluate(parse(cand.maxReq), sel).need) {
+              const lift = pickFix(m, sel);
+              if (!lift || lift === id) continue;
+              if (!fix.includes(lift)) fix.push(lift);
+              fixQty[lift] = Math.max(fixQty[lift] || 0, m.n);
+            }
+          }
         }
 
         const issue = { id: `req-${opt.id}`, title: `${label(opt.id)} is missing a prerequisite`,
@@ -446,6 +486,8 @@ function pickFix (need, sel) {
     // never propose a second single-select item
     if (mmInstalled && MAIN_MODULES.includes(id) && id !== mmInstalled) return false;
     if (freqAInstalled && BY_ID[id].step === 1 && id !== freqAInstalled.id) return false;
+    const fb = freqB(sel);
+    if (fb && BY_ID[id].step === 5 && BY_ID[id].meta?.path === 'B' && id !== fb.id) return false;
     return true;
   });
   if (!candidates.length) return null;

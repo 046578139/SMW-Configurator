@@ -413,3 +413,80 @@ test('a second K134 needs a second GNSS standard, not just a second generator', 
   assert.equal(maxQty(BY_ID.K134, { ...twoGen, K44: 1 }), 1, 'one standard is not two');
   assert.equal(maxQty(BY_ID.K134, { ...twoGen, K44: 1, K66: 1 }), 2);
 });
+
+/* --------------------------------------------- single-select constraints */
+
+test('each single-select group takes exactly one option', () => {
+  // path A was checked, path B was not, so two path B frequency options
+  // validated as a perfect configuration
+  assert.ok(titles({ B1003: 1, B1006: 1, B13: 1 }).includes('multi-freq-a'));
+  assert.ok(titles({ B1003: 1, B13T: 1, B2003: 1, B2006: 1 }).includes('multi-freq-b'));
+  assert.ok(titles({ B1003: 1, B13: 1, B13T: 1 }).includes('multi-mm'));
+
+  // one of each is fine
+  assert.equal(titles({ B1003: 1, B13T: 1, B2003: 1, B10: 1 })
+    .some(t => t.startsWith('multi-')), false);
+});
+
+test('an id that is not an option is rejected, however it is spelled', () => {
+  // BY_ID used to inherit Object.prototype, so BY_ID['valueOf'] was truthy and
+  // the URL decoder accepted it as an option
+  for (const key of ['valueOf', 'constructor', 'toString', 'hasOwnProperty', '__proto__']) {
+    assert.equal(BY_ID[key], undefined, `${key} resolves to something`);
+  }
+  assert.ok(BY_ID.B1003, 'a real id still resolves');
+});
+
+test('changing the main module is offered as one action, not two', () => {
+  // offering "add B13XT" and "remove B13" separately let the user add a second
+  // main module and keep the first
+  for (const [sel, id] of [
+    [{ B1044O: 1, B13: 1 }, 'o-needs-b13xt'],
+    [{ B1003: 1, B13: 1, B2003: 1 }, 'path-b-needs-b13t']
+  ]) {
+    const issue = validate(sel).errors.find(e => e.id === id);
+    assert.ok(issue, `${id} not reported`);
+    assert.ok(issue.swap, `${id} should offer a swap`);
+    assert.equal(issue.fix?.length ?? 0, 0, `${id} should not offer a bare add`);
+  }
+});
+
+test('an either/or requirement offers the branch the instrument can take', () => {
+  // both branches of K551 are equally far off; the first was chosen regardless
+  const wide = validate({ B1067: 1, B13XT: 1, K551: 1 }).errors.find(e => e.id === 'req-K551');
+  assert.deepEqual(wide.fix, ['B9', 'K19'], 'a wideband instrument needs the wideband branch');
+  const std = validate({ B1003: 1, B13T: 1, K551: 1 }).errors.find(e => e.id === 'req-K551');
+  assert.deepEqual(std.fix, ['B10', 'K18']);
+});
+
+/* ------------------------------------------------------- derived figures */
+
+test('bandwidth is per path, and an extension bought once lifts only one', () => {
+  const bw = sel => { const d = derive(sel); return [d.bandwidth, d.bwSecondPath]; };
+  assert.deepEqual(bw({ B13T: 1, B10: 2, B1003: 1, B2003: 1 }), [120, 120]);
+  assert.deepEqual(bw({ B13T: 1, B10: 2, B1003: 1, B2003: 1, K522: 1 }), [160, 120]);
+  assert.deepEqual(bw({ B13T: 1, B10: 2, B1003: 1, B2003: 1, K522: 2 }), [160, 160]);
+  // the wideband ladder: the second path falls to the extension it does have
+  assert.deepEqual(bw({ B13XT: 1, B9: 2, B1003: 1, B2003: 1, K525: 2, K527: 1 }), [2000, 1000]);
+  assert.deepEqual(bw({ B13XT: 1, B9: 2, B1003: 1, B2003: 1, K525: 2, K527: 2 }), [2000, 2000]);
+});
+
+test('fading channels match the MIMO specifications table', () => {
+  const ch = sel => derive(sel).fadingChannels;
+  const std = { B13T: 1, B10: 2, B1003: 1 };
+  const wide = { B13XT: 1, B9: 2, B1003: 1 };
+  assert.equal(ch({ ...std, B14: 1 }), 1);
+  assert.equal(ch({ ...std, B14: 2 }), 2);
+  assert.equal(ch({ ...std, B14: 2, K74: 1 }), 4);
+  assert.equal(ch({ ...std, B14: 4, K74: 1 }), 16);
+  // the last row is the only one where the two module types differ
+  assert.equal(ch({ ...std, B14: 4, K74: 1, K75: 1 }), 32);
+  assert.equal(ch({ ...wide, B15: 4, K74: 1, K75: 1 }), 64);
+});
+
+test('the second set of analog I/Q outputs comes from a second K16', () => {
+  // K17 is the wideband equivalent of K16 and cannot be installed twice
+  assert.equal(derive({ B13T: 1, B10: 1, B1003: 1, K16: 1 }).panel.analogIqOut2, false);
+  assert.equal(derive({ B13T: 1, B10: 1, B1003: 1, K16: 2 }).panel.analogIqOut2, true);
+  assert.equal(derive({ B13XT: 1, B9: 1, B1003: 1, K17: 1 }).panel.analogIqOut2, false);
+});

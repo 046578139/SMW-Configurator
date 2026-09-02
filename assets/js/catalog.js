@@ -764,7 +764,12 @@ OPTIONS.push(...expand(10, 'bb-enh', 'Baseband enhancements', [
   ['K575', 'RF linearization (Linearize RF)', '1434.8379.02', 'GEN', 'GEN*2']
 ]).map(o => ({ ...o, since: 'specs' })));
 
-export const BY_ID = Object.fromEntries(OPTIONS.map(o => [o.id, o]));
+/* A null prototype, so a lookup only answers for an option that exists. With
+   the default prototype BY_ID['valueOf'] and BY_ID['constructor'] are truthy,
+   and anything using truthiness to decide whether an id is real - the URL
+   decoder among them - lets those through as options. */
+export const BY_ID = Object.assign(Object.create(null),
+  Object.fromEntries(OPTIONS.map(o => [o.id, o])));
 
 /* ------------------------------------------------------------------ *
  * Panel connectors

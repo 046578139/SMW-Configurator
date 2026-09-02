@@ -101,10 +101,12 @@ test('no connector is drawn without a documented type', () => {
 });
 
 test('a slot standing for several connectors is counted as several', () => {
-  const one = derive({ B13: 1, B10: 1, B1003: 1, K16: 1 });
-  const two = derive({ B13: 1, B10: 1, B1003: 1, K17: 1 });
-  // K17 adds the second set of four analog I/Q outputs
+  const one = derive({ B13T: 1, B10: 1, B1003: 1, K16: 1 });
+  const two = derive({ B13T: 1, B10: 1, B1003: 1, K16: 2 });
+  // a second K16 adds the second set of four analog I/Q outputs; K17 is the
+  // wideband equivalent of K16 and cannot be installed twice, so it adds none
   assert.equal(faceCounts(two).rear - faceCounts(one).rear, 4);
+  assert.equal(derive({ B13XT: 1, B9: 1, B1003: 1, K17: 1 }).panel.analogIqOut2, false);
 });
 
 test('labels stay in characters that render at label size', () => {

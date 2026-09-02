@@ -12,12 +12,21 @@ import { freqA, freqB, mainModule, rfPathCount } from './rules.js';
 const q = (sel, id) => sel[id] || 0;
 
 /** Logical fading channels, per the fading simulator specifications. */
-function fadingChannels (units, k74, k75) {
+/**
+ * Logical faders available, from the MIMO and fading specifications.
+ *
+ * The two module types share every row of that table except the last: with
+ * K74 and K75 and four modules installed, four B14 give up to 32 channels and
+ * four B15 up to 64. They cannot be mixed, so the type is whichever is fitted.
+ */
+function fadingChannels (b14, b15, k74, k75) {
+  const units = b14 + b15;
   if (!units) return 0;
   if (units === 1) return 1;
   if (!k74) return 2;
   if (units === 2) return 4;
-  return k75 ? 32 : 16;      // four modules installed
+  if (!k75) return 16;
+  return b15 ? 64 : 32;
 }
 
 /**
@@ -42,7 +51,7 @@ function panelState (sel, a, b, paths, genStd, genWide) {
     connA: a?.meta.conn || null,
     connB: b?.meta.conn || null,
     analogIqOut: !!(q(sel, 'K16') || q(sel, 'K17')),
-    analogIqOut2: !!q(sel, 'K17'),
+    analogIqOut2: q(sel, 'K16') > 1,
     digitalOut: !!(q(sel, 'K18') || q(sel, 'K19')),
     hsDigital: !!sel.B13XT,
     modules: [
@@ -65,19 +74,22 @@ export function derive (sel) {
   const generators = genStd + genWide;
 
   /* --- RF modulation bandwidth ---------------------------------- */
-  let bandwidth = 0, bandwidthNote = '';
-  if (genStd) {
-    bandwidth = q(sel, 'K522') ? 160 : 120;
-    bandwidthNote = q(sel, 'K522') ? 'R&S®SMW-K522' : 'R&S®SMW-B10 base';
-  } else if (genWide) {
-    if (q(sel, 'K527')) { bandwidth = 2000; bandwidthNote = 'R&S®SMW-K527'; }
-    else if (q(sel, 'K525')) { bandwidth = 1000; bandwidthNote = 'R&S®SMW-K525'; }
-    else { bandwidth = 500; bandwidthNote = 'R&S®SMW-B9 base'; }
-  }
-  // an extension bought once only lifts one of two paths
-  const bwSecondPath = generators > 1 && bandwidth > (genStd ? 120 : 500)
-    ? (q(sel, 'K522') > 1 || q(sel, 'K527') > 1 || q(sel, 'K525') > 1 ? bandwidth : (genStd ? 120 : 500))
-    : bandwidth;
+
+  /* An extension is per path: bought once it lifts the first path only, so the
+     nth path gets whatever extension has been bought at least n times. Testing
+     the quantities of all three extensions together, as this once did, let a
+     second K527 raise a path whose bandwidth came from K522. */
+  const bwFor = n => {
+    if (genStd) return q(sel, 'K522') >= n ? 160 : 120;
+    if (genWide) return q(sel, 'K527') >= n ? 2000 : q(sel, 'K525') >= n ? 1000 : 500;
+    return 0;
+  };
+  const bandwidth = bwFor(1);
+  const bwSecondPath = generators > 1 ? bwFor(2) : bandwidth;
+  const bandwidthNote = !bandwidth ? ''
+    : genStd ? (q(sel, 'K522') ? 'R&S®SMW-K522' : 'R&S®SMW-B10 base')
+      : q(sel, 'K527') ? 'R&S®SMW-K527'
+        : q(sel, 'K525') ? 'R&S®SMW-K525' : 'R&S®SMW-B9 base';
 
   /* --- ARB memory ------------------------------------------------ */
   let arb = 0;
@@ -86,7 +98,7 @@ export function derive (sel) {
 
   /* --- fading ---------------------------------------------------- */
   const faders = q(sel, 'B14') + q(sel, 'B15');
-  const channels = fadingChannels(faders, q(sel, 'K74'), q(sel, 'K75'));
+  const channels = fadingChannels(q(sel, 'B14'), q(sel, 'B15'), q(sel, 'K74'), q(sel, 'K75'));
   let fadeBw = 0;
   if (q(sel, 'B14')) fadeBw = 160;
   else if (q(sel, 'B15')) fadeBw = q(sel, 'K823') ? 800 : q(sel, 'K822') ? 400 : 200;

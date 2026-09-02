@@ -185,7 +185,13 @@ a { color: var(--accent); }
   background: linear-gradient(145deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2)));
   color: #04222b; border-color: transparent; font-weight: 640;
 }
-.btn-primary:hover { color: #04222b; filter: brightness(1.08); }
+/* .btn:hover is a class plus a pseudo-class and so outranks plain .btn-primary;
+   without restating the background here the gradient is replaced on hover and
+   the dark label is left on a light grey ground. */
+.btn-primary:hover {
+  background: linear-gradient(145deg, var(--accent), color-mix(in srgb, var(--accent) 62%, var(--accent-2)));
+  color: #04222b; border-color: transparent; filter: brightness(1.08);
+}
 .btn-ghost { background: none; border-color: transparent; }
 .btn-ghost:hover { background: var(--surface-2); }
 .btn-icon { padding: 8px; }
@@ -661,6 +667,11 @@ a { color: var(--accent); }
     display: inline-flex; position: fixed; bottom: 20px; right: 20px; z-index: 50;
     padding: 12px 18px; border-radius: 30px; box-shadow: var(--shadow);
   }
+  /* once the panel is open the bottom right corner belongs to its own Export
+     button, so the toggle moves up out of the way and closes from there */
+  body.panel-open .panel-toggle {
+    bottom: auto; top: 72px; right: 16px; padding: 9px 14px;
+  }
   .main-inner { padding: 20px 16px 0; }
   /* the instrument follows you down the option list here too */
   .hero {
@@ -691,6 +702,9 @@ a { color: var(--accent); }
     --surface-3: #f2f2f2; --line: #bbb; --line-soft: #ddd;
     --text: #000; --text-dim: #333; --text-faint: #555;
     --accent: #036; --accent-2: #036; --accent-3: #036;
+    /* the status colours are legible on the dark ground, not on paper */
+    --ok: #0a6b32; --warn: #7a4a00; --error: #a11020;
+    --glow: none; --shadow: none;
   }
   body { background: #fff; color: #000; }
   .topbar, .rail, .panel, .panel-toggle { display: none !important; }
@@ -804,7 +818,9 @@ a { color: var(--accent); }
 .btn-danger {
   background: var(--error); color: #fff; border-color: transparent; font-weight: 600;
 }
-.btn-danger:hover { filter: brightness(1.08); }
+.btn-danger:hover {
+  background: var(--error); color: #fff; border-color: transparent; filter: brightness(1.08);
+}
 
 .link-field {
   width: 100%; padding: 10px 12px; border-radius: 8px;
