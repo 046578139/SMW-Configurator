@@ -160,7 +160,11 @@ export function validate (sel) {
   const errors = [];
   const warnings = [];
   const info = [];
-  const add = (list, issue) => list.push(issue);
+  /* Issue ids are unique per problem, so the same problem reported from both
+     sides - a clash both options declare - collapses into one entry. */
+  const add = (list, issue) => {
+    if (!list.some(e => e.id === issue.id)) list.push(issue);
+  };
 
   const a = freqA(sel);
   const b = freqB(sel);
@@ -305,8 +309,13 @@ export function validate (sel) {
     }
 
     for (const other of opt.conflicts || []) {
-      if (sel[other] && opt.id < other) {
-        add(errors, { id: `clash-${opt.id}-${other}`, title: 'Options cannot be combined',
+      /* Ordering the pair in the issue id collapses the duplicate when both
+         sides declare the clash. Gating on opt.id < other instead dropped every
+         one-way declaration that happened to sort the wrong way - all twenty of
+         them, as it turned out. */
+      if (sel[other]) {
+        const pair = [opt.id, other].sort();
+        add(errors, { id: `clash-${pair[0]}-${pair[1]}`, title: 'Options cannot be combined',
           detail: `${label(opt.id)} and ${label(other)} cannot be installed on the same instrument.`,
           section: opt.section, option: opt.id, drop: [other] });
       }
@@ -491,18 +500,42 @@ function applyFix (sel, issue) {
  * Options are only ever added, never removed – dropping something the user
  * chose stays a deliberate act.
  */
-export function autoResolve (sel, depth = 12) {
+/**
+ * One improving move, with lookahead: a fix counts if the configuration it
+ * leads to has fewer problems once its own consequences are settled. That
+ * lookahead is what lets a chain of prerequisites resolve, so it earns the
+ * recursion.
+ */
+function resolveOnce (sel, depth) {
   const errors = validate(sel).errors;
   if (!errors.length || depth === 0) return sel;
 
-  // Only ever adds. Removing an option the user deliberately chose is their
-  // call, so issues that can only be settled that way carry a drop for the
-  // Checks panel to offer instead.
   for (const issue of errors) {
     const candidate = applyFix(sel, issue);
     if (!candidate) continue;
-    const settled = autoResolve(candidate, depth - 1);
+    const settled = resolveOnce(candidate, depth - 1);
     if (validate(settled).errors.length < errors.length) return settled;
   }
   return sel;
+}
+
+/**
+ * Settles what can be settled by adding options.
+ *
+ * Repeats until the configuration stops changing, because one improving move
+ * can expose another that the depth limit cut short - a second press used to
+ * get further than the first, which makes the button look unreliable.
+ *
+ * Only ever adds. Removing an option the user deliberately chose is their
+ * call, so issues that can only be settled that way carry a drop for the
+ * Checks panel to offer instead.
+ */
+export function autoResolve (sel, depth = 12) {
+  let current = sel;
+  for (let pass = 0; pass < 8; pass++) {
+    const next = resolveOnce(current, depth);
+    if (next === current) break;
+    current = next;
+  }
+  return current;
 }

@@ -331,3 +331,36 @@ test('no native dialogs anywhere in the app', async () => {
     assert.equal(hit, null, `${file} calls ${hit && hit[1]}() - ask in the page instead`);
   }
 });
+
+test('one press of Fix issues finishes the job', () => {
+  // it used to stop at the first improvement, so a second press often got
+  // further - which makes the button look unreliable
+  const cases = [
+    { K512: 1 },
+    { B1003: 1, K74: 1 },
+    { B13T: 1, B1044: 1, B2044: 1, B14: 2, K72: 2, K73: 1, K74: 1 },
+    { B1067: 1, B9: 1, K527: 1, B15: 2, K75: 1 },
+    { B1006: 1, B13: 1, B10: 1, K511: 1, K512: 1, K522: 1 }
+  ];
+  for (const sel of cases) {
+    const once = autoResolve(sel);
+    const twice = autoResolve(once);
+    assert.deepEqual(twice, once, `${JSON.stringify(sel)} still improves on a second press`);
+  }
+});
+
+test('resolving never makes a configuration worse or drops a choice', () => {
+  let seed = 99;
+  const rnd = () => (seed = (seed * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const ids = OPTIONS.map(o => o.id);
+  for (let i = 0; i < 300; i++) {
+    const sel = {};
+    for (let k = 0, n = 1 + Math.floor(rnd() * 10); k < n; k++) {
+      sel[ids[Math.floor(rnd() * ids.length)]] = 1;
+    }
+    const before = validate(sel).errors.length;
+    const after = autoResolve(sel);
+    assert.ok(validate(after).errors.length <= before, 'resolving added problems');
+    for (const id of Object.keys(sel)) assert.ok(after[id], `${id} was dropped`);
+  }
+});

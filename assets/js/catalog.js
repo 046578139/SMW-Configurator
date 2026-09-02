@@ -482,7 +482,7 @@ export const OPTIONS = [
     reqText: 'R&S®SMW-B2020 and R&S®SMW-B83' },
   { id: 'B93', name: 'Solid-state drive', order: '1414.1885.02', step: 15, section: 'other',
     group: 'Other options', retrofit: 'service' },
-  { id: 'K980', name: 'Health and utilization monitoring service (HUMS)', order: 'on request',
+  { id: 'K980', name: 'Health and utilization monitoring service (HUMS)', order: 'not listed',
     step: 15, section: 'other', group: 'Other options', retrofit: 'keycode',
     note: 'Can be installed once.' },
 
@@ -657,7 +657,7 @@ export const OPTIONS = [
              'WGEN*2&K502*2&K301*2'],
     ['K307', 'Multiple emitters extension (interleaved)', '1413.3510.02', 'K306'],
     ['K308', 'Direction finding',                   '1414.1433.02', 'K301'],
-    ['K309', 'Import of 2D maps',                   'on request',   'K301'],
+    ['K309', 'Import of 2D maps',                   'not listed',   'K301'],
     ['K315', 'Pulse-on-pulse simulation',           '1414.6529.02',
              'B9*2&K502*2&B15*2&(K503*2|K301*2)', '-'],
     ['K350', 'DFS signal generation',               '1413.9160.02', 'GEN']

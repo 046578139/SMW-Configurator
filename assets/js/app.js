@@ -263,7 +263,8 @@ function renderPhase () {
       : 'no extra option';
     return `
     <div class="card ${on ? 'on' : 'off'}" data-level="${lvl.id}">
-      <button class="tick round" data-level="${lvl.id}" aria-pressed="${on}">${icon('check', 13)}</button>
+      <button class="tick round" data-level="${lvl.id}" aria-pressed="${on}"
+        aria-label="Select ${esc(lvl.label)} phase noise">${icon('check', 13)}</button>
       <div class="card-body" data-level="${lvl.id}">
         <div class="card-top"><span class="opt-id">${esc(codes)}</span></div>
         <p class="opt-name">${esc(lvl.label)}</p>
@@ -621,7 +622,7 @@ document.addEventListener('click', ev => {
           <h2>${rear ? 'Rear' : 'Front'} panel</h2>
           <p>${rear ? counts.rear : counts.front} connectors on this face.</p>
         </div>
-        <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+        <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
       </div>
       <div class="modal-body">
         <div class="viz viz-wide">${rear
@@ -644,7 +645,7 @@ document.addEventListener('click', ev => {
             <h2>Copy this link</h2>
             <p>It carries the whole configuration.</p>
           </div>
-          <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+          <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
         </div>
         <div class="modal-body">
           <input class="link-field" readonly value="${esc(link)}">
@@ -665,7 +666,7 @@ document.addEventListener('click', ev => {
           <h2>Clear this configuration?</h2>
           <p>${n} option${n === 1 ? '' : 's'} will be removed. This cannot be undone.</p>
         </div>
-        <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+        <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
       </div>
       <div class="modal-foot">
         <button class="btn" data-close>Keep it</button>
@@ -755,7 +756,7 @@ function openPresets () {
         <h2>Start from a typical setup</h2>
         <p>Each starting point is a valid configuration. Adjust anything afterwards.</p>
       </div>
-      <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+      <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
     </div>
     <div class="modal-body">
       <div class="preset-grid">
@@ -789,7 +790,7 @@ function openExport () {
           ${v.errors.length ? `<span style="color:var(--error)">${v.errors.length} open issue${v.errors.length === 1 ? '' : 's'}</span>`
                             : '<span style="color:var(--ok)">validated against the configuration guide</span>'}</p>
       </div>
-      <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+      <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
     </div>
     <div class="modal-body" style="padding:0">
       <table class="table">
