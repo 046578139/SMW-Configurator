@@ -143,6 +143,11 @@ export function issueItem (issue, kind) {
     actions.push(`<button class="mini go" data-fix="${esc(issue.fix.join(','))}"
       data-fixqty="${esc(JSON.stringify(issue.fixQty || {}))}">Add ${issue.fix.map(f => f).join(', ')}</button>`);
   }
+  if (issue.swap) {
+    const [from, to] = issue.swap;
+    actions.push(`<button class="mini mini-go" data-swap="${esc(from)},${esc(to)}"
+      >Use ${esc(to)} instead of ${esc(from)}</button>`);
+  }
   if (issue.drop?.length) {
     actions.push(`<button class="mini" data-drop="${esc(issue.drop.join(','))}">Remove ${issue.drop.join(', ')}</button>`);
   }

@@ -519,7 +519,7 @@ function toast (message) {
 }
 
 document.addEventListener('click', ev => {
-  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face]');
+  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face],[data-swap]');
   if (!t) return;
 
   if (t.dataset.face) {
@@ -560,6 +560,15 @@ document.addEventListener('click', ev => {
     afterChange();
     return;
   }
+  if (t.dataset.swap) {
+    const [from, to] = t.dataset.swap.split(',');
+    delete state.sel[from];
+    state.sel[to] = 1;
+    afterChange();
+    toast(`Switched to R&S®SMW-${to}`);
+    return;
+  }
+
   if (t.dataset.drop) {
     for (const id of t.dataset.drop.split(',')) delete state.sel[id];
     afterChange();
@@ -589,7 +598,15 @@ document.addEventListener('click', ev => {
     state.sel = autoResolve(state.sel);
     afterChange();
     const after = validate(state.sel).errors.length;
-    toast(after === 0 ? 'All issues resolved' : `${before - after} of ${before} issues resolved`);
+    const fixed = before - after;
+
+    /* Some issues cannot be settled by adding anything - a missing main module,
+       or an option ruled out by one already chosen. Saying "0 of 5 resolved"
+       reads as a failure; these need a decision, and the Checks panel now
+       carries the wording and a Remove button for each one. */
+    if (!after) toast('All issues resolved');
+    else if (fixed) toast(`${fixed} of ${before} resolved · ${after} need a choice`);
+    else toast(`${after} issue${after === 1 ? '' : 's'} need a choice – see Checks`);
   }
   if (action === 'presets') openPresets();
   if (action === 'export') openExport();

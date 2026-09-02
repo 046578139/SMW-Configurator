@@ -75,10 +75,24 @@ export function evaluate (node, sel) {
       need: results.flatMap(r => r.need)
     };
   }
-  // or: satisfied by any branch; otherwise report the branch nearest to done
+  // or: satisfied by any branch
   const results = node.or.map(n => evaluate(n, sel));
   const hit = results.find(r => r.ok);
   if (hit) return { ok: true, need: [] };
+
+  /* Branches that are each a plain requirement of the same size are one choice
+     between options, so report them as a single need listing every option that
+     would satisfy it. Reporting only the nearest branch loses the alternatives:
+     it made "B13|B13T" read as needing B13, narrower than the guide's own
+     wording, and left the fix with one candidate where there were two. */
+  const first = node.or[0];
+  if (node.or.every(n => n.ids && n.n === first.n)) {
+    const ids = node.or.flatMap(n => n.ids);
+    return { ok: false, need: [{ ids, n: first.n, have: countOf(ids, sel),
+      label: node.or.map(n => n.label).join(' or ') }] };
+  }
+
+  // otherwise report the branch nearest to done
   const deficit = r => r.need.reduce((s, x) => s + (x.n - x.have), 0);
   const best = results.reduce((a, b) => (deficit(b) < deficit(a) ? b : a));
   return { ok: false, need: best.need };
@@ -244,15 +258,49 @@ export function validate (sel) {
       if (!res.ok) {
         const fixQty = {};
         const fix = [];
+        const blockers = new Set();
         for (const n of res.need) {
           const id = pickFix(n, sel);
-          if (!id) continue;
+          if (!id) {
+            const by = blockedBy(n, sel);
+            if (by) blockers.add(by);
+            continue;
+          }
           fix.push(id);
           fixQty[id] = Math.max(fixQty[id] || 0, n.n);
         }
-        add(errors, { id: `req-${opt.id}`, title: `${label(opt.id)} is missing a prerequisite`,
+
+        const issue = { id: `req-${opt.id}`, title: `${label(opt.id)} is missing a prerequisite`,
           detail: `${opt.name} requires ${res.need.map(needText).join(' and ')}.`,
-          section: opt.section, option: opt.id, fix, fixQty });
+          section: opt.section, option: opt.id, fix, fixQty };
+
+        /* If any part of the requirement is ruled out by a choice already made,
+           adding the other parts cannot settle the issue - offering them as a
+           fix produces a button that changes the configuration without fixing
+           anything. Explain the block and offer the removal instead. */
+        if (blockers.size) {
+          issue.fix = [];
+          issue.fixQty = {};
+          issue.detail += ` ${[...blockers].map(label).join(' and ')} is installed, which rules that out.`;
+          issue.drop = [opt.id];
+
+          /* Removing the option is rarely what is wanted - the options that
+             depend on it then break in turn. Changing the blocking choice is
+             usually the single edit that settles the whole group, so offer it
+             directly. Preference runs to the main module that carries the most:
+             B13T takes two I/Q paths where B13 takes one. */
+          if (blockers.size === 1) {
+            const [blocker] = blockers;
+            const wanted = res.need.flatMap(n => n.ids);
+            const alt = ['B13T', 'B13XT', 'B13'].find(id => wanted.includes(id) && id !== blocker);
+            if (alt && MAIN_MODULES.includes(blocker)) {
+              issue.swap = [blocker, alt];
+              issue.detail += ` Switching to ${label(alt)} settles it in one step;` +
+                ` removing ${label(opt.id)} is the alternative.`;
+            }
+          }
+        }
+        add(errors, issue);
       }
     }
 
@@ -361,13 +409,32 @@ export function validate (sel) {
  * configuration already leans towards: the current baseband section first,
  * then the first id the guide lists.
  */
+/**
+ * The already-installed option that rules out every way of satisfying a
+ * requirement. Single-select choices - the baseband main module, the RF path A
+ * frequency - cannot be swapped behind the user's back, so when a requirement
+ * can only be met by a different one of those, nothing can be added to fix it
+ * and the option itself has to go instead.
+ */
+export const MAIN_MODULES = ['B13', 'B13T', 'B13XT'];
+
+function blockedBy (need, sel) {
+  const mm = mainModule(sel);
+  const fa = freqA(sel);
+  const ids = need.ids.filter(id => BY_ID[id]);
+  if (!ids.length) return null;
+  if (mm && ids.every(id => MAIN_MODULES.includes(id) && id !== mm)) return mm;
+  if (fa && ids.every(id => BY_ID[id].step === 1 && id !== fa.id)) return fa.id;
+  return null;
+}
+
 function pickFix (need, sel) {
   const mmInstalled = mainModule(sel);
   const freqAInstalled = freqA(sel);
   const candidates = need.ids.filter(id => {
     if (!BY_ID[id]) return false;
     // never propose a second single-select item
-    if (mmInstalled && ['B13', 'B13T', 'B13XT'].includes(id) && id !== mmInstalled) return false;
+    if (mmInstalled && MAIN_MODULES.includes(id) && id !== mmInstalled) return false;
     if (freqAInstalled && BY_ID[id].step === 1 && id !== freqAInstalled.id) return false;
     return true;
   });
@@ -424,17 +491,18 @@ function applyFix (sel, issue) {
  * Options are only ever added, never removed – dropping something the user
  * chose stays a deliberate act.
  */
-export function autoResolve (sel, depth = 8) {
+export function autoResolve (sel, depth = 12) {
   const errors = validate(sel).errors;
   if (!errors.length || depth === 0) return sel;
 
+  // Only ever adds. Removing an option the user deliberately chose is their
+  // call, so issues that can only be settled that way carry a drop for the
+  // Checks panel to offer instead.
   for (const issue of errors) {
     const candidate = applyFix(sel, issue);
     if (!candidate) continue;
     const settled = autoResolve(candidate, depth - 1);
-    if (validate(settled).errors.length < errors.length) {
-      return autoResolve(settled, depth - 1);
-    }
+    if (validate(settled).errors.length < errors.length) return settled;
   }
   return sel;
 }

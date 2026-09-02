@@ -10,7 +10,9 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { OPTIONS, BY_ID, RF_PATH_MATRIX, O_VARIANTS } from '../assets/js/catalog.js';
-import { validate, autoResolve, holds, parse, evaluate, maxQty, qtyChoices } from '../assets/js/rules.js';
+import {
+  validate, autoResolve, holds, parse, evaluate, maxQty, qtyChoices, needText
+} from '../assets/js/rules.js';
 import { derive } from '../assets/js/derive.js';
 import { PRESETS } from '../assets/js/presets.js';
 
@@ -236,4 +238,76 @@ test('a shorthand counts every option in its group', () => {
   assert.ok(!holds('GEN*2', { B10: 1 }));
   assert.ok(holds('WGEN', { B9F: 1 }));
   assert.equal(evaluate(parse('GEN*2'), { B10: 1 }).need[0].have, 1);
+});
+
+/* ------------------------------------------------- issues needing a choice */
+
+test('a prerequisite ruled out by the main module explains itself and offers removal', () => {
+  // B13XT is a wideband main module; B10 and B14 are standard baseband
+  // hardware and need B13 or B13T, which cannot be swapped in behind the user
+  const sel = { B13XT: 1, B1044: 1, B2044: 1, B94L: 1, B10: 1, B14: 2, K72: 2, K73: 1, K74: 1 };
+  const issues = validate(sel).errors;
+
+  const b10 = issues.find(e => e.id === 'req-B10');
+  assert.ok(b10, 'B10 is reported');
+  assert.equal(b10.fix.length, 0, 'nothing can be added to satisfy it');
+  assert.match(b10.detail, /B13XT is installed, which rules that out/);
+  assert.deepEqual(b10.drop, ['B10'], 'removal is offered instead');
+
+  // and the resolver leaves the selection alone rather than guessing
+  assert.deepEqual(autoResolve(sel), sel);
+});
+
+test('a blocked prerequisite still resolves once the blocker is right', () => {
+  // the same configuration on a two path standard main module settles fully
+  const sel = { B13T: 1, B1044: 1, B2044: 1, B94L: 1, B10: 1, B14: 2, K72: 2, K73: 1, K74: 1 };
+  assert.equal(validate(autoResolve(sel)).errors.length, 0);
+});
+
+test('every issue can either be fixed or tells the user what to do', () => {
+  const cases = [
+    { B13XT: 1, B1003: 1, B10: 1 },
+    { B13: 1, B1003: 1, B9: 1 },
+    { B1044: 1 },
+    { B13T: 1, B10: 1, B14: 1 },
+    { B13XT: 1, B1044: 1, B94L: 1, B14: 2, K74: 1 }
+  ];
+  for (const sel of cases) {
+    for (const e of validate(autoResolve(sel)).errors) {
+      const actionable = (e.fix && e.fix.length) || e.drop?.length || e.setQty || e.section;
+      assert.ok(actionable, `${e.id} leaves the user with nothing to do`);
+    }
+  }
+});
+
+test('an either/or requirement names every option that would satisfy it', () => {
+  // reporting only the nearest branch made "B13|B13T" read as needing B13
+  const need = evaluate(parse('B13|B13T'), { B13XT: 1 }).need;
+  assert.equal(need.length, 1);
+  assert.deepEqual(need[0].ids, ['B13', 'B13T']);
+  assert.match(needText(need[0]), /B13 or R&S®SMW-B13T/);
+});
+
+test('a blocked choice offers the switch that settles it', () => {
+  const sel = { B13XT: 1, B1044: 1, B2044: 1, B94L: 1, B10: 1, B14: 2, K72: 2, K73: 1, K74: 1 };
+  const issues = validate(sel).errors;
+  const swaps = issues.filter(e => e.swap);
+  assert.ok(swaps.length, 'the blocked issues offer a switch');
+  for (const e of swaps) assert.deepEqual(e.swap, ['B13XT', 'B13T'],
+    'B13T carries two I/Q paths, so it is preferred over B13');
+
+  // taking the switch and then resolving reaches a valid configuration
+  const swapped = { ...sel };
+  delete swapped.B13XT;
+  swapped.B13T = 1;
+  assert.equal(validate(autoResolve(swapped)).errors.length, 0);
+});
+
+test('a partial fix is not offered when another part is blocked', () => {
+  // B14 needs (B13|B13T) and B10; with B13XT installed, adding B10 alone
+  // changes the configuration without settling the issue
+  const sel = { B13XT: 1, B1003: 1, B14: 1 };
+  const b14 = validate(sel).errors.find(e => e.id === 'req-B14');
+  assert.deepEqual(b14.fix, [], 'no fix that cannot resolve the issue');
+  assert.ok(b14.drop || b14.swap, 'a real remedy is offered instead');
 });
