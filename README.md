@@ -102,6 +102,10 @@ sandboxed frame still being able to clear a configuration, the standalone build
 running from `file://` with no network at all. Set `SMW_BROWSER` if Chromium is
 somewhere Playwright will not find on its own.
 
+[`docs/HANDOVER.md`](docs/HANDOVER.md) has the rest of what a new machine needs:
+where things stand, what is still open, and the container-level details worth
+not rediscovering.
+
 ### One file, no server
 
 ```sh
