@@ -89,8 +89,18 @@ python3 -m http.server 8000     # then open http://localhost:8000
 Tests:
 
 ```sh
-node --test
+node --test                       # rules, panel, scale and overlay
+npm install                       # only needed for the browser suites
+node tests/browser/run.mjs        # 11 suites, 81 checks, in a real browser
+node tests/browser/run.mjs xss    # or just one
 ```
+
+`node --test` needs nothing installed. The browser suites need Playwright and a
+Chromium build; they start their own static server on port 8899 and drive the
+page for things a unit test cannot see — labels overlapping in a drawing, a
+sandboxed frame still being able to clear a configuration, the standalone build
+running from `file://` with no network at all. Set `SMW_BROWSER` if Chromium is
+somewhere Playwright will not find on its own.
 
 ### One file, no server
 
@@ -153,6 +163,7 @@ assets/js/
   app.js                state, rendering, events, export
 tests/rules.test.mjs    rule regression tests
 tests/panel.test.mjs    panel, scale and photo overlay tests
+tests/browser/          browser suites and their runner
 tools/build-standalone.mjs  single-file build
 ```
 

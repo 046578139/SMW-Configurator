@@ -4,3 +4,6 @@ node_modules/
 
 # scratch files review agents leave behind when they copy a module to import it
 assets/js/_*.mjs
+
+# screenshots the browser suites write
+tests/browser/out/
