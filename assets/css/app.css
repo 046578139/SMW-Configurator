@@ -634,6 +634,14 @@ a { color: var(--accent); }
 .toast svg { width: 15px; height: 15px; color: var(--ok); }
 @keyframes toastIn { from { opacity: 0; transform: translate(-50%, 12px) } }
 
+/* column widths ----------------------------------------------------------- */
+
+/* On a large display the option list does not need the extra width, but the
+   instrument does - it is the thing being watched while the list is worked
+   through, so the right hand column takes the room instead. */
+@media (min-width: 1660px) { :root { --panel: 500px; } }
+@media (min-width: 1960px) { :root { --panel: 580px; } }
+
 /* mobile ------------------------------------------------------------------ */
 .panel-toggle { display: none; }
 
@@ -654,6 +662,13 @@ a { color: var(--accent); }
     padding: 12px 18px; border-radius: 30px; box-shadow: var(--shadow);
   }
   .main-inner { padding: 20px 16px 0; }
+  /* the instrument follows you down the option list here too */
+  .hero {
+    position: sticky; top: 0; z-index: 6; margin-inline: -16px; border-radius: 0;
+    border-left: 0; border-right: 0; border-top: 0;
+    max-height: 54vh; overflow-y: auto;
+    background: var(--bg);
+  }
   .config-name { display: none; }
   .brand-sub { display: none; }
 }
@@ -762,6 +777,21 @@ a { color: var(--accent); }
   margin: 0 0 22px; padding: 14px 16px 16px;
   background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
 }
+
+/* In the right hand column the instrument sits above the tabs and outside the
+   scrolling body, so it stays in view for the whole option list. It is capped
+   rather than left to grow, because the rear panel gets tall once several
+   baseband modules are fitted. */
+.panel > .hero {
+  flex: none; margin: 0; border: 0; border-radius: 0;
+  border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-2) 70%, transparent);
+  max-height: 48vh; overflow-y: auto;
+  padding: 12px 14px 14px;
+}
+.panel > .hero .viz-caption { font-size: 10.5px; margin-top: 6px; }
+.panel > .hero .conn-note { flex-basis: 100%; padding: 7px 9px; }
+.panel > .hero .conn-value { font-size: 12px; }
 .hero-head {
   display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
 }

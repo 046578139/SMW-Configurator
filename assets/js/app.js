@@ -425,9 +425,19 @@ function renderPanel () {
  * fit, because the connector labels stop being readable once the SVG is
  * squeezed much below its natural width.
  */
+/**
+ * Above 1000px the right hand column is on screen and scrolls independently of
+ * the options, so the instrument lives at the top of it and stays put while you
+ * work down the list. Below that the column is positioned off screen, so the
+ * instrument goes back to the main column and sticks to the top of it instead.
+ */
+const WIDE = matchMedia('(min-width: 1001px)');
+const instrumentHost = () => (WIDE.matches ? $('#panel') : $('#main-inner'));
+
 function panelWidth () {
-  const room = ($('#main-inner')?.clientWidth || 900) - 34;
-  return Math.round(Math.max(360, Math.min(880, room)));
+  const host = instrumentHost();
+  const room = (host?.clientWidth || 900) - (WIDE.matches ? 28 : 34);
+  return Math.round(Math.max(340, Math.min(880, room)));
 }
 
 function renderHero () {
@@ -458,8 +468,8 @@ function renderHero () {
         <span class="conn-value">${esc(n.value)}</span>
         ${n.note ? `<span class="conn-sub">${esc(n.note)}</span>` : ''}
       </div>`).join('')}</div>` : ''}
-    <p class="viz-caption">Schematic elevation. The connectors fitted and their types
-      follow the specifications; positions on the panel are indicative.</p>
+    <p class="viz-caption">Schematic elevation — connector inventory and types follow
+      the specifications, positions are indicative.</p>
   </section>`;
 }
 
@@ -470,10 +480,11 @@ function render () {
   cached.derived = derive(state.sel);
 
   $('#rail').innerHTML = renderRail();
-  $('#main-inner').innerHTML = renderHero() + (state.search
+  const wide = WIDE.matches;
+  $('#main-inner').innerHTML = (wide ? '' : renderHero()) + (state.search
     ? renderSearch()
     : SECTIONS.map(renderSection).join('')) + colophon();
-  $('#panel').innerHTML = renderPanel();
+  $('#panel').innerHTML = (wide ? renderHero() : '') + renderPanel();
   $('#config-name').value = state.name;
 
   const st = cached.validation;
@@ -829,6 +840,8 @@ export function boot () {
   if (window.claude?.use) {
     saveHost().then(host => { savingBlocked = !host; }).catch(() => { savingBlocked = true; });
   }
+  WIDE.addEventListener('change', render);
+
   let resizeTimer;
   window.addEventListener('resize', () => {
     clearTimeout(resizeTimer);
