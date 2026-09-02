@@ -637,12 +637,52 @@ document.addEventListener('click', ev => {
     const link = location.origin + location.pathname + encode();
     (navigator.clipboard?.writeText(link) ?? Promise.reject())
       .then(() => toast('Link copied to clipboard'))
-      .catch(() => window.prompt('Copy this link to share the configuration:', link));
+      .catch(() => openModal(`
+      <div class="modal" role="dialog" aria-label="Shareable link">
+        <div class="modal-head">
+          <div style="flex:1">
+            <h2>Copy this link</h2>
+            <p>It carries the whole configuration.</p>
+          </div>
+          <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+        </div>
+        <div class="modal-body">
+          <input class="link-field" readonly value="${esc(link)}">
+        </div>
+      </div>`));
+    return;
   }
+  /* Asked in the page rather than through confirm(). A sandboxed frame - which
+     is how this is usually embedded - ignores the native dialogs and returns
+     false, so the button appeared to do nothing at all. */
   if (action === 'reset') {
-    if (confirm('Clear the current configuration?')) {
-      state.sel = {}; state.name = 'Untitled configuration'; afterChange(); toast('Configuration cleared');
-    }
+    const n = Object.keys(state.sel).length;
+    if (!n) { toast('Nothing to clear'); return; }
+    openModal(`
+    <div class="modal" role="dialog" aria-label="Clear configuration">
+      <div class="modal-head">
+        <div style="flex:1">
+          <h2>Clear this configuration?</h2>
+          <p>${n} option${n === 1 ? '' : 's'} will be removed. This cannot be undone.</p>
+        </div>
+        <button class="btn btn-icon btn-ghost" data-close>${icon('x', 16)}</button>
+      </div>
+      <div class="modal-foot">
+        <button class="btn" data-close>Keep it</button>
+        <button class="btn btn-danger" data-action="reset-confirm">
+          ${icon('trash', 15)} Clear configuration</button>
+      </div>
+    </div>`);
+    return;
+  }
+
+  if (action === 'reset-confirm') {
+    closeModal();
+    state.sel = {};
+    state.name = 'Untitled configuration';
+    afterChange();
+    toast('Configuration cleared');
+    return;
   }
   if (action === 'theme') {
     state.theme = state.theme === 'dark' ? 'light' : 'dark';
@@ -658,6 +698,11 @@ document.addEventListener('click', ev => {
 document.addEventListener('input', ev => {
   if (ev.target.id === 'search') { state.search = ev.target.value.trim(); render(); }
   if (ev.target.id === 'config-name') { state.name = ev.target.value || 'Untitled configuration'; save(); }
+});
+
+document.addEventListener('click', ev => {
+  const field = ev.target.closest('.link-field');
+  if (field) field.select();
 });
 
 document.addEventListener('keydown', ev => {

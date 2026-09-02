@@ -311,3 +311,23 @@ test('a partial fix is not offered when another part is blocked', () => {
   assert.deepEqual(b14.fix, [], 'no fix that cannot resolve the issue');
   assert.ok(b14.drop || b14.swap, 'a real remedy is offered instead');
 });
+
+/* ------------------------------------------------------- sandbox safety */
+
+test('no native dialogs anywhere in the app', async () => {
+  // A sandboxed frame without allow-modals ignores confirm/alert/prompt and
+  // returns false or null, so a control built on one silently does nothing.
+  // This is how the configurator is usually embedded; ask in the page instead.
+  const { readFileSync, readdirSync } = await import('node:fs');
+  const dir = new URL('../assets/js/', import.meta.url);
+  // comments discuss these by name, so strip them before looking for calls
+  const code = src => src
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1');
+
+  for (const file of readdirSync(dir)) {
+    const hit = code(readFileSync(new URL(file, dir), 'utf8'))
+      .match(/(?:^|[^.\w])(?:window\.)?(confirm|alert|prompt)\s*\(/);
+    assert.equal(hit, null, `${file} calls ${hit && hit[1]}() - ask in the page instead`);
+  }
+});
