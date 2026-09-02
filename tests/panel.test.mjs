@@ -115,24 +115,26 @@ test('labels stay in characters that render at label size', () => {
   }
 });
 
-test('the front chassis grows when the connector strip wraps', () => {
-  const d = derive({ B13T: 1, B10: 1, B1003: 1, B2003: 1 });
-  const heightOf = svg => Number(svg.match(/viewBox="0 0 [\d.]+ ([\d.]+)"/)[1]);
+test('the front panel keeps the proportions of the instrument', () => {
+  const svg = renderFront(derive({ B13: 1, B10: 1, B1003: 1 }), {});
+  const [, w, h] = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/).map(Number);
+  // the 4 HU chassis face is about 2.45 times as wide as it is tall
+  assert.equal(Math.abs(w / h - 2.44) < 0.12, true, `aspect was ${(w / h).toFixed(2)}`);
+});
 
-  const wide = heightOf(renderFront(d, {}, 900));
-  const narrow = heightOf(renderFront(d, {}, 380));
-  assert.equal(narrow > wide, true,
-    'a narrow panel wraps its connector strip and needs a taller chassis');
+test('the RF outputs are labelled with the range the option provides', () => {
+  assert.match(renderFront(derive({ B13: 1, B10: 1, B1003: 1 }), {}), /100kHz–3GHz/);
+  assert.match(renderFront(derive({ B13: 1, B10: 1, B1067: 1 }), {}), /100kHz–67GHz/);
+});
 
-  // the wordmark sits inside the chassis; the strip must finish above it
-  for (const w of [900, 640, 500, 430, 380]) {
-    const svg = renderFront(d, {}, w);
-    const h = heightOf(svg) - 16;
-    const labels = [...svg.matchAll(/<text x="[\d.]+" y="([\d.]+)" font-size="6\.6"/g)]
-      .map(m => Number(m[1]));
-    assert.equal(Math.max(...labels) < h - 6, true,
-      `at ${w} a connector label runs into the wordmark`);
-  }
+test('a relocated or absent RF output leaves a blanking plate', () => {
+  const one = renderFront(derive({ B13: 1, B10: 1, B1003: 1 }), {});
+  assert.match(one, /no second path/, 'path B is blanked when only one path is fitted');
+
+  const moved = renderFront(derive({ B13: 1, B10: 1, B1003: 1, B81: 1 }), {});
+  assert.match(moved, /on rear panel/, 'B81 leaves a plate where path A was');
+  assert.equal(/100kHz–3GHz/.test(moved), false,
+    'the range belongs with the connector, which is now on the rear');
 });
 
 test('group titles never overflow their box', () => {
