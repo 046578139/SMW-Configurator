@@ -1,3 +1,6 @@
 # build product of tools/build-standalone.mjs - regenerate, don't commit
 dist/
 node_modules/
+
+# scratch files review agents leave behind when they copy a module to import it
+assets/js/_*.mjs
