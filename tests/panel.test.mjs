@@ -10,6 +10,7 @@ import assert from 'node:assert/strict';
 import { derive } from '../assets/js/derive.js';
 import { RF_CONNECTOR, FRONT_PANEL, REAR_PANEL, MODULE_PANELS } from '../assets/js/catalog.js';
 import { renderFront, renderRear, faceCounts, connectorNotes } from '../assets/js/panel.js';
+import { renderRuler } from '../assets/js/diagram.js';
 
 const base = { B13: 1, B10: 1 };
 
@@ -169,4 +170,32 @@ test('group titles never overflow their box', () => {
   for (const m of svg.matchAll(/font-size="6\.4"[^>]*>([^<]*)</g)) {
     assert.equal(m[1].length <= 64, true, `title too long for its box: ${m[1]}`);
   }
+});
+
+/* ------------------------------------------------------------------ ruler */
+
+test('the frequency scale starts at the instrument minimum', () => {
+  const svg = renderRuler(derive({ B13: 1, B10: 1, B1003: 1 }));
+  const [, vbW] = svg.match(/viewBox="0 0 ([\d.]+) [\d.]+"/).map(Number);
+  // the coverage bar begins at the axis origin, not inset from it
+  const bar = svg.match(/<rect x="([\d.]+)" y="[\d.]+" width="([\d.]+)" height="9"/);
+  assert.ok(bar, 'a coverage bar is drawn');
+  const axis = svg.match(/<line x1="([\d.]+)" y1="[\d.]+" x2="([\d.]+)"[^>]*stroke="var\(--line\)"/);
+  assert.equal(Number(bar[1]), Number(axis[1]), 'the bar starts where the axis starts');
+  assert.match(svg, /Every option starts at 100 kHz/);
+});
+
+test('the scale names the radio bands across the whole range', () => {
+  const svg = renderRuler(derive({ B13: 1, B10: 1, B1067: 1 }));
+  for (const band of ['LF', 'MF', 'HF', 'VHF', 'UHF', 'L', 'S', 'C', 'X', 'Ku', 'K', 'Ka', 'V']) {
+    assert.match(svg, new RegExp(`>${band} band<`), `${band} band is missing`);
+  }
+  for (const m of ['FR1', 'FR2 mmWave']) assert.match(svg, new RegExp(m));
+});
+
+test('the bar length follows the frequency option', () => {
+  const width = id => Number(renderRuler(derive({ B13: 1, B10: 1, [id]: 1 }))
+    .match(/<rect x="[\d.]+" y="[\d.]+" width="([\d.]+)" height="9"/)[1]);
+  assert.ok(width('B1067') > width('B1020'), '67 GHz should reach further than 20 GHz');
+  assert.ok(width('B1020') > width('B1003'), '20 GHz should reach further than 3 GHz');
 });
