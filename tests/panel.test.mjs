@@ -288,3 +288,14 @@ test('the overlay shares the photograph geometry and produces no stray numbers',
     assert.match(svg, /<img src="[^"]+" alt="/, `${face} has no image`);
   }
 });
+
+test('the scale marks every orderable upper limit, not just the chosen one', () => {
+  // a bar on a logarithmic axis carries no magnitude in its length, so the
+  // choice is also shown as a position among the ten options, and the bar
+  // states its own value rather than leaving it to be read off
+  const svg = renderRuler(derive({ B13T: 1, B10: 2, B1044: 1, B2020: 1, B94L: 1 }));
+  const pips = [...svg.matchAll(/<title>([\d.]+) GHz option<\/title>/g)].map(m => Number(m[1]));
+  assert.deepEqual(pips, [3, 6, 7.5, 12.75, 20, 31.8, 40, 44, 56, 67]);
+  assert.match(svg, /B1044 · 44 GHz/);
+  assert.match(svg, /B2020 · 20 GHz/);
+});

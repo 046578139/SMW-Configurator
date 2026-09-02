@@ -313,8 +313,13 @@ const MOBILE = [
 
 const TICKS = [1, 2, 3, 6, 10, 20, 40, 67];
 
+/* Every upper limit that can be ordered. Drawn as a ladder under the bars so
+   the choice can be read as a position among the alternatives, not only as a
+   bar length - which on a logarithmic axis carries no magnitude anyway. */
+const CEILINGS = [3, 6, 7.5, 12.75, 20, 31.8, 40, 44, 56, 67];
+
 export function renderRuler (d) {
-  const W = 356, H = 92;
+  const W = 356, H = 98;
   const x0 = 4, x1 = W - 4;
   const TAIL = 32;                 // the compressed segment below 1 GHz
   const GAP = 9;                   // where the axis break sits
@@ -323,8 +328,9 @@ export function renderRuler (d) {
 
   const bandY = 6, bandH = 13;
   const mobY = 21, mobH = 10;
-  const barY = 38;
-  const axisY = 66;
+  const barY = 36;
+  const pipY = 62;
+  const axisY = 72;
 
   const at = f => xA + ((Math.log10(Math.min(Math.max(f, F_LO), F_MAX)) - Math.log10(F_LO)) /
     (Math.log10(F_MAX) - Math.log10(F_LO))) * span;
@@ -353,14 +359,20 @@ export function renderRuler (d) {
   const bar = (f, y, colour, label) => {
     if (!f) return '';
     const end = at(f);
+    // a long bar leaves no room to its right, so the label moves inside it
+    const inside = end > x1 - label.length * 4.6 - 10;
     // the bar begins in the compressed segment, because the option covers it
     return `
       <rect x="${x0}" y="${y}" width="${(end - x0).toFixed(1)}" height="9" rx="4.5"
         fill="${colour}" fill-opacity=".22" stroke="${colour}" stroke-width="1"/>
       <rect x="${x0}" y="${y}" width="${(end - x0).toFixed(1)}" height="9" rx="4.5"
         fill="${colour}" fill-opacity=".35"/>
-      <text x="${(end + 6).toFixed(1)}" y="${y + 7.4}" font-size="8" fill="${colour}"
-        font-family="ui-monospace,monospace">${esc(label)}</text>`;
+      ${inside
+        ? `<text x="${(end - 6).toFixed(1)}" y="${y + 7.4}" font-size="7.5" fill="var(--bg)"
+             text-anchor="end" font-weight="700"
+             font-family="ui-monospace,monospace">${esc(label)}</text>`
+        : `<text x="${(end + 6).toFixed(1)}" y="${y + 7.4}" font-size="7.5" fill="${colour}"
+             font-family="ui-monospace,monospace">${esc(label)}</text>`}`;
   };
 
   /* The break: a band of page colour with two slashes, drawn over everything so
@@ -384,10 +396,24 @@ export function renderRuler (d) {
   ${bands}
   ${mobile}
 
-  ${bar(d.freqA?.meta.fMax, barY, 'var(--accent)', d.freqA ? d.freqA.id : '')}
-  ${d.freqB ? bar(d.freqB.meta.fMax, barY + 13, 'var(--accent-2)', d.freqB.id) : ''}
+  ${bar(d.freqA?.meta.fMax, barY, 'var(--accent)',
+    d.freqA ? `${d.freqA.id} · ${d.freqA.meta.fMax} GHz` : '')}
+  ${d.freqB ? bar(d.freqB.meta.fMax, barY + 13, 'var(--accent-2)',
+    `${d.freqB.id} · ${d.freqB.meta.fMax} GHz`) : ''}
   ${d.freqA ? '' : `<text x="${x0 + 4}" y="${barY + 7.4}" font-size="7.5" fill="var(--text-faint)"
     font-family="ui-monospace,monospace">no frequency option chosen</text>`}
+
+  <!-- where this configuration sits among the options that can be ordered -->
+  ${CEILINGS.map(f => {
+    const px = at(f);
+    const isA = d.freqA?.meta.fMax === f;
+    const isB = d.freqB?.meta.fMax === f;
+    const c = isA ? 'var(--accent)' : isB ? 'var(--accent-2)' : 'var(--text-faint)';
+    const h = isA || isB ? 7 : 4;
+    return `<line x1="${px.toFixed(1)}" y1="${pipY + 7 - h}" x2="${px.toFixed(1)}" y2="${pipY + 7}"
+      stroke="${c}" stroke-width="${isA || isB ? 2.4 : 1}" stroke-opacity="${isA || isB ? 1 : .55}"
+      stroke-linecap="round"><title>${f} GHz option</title></line>`;
+  }).join('')}
 
   ${brk}
 
@@ -406,7 +432,7 @@ export function renderRuler (d) {
   }).join('')}
 
   <text x="${x0}" y="${H - 2}" font-size="7" fill="var(--text-faint)"
-    >Every option covers 100 kHz upward; the scale expands where they differ.</text>
+    >Every option covers 100 kHz upward; ticks mark all ten limits.</text>
   <text x="${x1}" y="${H - 2}" font-size="7" fill="var(--text-faint)" text-anchor="end">Hz, logarithmic</text>
 </svg>`;
 }
