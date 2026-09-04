@@ -61,8 +61,14 @@ test('conflicts are declared on both sides where both options exist', () => {
 
 /* -------------------------------------------------------------- mandatory */
 
-test('an empty configuration reports both mandatory items', () => {
-  assert.deepEqual(titles({}).sort(), ['no-freq-a', 'no-main-module']);
+test('an empty configuration lists both mandatory items as choices, not faults', () => {
+  const { errors, ok } = validate({});
+  assert.deepEqual(errors.map(e => e.id).sort(), ['no-freq-a', 'no-main-module']);
+  assert.ok(errors.every(e => e.todo), 'both are marked as steps still to take');
+  assert.equal(ok, false, 'the configuration is still not valid');
+  // anything the user actually got wrong is an error, not a step
+  assert.ok(validate({ B1003: 1, B1006: 1, B13: 1 }).errors
+    .some(e => e.id === 'multi-freq-a' && !e.todo));
 });
 
 test('a frequency option plus a main module is already valid', () => {

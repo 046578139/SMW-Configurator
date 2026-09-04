@@ -110,9 +110,12 @@ await t('Fix issues settles prerequisites and reports the rest', async () => {
         (await el.locator('strong').first().textContent()).trim());
     }
   }
+  // the badge counts everything the pane lists - steps still to take as well
+  // as broken rules, warnings and notes - so it has to match the card count.
+  // Scoped to the pane: the option columns use the same card for their notes.
   const badge = Number((await p.locator('.tab', { hasText: 'Checks' }).locator('.badge').textContent()).trim());
-  const errors = await p.locator('.issue.error').count();
-  if (badge !== errors) throw new Error(`badge says ${badge} but ${errors} errors are shown`);
+  const shown = await p.locator('.panel-body .issue').count();
+  if (badge !== shown) throw new Error(`badge says ${badge} but ${shown} cards are shown`);
 });
 
 await t('choosing the two mandatory options then reaches valid', async () => {

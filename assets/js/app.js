@@ -156,7 +156,8 @@ function sectionStatus (sec) {
   const { errors } = cached.validation;
   const opts = sectionOptions(sec.id);
   const chosen = opts.reduce((n, o) => n + (state.sel[o.id] || 0), 0);
-  const hasError = errors.some(e => e.section === sec.id);
+  // a broken rule marks the section; a choice not yet made only flags it
+  const hasError = errors.some(e => e.section === sec.id && !e.todo);
   let dot = null;
   if (hasError) dot = 'err';
   else if (sec.id === 'rf-a' && !freqA(state.sel)) dot = 'req';
@@ -360,6 +361,10 @@ function renderPanel () {
   const v = cached.validation;
   const issues = v.errors.length + v.warnings.length + v.info.length;
 
+  /* Choices still to make read as steps; only a broken rule is an error. */
+  const todo = v.errors.filter(e => e.todo);
+  const broken = v.errors.filter(e => !e.todo);
+
   const tabs = [
     ['overview', 'Overview', 0],
     ['chain', 'Chain', 0],
@@ -397,7 +402,8 @@ function renderPanel () {
       </div>`;
   } else if (state.tab === 'checks') {
     body = issues
-      ? [...v.errors.map(e => issueItem(e, 'error')),
+      ? [...todo.map(e => issueItem(e, 'todo')),
+         ...broken.map(e => issueItem(e, 'error')),
          ...v.warnings.map(e => issueItem(e, 'warning')),
          ...v.info.map(e => issueItem(e, 'info'))].join('')
       : `<div class="all-clear">${icon('shield', 38)}
@@ -412,12 +418,12 @@ function renderPanel () {
   <div class="panel-tabs">
     ${tabs.map(([id, label, count]) => `
       <button class="tab ${state.tab === id ? 'active' : ''}" data-tab="${id}">${esc(label)}
-        ${count ? `<span class="badge ${id === 'checks' && v.errors.length ? 'bad' : ''}">${count}</span>` : ''}
+        ${count ? `<span class="badge ${id === 'checks' && broken.length ? 'bad' : ''}">${count}</span>` : ''}
       </button>`).join('')}
   </div>
   <div class="panel-body">${body}</div>
   <div class="panel-foot">
-    <button class="btn" data-action="resolve" ${v.errors.length ? '' : 'disabled'}>
+    <button class="btn" data-action="resolve" ${broken.length ? '' : 'disabled'}>
       ${icon('wand', 15)} Fix issues</button>
     <button class="btn btn-primary" data-action="export">${icon('download', 15)} Export</button>
   </div>`;
@@ -964,6 +970,10 @@ export function boot () {
     }, 180);
   });
   drawnAt = panelWidth();
+
+  // the count belongs to the catalog, not to a number typed into the markup
+  const search = $('#search');
+  if (search) search.placeholder = `Search ${OPTIONS.length} options — press /`;
 
   load();
   syncAuto();

@@ -1,8 +1,9 @@
 /**
- * The quantity controls, which a unit test cannot see: an option that comes in
- * fixed quantities must not offer one the configuration rules out, and the
- * options that run into the dozens need a field rather than a stepper nobody
- * would click 250 times.
+ * What the page puts in front of someone, which a unit test cannot see: a
+ * configuration nobody has started yet must read as two choices to make, not
+ * as two faults; an option that comes in fixed quantities must not offer one
+ * the configuration rules out; and the options that run into the dozens need
+ * a field rather than a stepper nobody would click 250 times.
  */
 
 import { chromium } from 'playwright';
@@ -46,7 +47,7 @@ await t('a typed quantity above the ceiling is held at the ceiling', async () =>
   const shown = await card('K200-1').locator('input.qty-input').inputValue();
   if (Number(shown) !== 250) throw new Error('field shows ' + shown + ', expected the 250 ceiling');
   await tab('checks');
-  const issues = await p.locator('.issue.error').allTextContents();
+  const issues = await p.locator('.panel-body .issue.error').allTextContents();
   if (issues.some(x => x.includes('waveform'))) throw new Error('over the ceiling after clamping');
 });
 
@@ -59,7 +60,7 @@ await t('two fading simulators are the smallest choice once two generators are i
   const qty = (await card('B15').locator('.qty span').textContent()).trim();
   if (qty !== '2') throw new Error('ticking B15 with two B9 gave ' + qty);
   await tab('checks');
-  const errors = await p.locator('.issue.error').allTextContents();
+  const errors = await p.locator('.panel-body .issue.error').allTextContents();
   if (errors.length) throw new Error('ticking a valid option raised: ' + errors[0].slice(0, 60));
 });
 
@@ -72,7 +73,7 @@ await t('one fading simulator is the choice when a single generator is in', asyn
   const qty = (await card('B15').locator('.qty span').textContent()).trim();
   if (qty !== '1') throw new Error('ticking B15 with one B9 gave ' + qty);
   await tab('checks');
-  if (await p.locator('.issue.error').count()) throw new Error('a single B15 on one B9 was refused');
+  if (await p.locator('.panel-body .issue.error').count()) throw new Error('a single B15 on one B9 was refused');
 });
 
 await t('a quantity the rules exclude marks the card, not only the issue list', async () => {
@@ -82,8 +83,37 @@ await t('a quantity the rules exclude marks the card, not only the issue list', 
   const cls = await card('B15').getAttribute('class');
   if (!cls.includes('invalid')) throw new Error('card not marked: ' + cls);
   await tab('checks');
-  const errors = await p.locator('.issue.error').allTextContents();
+  const errors = await p.locator('.panel-body .issue.error').allTextContents();
   if (!errors.some(x => x.includes('0, 2 or 4'))) throw new Error('the reason was not reported');
+});
+
+await t('a fresh page presents the two mandatory choices as steps, not errors', async () => {
+  await p.goto(`${BASE}/index.html`);
+  await p.evaluate(() => { try { localStorage.clear(); } catch {} });
+  // dropping the hash is a same-document navigation, so the page has to be
+  // reloaded for the cleared storage to take effect
+  await p.reload();
+  await p.waitForTimeout(700);
+  await tab('checks');
+  if (await p.locator('.panel-body .issue.error').count()) throw new Error('an untouched page reports errors');
+  const steps = await p.locator('.panel-body .issue.todo').allTextContents();
+  if (steps.length !== 2) throw new Error(steps.length + ' steps, expected 2');
+  if (!steps.join(' ').includes('Choose an RF path A frequency option')) {
+    throw new Error('the first step does not read as a choice: ' + steps[0].slice(0, 60));
+  }
+  // "badge" contains "bad", so the class has to be matched as a whole token
+  if (await p.locator('.tab .badge.bad').count()) throw new Error('the tab badge is still red');
+  if (await p.locator('.nav-item .nav-dot.err').count()) throw new Error('a section is marked broken');
+  if (await p.locator('.nav-item .nav-dot.req').count() !== 2) throw new Error('the two sections are not flagged as still to choose');
+  if (!(await p.locator('[data-action="resolve"]').isDisabled())) throw new Error('Fix issues offered with nothing broken');
+});
+
+await t('a real rule violation still reads as an error', async () => {
+  await open('B1003.B13.B2003');
+  await tab('checks');
+  if (!(await p.locator('.panel-body .issue.error').count())) throw new Error('a broken rule was not reported as an error');
+  if (!(await p.locator('.tab .badge.bad').count())) throw new Error('the tab badge is not red');
+  if (await p.locator('[data-action="resolve"]').isDisabled()) throw new Error('Fix issues not offered');
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

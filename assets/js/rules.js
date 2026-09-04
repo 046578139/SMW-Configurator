@@ -202,14 +202,17 @@ export function validate (sel) {
   const paths = rfPathCount(sel);
 
   /* --- mandatory items ------------------------------------------- */
+  /* The two mandatory choices are marked `todo`: a configuration without them
+     is not valid, but on a page nobody has touched yet they are the first two
+     steps rather than mistakes, and the interface says so. */
   if (!a) {
-    add(errors, { id: 'no-freq-a', title: 'RF path A frequency option missing',
-      detail: 'Every R&S®SMW200A needs one frequency option in RF path A. It cannot be retrofitted.',
+    add(errors, { id: 'no-freq-a', todo: true, title: 'Choose an RF path A frequency option',
+      detail: 'Every R&S®SMW200A needs one frequency option in RF path A. It sets the upper frequency limit of the instrument and cannot be retrofitted.',
       section: 'rf-a' });
   }
   if (!mm) {
-    add(errors, { id: 'no-main-module', title: 'Baseband main module missing',
-      detail: 'Every R&S®SMW200A needs a signal routing and baseband main module.',
+    add(errors, { id: 'no-main-module', todo: true, title: 'Choose a baseband main module',
+      detail: 'Every R&S®SMW200A needs a signal routing and baseband main module. It decides whether the standard or the wideband baseband section applies.',
       section: 'baseband' });
   }
   if (OPTIONS.filter(o => o.step === 1 && sel[o.id]).length > 1) {

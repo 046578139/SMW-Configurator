@@ -148,7 +148,8 @@ export function freqCard (opt, sel, maxGhz = 67) {
 /* ----------------------------------------------------------------- issues */
 
 export function issueItem (issue, kind) {
-  const glyph = kind === 'error' ? 'alert' : kind === 'warning' ? 'alert' : 'info';
+  const glyph = kind === 'todo' ? 'chevron'
+    : kind === 'error' || kind === 'warning' ? 'alert' : 'info';
   const actions = [];
   if (issue.fix?.length) {
     actions.push(`<button class="mini go" data-fix="${esc(issue.fix.join(','))}"
