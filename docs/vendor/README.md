@@ -48,19 +48,28 @@ Adopted from the vendor (each option's note says so): K553 and K554 are one
 licence per RF path with the path's own frequency floor (6 GHz, 20 GHz); B83
 accepts B1040N; B82 and B84 accept either path A rear-connector option; K546
 needs B90; K544 needs a baseband generator; K75 needs four fading simulators;
-B15 comes once with one B9 and never once with two; K108, K109, K122, K123 and
-K128 need the wideband generator; K146 runs on K115; the K69/K81/K175 second
-unit counts K55 and K115 together; the GNSS channel packs and waveform
-packages are capped by the instrument ceilings (612 channels, 250 waveforms)
-rather than by an arbitrary per-pack number; K980 and K309 got their order
-numbers; fourteen newer options were added.
+B15 comes once with one B9 and never once with two; K143 and K146 both hang on
+K115; the K69/K81/K175 second unit counts K55 and K115 together; the waveform
+packages are capped by the 250-waveform ceiling rather than by an arbitrary
+per-pack number; K980 and K309 got their order numbers; fourteen newer options
+were added.
 
-Kept against the vendor, with the guide as the primary source: K548 twice with
-two generators (vendor: once); K134's base-standard list (vendor: shorter);
-K122 without K97 (vendor: accepts it); K17 once (vendor agrees, the second
-column is a placeholder); B93 as an option (vendor: a spare-SSD accessory);
-K477 and K253 (not offered online). K441's vendor rule points at a
-non-existent "K257", a transposition of K527.
+Adopted from the GNSS specifications (PD 3607.6896.22), whose option table
+settles what the vendor and the guide disagree about: K122, K123, K128, K129,
+K134, K135, the K136-K139 channel packs and the K360-K363 test suites are
+listed for the wideband generator only, so they require R&S SMW-B9/-B9F; and
+the channel ceiling follows the installed boards, 102 channels each, rather
+than a flat number.
+
+Kept against the vendor, with the guide as the primary source: K108 and K109
+on the standard generator (the vendor offers them only with B9/B9F, but the
+guide and the GNSS option table both list them for B10); K548 twice with two
+generators (vendor: once); K134's base-standard list (vendor: shorter); K122
+without K97 (vendor: accepts it); K17 once (vendor agrees, the second column
+is a placeholder); B93 as an option (vendor: a spare-SSD accessory); K477 and
+K253 (not offered online). Two vendor messages contain slips worth knowing:
+K441 asks for a non-existent "K257", a transposition of K527, and the K75 rule
+in the wideband groups says "4x SMW-B14" where it means B15.
 
 Not modelled: the vendor's portable and timed (1/3/6/12 month) licence
 variants, the pre-selected 3-month trial licence T0 (listed as an accessory),

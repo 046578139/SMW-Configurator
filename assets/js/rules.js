@@ -135,10 +135,7 @@ export const mainModule = sel => ['B13', 'B13T', 'B13XT'].find(id => sel[id]) ||
 /** Highest quantity currently allowed for an option. */
 export function maxQty (opt, sel) {
   if (opt.qtySteps) {
-    const allowed = opt.qtySteps.filter(q => {
-      const cond = opt.qtyStepsReq?.[q];
-      return !cond || holds(cond, sel);
-    });
+    const allowed = opt.qtySteps.filter(q => stepAllowed(opt, q, sel));
     return allowed.length ? Math.max(...allowed) : opt.qtySteps[0];
   }
   const max = opt.max || 1;
@@ -150,12 +147,22 @@ export function maxQty (opt, sel) {
 /** Quantities the stepper may offer, in order. */
 export function qtyChoices (opt, sel) {
   if (opt.qtySteps) {
-    return opt.qtySteps.filter(q => {
-      const cond = opt.qtyStepsReq?.[q];
-      return !cond || holds(cond, sel);
-    });
+    const allowed = opt.qtySteps.filter(q => stepAllowed(opt, q, sel));
+    return allowed.length ? allowed : [opt.qtySteps[0]];
   }
   return Array.from({ length: maxQty(opt, sel) }, (_, k) => k + 1);
+}
+
+/**
+ * Whether a quantity from `qtySteps` is available in this configuration.
+ * `qtyStepsReq` names what a quantity needs; `qtyStepsNot` names what rules it
+ * out - one R&S SMW-B15 is a configuration only while a single R&S SMW-B9 is
+ * installed, because two generators take none, two or four.
+ */
+function stepAllowed (opt, q, sel) {
+  const req = opt.qtyStepsReq?.[q];
+  const not = opt.qtyStepsNot?.[q];
+  return (!req || holds(req, sel)) && !(not && holds(not, sel));
 }
 
 /* -------------------------------------------------------------- messages */
@@ -364,8 +371,12 @@ export function validate (sel) {
 
     const cap = maxQty(opt, sel);
     if (qty > cap) {
-      const why = opt.maxReq
-        ? ` A second unit needs ${needText(evaluate(parse(opt.maxReq), sel).need[0] || { ids: [opt.maxReq], n: 1 })}.`
+      /* The reason lives in maxReq for a plain "up to two", and in
+         qtyStepsReq for an option that comes in fixed quantities. */
+      const stepReq = opt.qtySteps && opt.qtyStepsReq?.[opt.qtySteps.find(q => q > cap)];
+      const reason = opt.maxReq || stepReq;
+      const why = reason
+        ? ` ${opt.maxReq ? 'A second unit needs' : 'More units need'} ${needText(evaluate(parse(reason), sel).need[0] || { ids: [reason], n: 1 })}.`
         : '';
       add(errors, { id: `qty-${opt.id}`, title: `Quantity of ${label(opt.id)} too high`,
         detail: `The current configuration supports ${cap} × ${label(opt.id)}.${why}`,
@@ -424,11 +435,21 @@ export function validate (sel) {
       section: 'std-wiq' });
   }
 
-  /* --- GNSS channel ceiling -------------------------------------- */
+  /* --- GNSS channel ceiling --------------------------------------
+     The GNSS specifications (PD 3607.6896.22) put 102 channels on each
+     wideband generator and each fading simulator that carries a GNSS coder:
+     204 with two R&S SMW-B9, 612 with two B9 and four B15. An instrument
+     starts at 24 channels, so the extensions may fill the rest. */
   const gnssExtra = (sel.K136 || 0) * 6 + (sel.K137 || 0) * 12 + (sel.K138 || 0) * 24 + (sel.K139 || 0) * 48;
-  if (gnssExtra > 588) {
+  const gnssBoards = (sel.B9 || 0) + (sel.B9F || 0) + (sel.B15 || 0);
+  const gnssCap = 102 * gnssBoards;
+  if (gnssExtra && 24 + gnssExtra > gnssCap) {
+    const room = Math.max(0, gnssCap - 24);
     add(errors, { id: 'gnss-channels-max', title: 'Too many GNSS channels',
-      detail: `R&S®SMW-B9/-B9F comes with 24 GNSS channels and the extensions may add 588 more (612 in total); this configuration adds ${gnssExtra}.`,
+      detail: `Each R&S®SMW-B9/-B9F and each R&S®SMW-B15 carries up to 102 GNSS channels ` +
+        `(204 with two R&S®SMW-B9, 612 with two R&S®SMW-B9 and four R&S®SMW-B15). ` +
+        `This instrument holds ${gnssCap} channels, of which 24 come with it, ` +
+        `so the extensions may add ${room}; this configuration adds ${gnssExtra}.`,
       section: 'std-int' });
   }
 
@@ -456,12 +477,6 @@ export function validate (sel) {
     add(info, { id: 'mimo-coherence', title: 'Consider phase coherence',
       detail: 'MIMO measurements across two RF paths usually want R&S®SMW-B90 phase coherence.',
       section: 'rf-enh', fix: ['B90'] });
-  }
-  const gnssChannels = ['K136', 'K137', 'K138', 'K139'].some(id => sel[id]);
-  if (gnssChannels && !['B9', 'B9F'].some(id => sel[id])) {
-    add(warnings, { id: 'gnss-channels', title: 'Additional GNSS channels need wideband hardware',
-      detail: 'GNSS channel extensions run on the R&S®SMW-B9/-B9F wideband baseband generator.',
-      section: 'std-int' });
   }
   if (sel.B9F && sel.B9) {
     add(errors, { id: 'b9-b9f', title: 'R&S®SMW-B9 and -B9F cannot be mixed',
@@ -491,7 +506,17 @@ function blockedBy (need, sel) {
   const ids = need.ids.filter(id => BY_ID[id]);
   if (!ids.length) return null;
   if (mm && ids.every(id => MAIN_MODULES.includes(id) && id !== mm)) return mm;
-  if (fa && ids.every(id => BY_ID[id].step === 1 && id !== fa.id)) return fa.id;
+  /* A requirement that only frequency options can meet is settled by the RF
+     path A choice: the other path A options are ruled out because one is
+     already installed, and a path B option is ruled out unless path A can be
+     paired with it. R&S SMW-K553 on a 3 GHz instrument is the case - naming
+     the installed option explains an issue that otherwise offers nothing. */
+  if (fa && ids.every(id => {
+    const o = BY_ID[id];
+    if (o.step === 1) return id !== fa.id;
+    if (o.step === 5 && o.meta?.path === 'B') return !(RF_PATH_MATRIX[fa.id] || []).includes(id);
+    return false;
+  })) return fa.id;
   return null;
 }
 
@@ -505,6 +530,11 @@ function pickFix (need, sel) {
     if (freqAInstalled && BY_ID[id].step === 1 && id !== freqAInstalled.id) return false;
     const fb = freqB(sel);
     if (fb && BY_ID[id].step === 5 && BY_ID[id].meta?.path === 'B' && id !== fb.id) return false;
+    /* Proposing a path B option the installed path A option cannot be paired
+       with trades one error for another: the fix button would add B2006 to a
+       3 GHz instrument and raise rf-combo instead. */
+    if (!fb && freqAInstalled && BY_ID[id].step === 5 && BY_ID[id].meta?.path === 'B' &&
+        !(RF_PATH_MATRIX[freqAInstalled.id] || []).includes(id)) return false;
     return true;
   });
   if (!candidates.length) return null;

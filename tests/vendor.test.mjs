@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { BY_ID, EXTRAS } from '../assets/js/catalog.js';
+import { BY_ID, EXTRAS, RF_PATH_MATRIX } from '../assets/js/catalog.js';
 import { validate } from '../assets/js/rules.js';
 
 const titles = sel => validate(sel).errors.map(e => e.id);
@@ -61,9 +61,11 @@ test('K69, K81, K175: the second unit counts K55 and K115 together (guide "two R
   assert.ok(titles({ B1003: 1, B13T: 1, B10: 2, K55: 1, K69: 2 }).includes('qty-K69'));
 });
 
-test('K146 runs on K115 alone (vendor; guide v06.00 lists K143)', () => {
-  assert.ok(ok({ B1003: 1, B13: 1, B10: 1, K115: 1, K146: 1 }));
+test('the cellular IoT chain hangs on K115, as the vendor has it (guide v06.00 differs)', () => {
+  assert.ok(ok({ B1003: 1, B13: 1, B10: 1, K115: 1, K146: 1 }), 'K146 without K143');
   assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K146: 1 }).includes('req-K146'));
+  assert.ok(ok({ B1003: 1, B13: 1, B10: 1, K115: 1, K143: 1 }));
+  assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K143: 1 }).includes('req-K143'), 'K143 needs K115 too');
 });
 
 /* ------------------------------------------------------------ fading */
@@ -87,23 +89,55 @@ test('K75 higher-order MIMO needs four fading simulators (vendor and specificati
 
 /* -------------------------------------------------------------- GNSS */
 
-test('K108, K109, K122, K123, K128 need the wideband generator (vendor; guide v06.00 names none)', () => {
-  assert.ok(titles({ B1003: 1, B13T: 1, B10: 2, K44: 1, K108: 1 }).includes('req-K108'));
-  assert.ok(ok({ B1003: 1, B13XT: 1, B9: 1, K44: 1, K108: 1, K109: 1, K122: 1 }));
+test('the GNSS options the specifications mark wideband-only need R&S SMW-B9/-B9F', () => {
+  // GNSS specifications PD 3607.6896.22, option table: K122, K123, K128, K129,
+  // K134, K135, K136-K139 and K360-K363 are listed for the R&S SMW-B9(F) column
+  // only, while K108 and K109 are listed for both generator families.
+  assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K44: 1, K122: 1 }).includes('req-K122'));
   assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K123: 1 }).includes('req-K123'));
-  assert.ok(ok({ B1003: 1, B13XT: 1, B9: 1, K123: 1, K128: 1 }));
+  assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K44: 1, K94: 1, K360: 1 }).includes('req-K360'));
+  assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K44: 1, K66: 1, K106: 1, K361: 1 }).includes('req-K361'));
+  assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K44: 1, K362: 1 }).includes('req-K362'));
+  assert.ok(ok({ B1003: 1, B13XT: 1, B9: 1, K44: 1, K94: 1, K66: 1, K106: 1, K122: 1, K123: 1, K128: 1, K360: 1, K361: 1, K362: 1 }));
 });
 
-test('GNSS channel packs: several times, up to 612 channels in total (guide "several times", GNSS specs)', () => {
-  assert.ok(ok({ B1003: 1, B13XT: 1, B9: 1, K44: 1, K136: 5 }));
-  assert.ok(ok({ B1003: 1, B13XT: 1, B9: 1, K44: 1, K139: 12 }), '12 × 48 = 576 extra channels');
-  assert.ok(titles({ B1003: 1, B13XT: 1, B9: 1, K44: 1, K139: 12, K138: 1 }).includes('gnss-channels-max'));
+test('K108 and K109 also run on the standard generator (guide v06.00 and GNSS specifications)', () => {
+  // The R&S online configurator offers them only with R&S SMW-B9/-B9F; both
+  // paper sources list them for R&S SMW-B10 as well, so the guide stands.
+  assert.ok(ok({ B1003: 1, B13T: 1, B10: 1, K44: 1, K108: 1, K109: 1 }));
+  assert.ok(titles({ B1003: 1, B13: 1, B10: 1, K108: 1 }).includes('req-K108'), 'a GNSS standard is still needed');
+});
+
+test('GNSS channels are capped by the installed boards, not by a flat number', () => {
+  // GNSS specifications PD 3607.6896.22: 102 channels per wideband generator or
+  // fading simulator, 24 of them included with the instrument.
+  const one = { B1003: 1, B13XT: 1, B9: 1, K44: 1 };
+  assert.ok(ok({ ...one, K136: 5 }), '24 + 30 fits in 102');
+  assert.ok(ok({ ...one, K139: 1 }), '24 + 48 fits in 102');
+  assert.ok(titles({ ...one, K139: 2 }).includes('gnss-channels-max'), '24 + 96 does not');
+  const full = { B1003: 1, B13XT: 1, B9: 2, B15: 4, K44: 1 };
+  assert.ok(ok({ ...full, K139: 12 }), '24 + 576 fits in 612');
+  assert.ok(titles({ ...full, K139: 12, K138: 1 }).includes('gnss-channels-max'), '24 + 600 does not');
 });
 
 test('waveform packages: only the 250-waveform ceiling limits them (guide step 12)', () => {
   assert.ok(ok({ B1003: 1, B13: 1, B10: 1, 'K200-1': 25 }));
   assert.ok(ok({ B1003: 1, B13: 1, B10: 1, 'K200-5': 50 }));
   assert.ok(titles({ B1003: 1, B13: 1, B10: 1, 'K200-5': 50, 'K200-1': 1 }).includes('waveforms'));
+});
+
+test('a proposed fix never names an RF path B option the path A option cannot carry', () => {
+  for (const [sel, opt] of [[{ B1003: 1, B13: 1, B10: 1, K553: 1 }, 'K553'],
+                            [{ B1003: 1, B13: 1, B10: 1, K554: 1 }, 'K554'],
+                            [{ B1012: 1, B13: 1, B10: 1, K554: 1 }, 'K554']]) {
+    const issue = validate(sel).errors.find(e => e.id === `req-${opt}`);
+    assert.ok(issue, `${opt} is reported`);
+    const a = Object.keys(sel).find(id => BY_ID[id]?.step === 1);
+    for (const id of issue.fix) {
+      if (BY_ID[id].step !== 5) continue;
+      assert.ok(RF_PATH_MATRIX[a].includes(id), `${id} cannot be paired with ${a}`);
+    }
+  }
 });
 
 /* --------------------------------------------------------------- data */
@@ -114,7 +148,7 @@ test('options the vendor lists that guide v06.00 does not, with the vendor\'s ru
     K181: ['1434.9017.02', 'K149'], K182: ['1434.9052.02', 'K181'], K183: ['1434.9100.02', 'K116'],
     K484: ['1434.9181.02', 'K444'], K485: ['1434.9246.02', 'K254'], K480: ['1434.8456.02', 'GEN'],
     K481: ['1434.9030.02', 'K449'], K482: ['1434.9075.02', 'K481'], K483: ['1434.9123.02', 'K416'],
-    K111: ['1414.3059.02', 'GEN'], K363: ['1434.8179.02', 'K44&K66&K94&K107&K108']
+    K111: ['1414.3059.02', 'GEN'], K363: ['1434.8179.02', 'WGEN&K44&K66&K94&K107&K108']
   };
   for (const [id, [order, requires]] of Object.entries(added)) {
     const o = BY_ID[id];
@@ -141,7 +175,7 @@ test('requirement wording is the guide\'s, not the shorthand', () => {
   assert.equal(BY_ID.K40.reqText, 'R&S®SMW-B9/-B10');
   assert.equal(BY_ID.K141.reqText, 'R&S®SMW-B9 and R&S®SMW-K525 and R&S®SMW-K527');
   assert.equal(BY_ID.K69.reqText, 'R&S®SMW-K55/-K115');
-  assert.equal(BY_ID.K554.reqText,
-    'a frequency option of 20 GHz or higher in RF path A or a frequency option of 20 GHz or higher in RF path B');
+  assert.equal(BY_ID.K554.reqText, 'Frequency option with 20 GHz or higher in the path where it is used');
+  assert.equal(BY_ID.K122.reqText, 'R&S®SMW-B9/-B9F and one GNSS standard');
   assert.ok(!BY_ID.K129.reqText.includes('R and S'));
 });

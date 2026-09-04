@@ -66,7 +66,7 @@ export function optionCard (opt, sel, opts = {}) {
   const choices = qtyChoices(opt, sel);
   const cap = maxQty(opt, sel);
   const showQty = (opt.max > 1 || opt.qtySteps) && on;
-  const invalid = on && (!met || qty > cap || (opt.qtySteps && !opt.qtySteps.includes(qty)));
+  const invalid = on && (!met || qty > cap || (opt.qtySteps && !choices.includes(qty)));
 
   const chips = [];
   if (opt.requires) {
@@ -106,10 +106,19 @@ function qtyStepper (opt, qty, choices) {
   const idx = choices.indexOf(qty);
   const canDown = qty > choices[0] || qty > 0;
   const canUp = idx > -1 && idx < choices.length - 1;
+  /* Stepping suits two or four units. The waveform packages and the GNSS
+     channel extensions run into the dozens, where one click per unit is not a
+     way to enter a number - those get a field, as they do at R&S. */
+  const top = choices[choices.length - 1];
+  const box = top > 12
+    ? `<input class="qty-input" type="number" data-qty="${esc(opt.id)}" value="${qty}"
+        min="0" max="${top}" step="1" inputmode="numeric"
+        aria-label="Quantity of ${esc(opt.id)}, up to ${top}">`
+    : `<span>${qty}</span>`;
   return `
   <div class="qty">
     <button data-step="${esc(opt.id)}:down" ${canDown ? '' : 'disabled'} aria-label="Fewer">${icon('minus', 12)}</button>
-    <span>${qty}</span>
+    ${box}
     <button data-step="${esc(opt.id)}:up" ${canUp ? '' : 'disabled'} aria-label="More">${icon('plus', 12)}</button>
   </div>`;
 }

@@ -1,0 +1,92 @@
+/**
+ * The quantity controls, which a unit test cannot see: an option that comes in
+ * fixed quantities must not offer one the configuration rules out, and the
+ * options that run into the dozens need a field rather than a stepper nobody
+ * would click 250 times.
+ */
+
+import { chromium } from 'playwright';
+import { BASE, BROWSER } from './_env.mjs';
+
+const b = await chromium.launch({ executablePath: BROWSER });
+const ctx = await b.newContext({ viewport: { width: 1600, height: 1000 }, colorScheme: 'dark' });
+const p = await ctx.newPage(); p.setDefaultTimeout(5000);
+const errs = []; p.on('pageerror', e => errs.push(e.message));
+let pass = 0, fail = 0;
+const t = async (n, fn) => { try { await fn(); console.log('ok   ' + n); pass++; }
+  catch (e) { console.log('FAIL ' + n + ' -> ' + e.message.split('\n')[0].slice(0, 130)); fail++; } };
+
+const open = async (hash) => { await p.goto(`${BASE}/index.html#c=${hash}`); await p.waitForTimeout(600); };
+const card = id => p.locator(`.card[data-opt="${id}"]`);
+/* The summary pane shows one tab at a time; the parts list and the checks
+   each have to be selected before they are in the page. */
+const tab = async (name) => { await p.click(`[data-tab="${name}"]`); await p.waitForTimeout(400); };
+
+await t('a waveform package is typed, not clicked 250 times', async () => {
+  await open('B1003.B13.B10.K200-1');
+  await p.locator('.nav-item', { hasText: 'WinIQSIM2' }).click();
+  await p.waitForTimeout(400);
+  const field = card('K200-1').locator('input.qty-input');
+  if (!(await field.count())) throw new Error('no quantity field on a 250-unit option');
+  await field.fill('30');
+  await field.press('Enter');
+  await p.waitForTimeout(500);
+  const shown = await card('K200-1').locator('input.qty-input').inputValue();
+  if (shown !== '30') throw new Error('field shows ' + shown + ' after typing 30');
+  await tab('order');
+  const row = await p.locator('.bom-row', { hasText: '1414.6870.71' }).first().textContent();
+  if (!row.includes('30')) throw new Error('the parts list says ' + row.replace(/\s+/g, ' ').trim());
+});
+
+await t('a typed quantity above the ceiling is held at the ceiling', async () => {
+  const field = card('K200-1').locator('input.qty-input');
+  await field.fill('900');
+  await field.press('Enter');
+  await p.waitForTimeout(500);
+  const shown = await card('K200-1').locator('input.qty-input').inputValue();
+  if (Number(shown) !== 250) throw new Error('field shows ' + shown + ', expected the 250 ceiling');
+  await tab('checks');
+  const issues = await p.locator('.issue.error').allTextContents();
+  if (issues.some(x => x.includes('waveform'))) throw new Error('over the ceiling after clamping');
+});
+
+await t('two fading simulators are the smallest choice once two generators are in', async () => {
+  await open('B1044.B13XT.B9*2');
+  await p.locator('.nav-item', { hasText: 'MIMO' }).click();
+  await p.waitForTimeout(400);
+  await card('B15').locator('.tick').first().click();
+  await p.waitForTimeout(600);
+  const qty = (await card('B15').locator('.qty span').textContent()).trim();
+  if (qty !== '2') throw new Error('ticking B15 with two B9 gave ' + qty);
+  await tab('checks');
+  const errors = await p.locator('.issue.error').allTextContents();
+  if (errors.length) throw new Error('ticking a valid option raised: ' + errors[0].slice(0, 60));
+});
+
+await t('one fading simulator is the choice when a single generator is in', async () => {
+  await open('B1044.B13XT.B9');
+  await p.locator('.nav-item', { hasText: 'MIMO' }).click();
+  await p.waitForTimeout(400);
+  await card('B15').locator('.tick').first().click();
+  await p.waitForTimeout(600);
+  const qty = (await card('B15').locator('.qty span').textContent()).trim();
+  if (qty !== '1') throw new Error('ticking B15 with one B9 gave ' + qty);
+  await tab('checks');
+  if (await p.locator('.issue.error').count()) throw new Error('a single B15 on one B9 was refused');
+});
+
+await t('a quantity the rules exclude marks the card, not only the issue list', async () => {
+  await open('B1044.B13XT.B9*2.B15');
+  await p.locator('.nav-item', { hasText: 'MIMO' }).click();
+  await p.waitForTimeout(500);
+  const cls = await card('B15').getAttribute('class');
+  if (!cls.includes('invalid')) throw new Error('card not marked: ' + cls);
+  await tab('checks');
+  const errors = await p.locator('.issue.error').allTextContents();
+  if (!errors.some(x => x.includes('0, 2 or 4'))) throw new Error('the reason was not reported');
+});
+
+console.log(`\n${pass} passed, ${fail} failed`);
+console.log(errs.length ? 'JS: ' + [...new Set(errs)].join(' | ') : 'no JS errors');
+await b.close();
+process.exit(fail ? 1 : 0);

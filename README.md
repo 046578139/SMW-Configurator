@@ -91,9 +91,12 @@ Tests:
 ```sh
 node --test                       # rules, panel, scale and overlay
 npm install                       # only needed for the browser suites
-node tests/browser/run.mjs        # 11 suites, 81 checks, in a real browser
+node tests/browser/run.mjs        # 12 suites, 92 checks, in a real browser
 node tests/browser/run.mjs xss    # or just one
 ```
+
+Run `node --test` without a path: naming `tests/` sweeps in the browser suites,
+which import Playwright and fail to load on their own.
 
 `node --test` needs nothing installed. The browser suites need Playwright and a
 Chromium build; they start their own static server on port 8899 and drive the
@@ -148,15 +151,15 @@ The vendor's own configurator is the second source. It was compared with the
 catalog option by option (`docs/vendor/rules-summary.txt` is the readable
 form): the RF path matrix, the O-variant rules, the deeper chassis and the
 phase-noise pairing all matched. Where the vendor's rule engine was stricter
-than guide v06.00 and the specifications or the vendor's newer knowledge
-agreed – K554 needs 20 GHz, K546 needs phase coherence, K75 needs four fading
-simulators, K108/K109/K122/K123/K128 need the wideband generator – the
-catalog follows the vendor and says so in the option's note. Where the guide
-is explicit and the vendor merely lays things out differently (K548 once per
-instrument, path B licences ordered after path A, timed and portable
-licences), the guide stands and `docs/vendor/README.md` records the
-difference. Fourteen options the vendor lists but the guide does not (K180 to
-K185, K480 to K485, K111, K363) carry a chip saying where they come from.
+than guide v06.00 and a second source agreed – K554 needs 20 GHz, K546 needs
+phase coherence, K75 needs four fading simulators, the GNSS options its
+specifications mark wideband-only need R&S®SMW-B9 – the catalog follows the
+vendor and says so in the option's note. Where the guide is explicit and the
+vendor is alone in differing, the guide stands: R&S®SMW-K108 and ‑K109 stay
+available on the standard generator, R&S®SMW-K548 can still be installed
+twice, and `docs/vendor/README.md` records each of those. Fourteen options the
+vendor lists but the guide does not (K180 to K185, K480 to K485, K111, K363)
+carry a chip saying where they come from.
 
 The configuration guide is version 06.00 (May 2024). Five options appear only in
 the specifications document (version 31.00) — R&S®SMW-K508, ‑K554, ‑K556, ‑K573

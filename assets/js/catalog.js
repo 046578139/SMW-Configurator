@@ -42,10 +42,6 @@ export const SHORTHAND = {
   GNSSB: 'K44|K66|K94|K97|K98|K107|K123|K128|K132',
   // a frequency option in RF path B
   RFB: 'B2003|B2006|B2007|B2012|B2020|B2031|B2044|B2044N|B2044O',
-  // a frequency option of 6 GHz or above in either path (K553)
-  F6: 'B1006|B1007|B1012|B1020|B1031|B1040|B1040N|B1044|B1044N|B1044O|' +
-      'B1056|B1056N|B1056O|B1067|B1067N|B1067O|' +
-      'B2006|B2007|B2012|B2020|B2031|B2044|B2044N|B2044O',
   // any RF path A frequency option
   RFA: 'B1003|B1006|B1007|B1012|B1020|B1031|B1040|B1040N|B1044|B1044N|' +
        'B1044O|B1056|B1056N|B1056O|B1067|B1067N|B1067O',
@@ -159,6 +155,9 @@ export const SECTIONS = [
  * max         maximum quantity (default 1)
  * maxReq      expression that must hold before quantity may exceed 1
  * qtySteps    explicit list of permitted quantities (overrides max)
+ * qtyStepsReq expression each quantity needs before it is offered
+ * qtyStepsNot expression that removes a quantity from the list
+ * since       'specs' | 'vendor' when the option is newer than guide v06.00
  * conflicts   option ids that may not be installed at the same time
  * note        the guide's "Remarks" column
  * retrofit    'no' | 'factory' | 'service' | 'keycode'
@@ -443,7 +442,7 @@ export const OPTIONS = [
   { id: 'B15', name: 'Fading simulator and signal processor', order: '1414.4710.02', step: 14,
     section: 'fading', group: 'Multichannel, MIMO and fading', retrofit: 'service',
     requires: 'B13XT&WGEN', reqText: 'R&S®SMW-B13XT and at least one R&S®SMW-B9',
-    qtySteps: [1, 2, 4], qtyStepsReq: { 2: 'WGEN*2', 4: 'WGEN*2' },
+    qtySteps: [1, 2, 4], qtyStepsReq: { 2: 'WGEN*2', 4: 'WGEN*2' }, qtyStepsNot: { 1: 'WGEN*2' },
     note: 'Once with one R&S®SMW-B9; twice or four times with two. With two R&S®SMW-B9 only 0, 2 or 4 units are possible.',
     meta: { fader: 'wideband' } },
   { id: 'K71', name: 'Dynamic fading', order: '1413.3532.02', step: 14, section: 'fading',
@@ -535,11 +534,12 @@ export const OPTIONS = [
     ['K119', 'LTE Release 13/14/15',                      '1414.3542.02', 'K55'],
     ['K130', 'OneWeb user-defined signal generation',     '1414.3788.02', 'GEN', undefined,
              'Only available to authorized OneWeb customers.'],
-    ['K143', 'Cellular IoT Release 14',                   '1414.6064.02', 'GEN'],
+    ['K143', 'Cellular IoT Release 14',                   '1414.6064.02', 'K115', undefined,
+             'The R&S online configurator requires R&S®SMW-K115 (Release 13); guide v06.00 names only a baseband generator.'],
     ['K144', '5G New Radio',                              '1414.4990.02', 'GEN'],
     ['K145', '5G NR closed-loop BS test',                 '1414.6506.02', 'K144'],
     ['K146', 'Cellular IoT Release 15/16/17',             '1414.6564.02', 'K115', undefined,
-             'The R&S online configurator requires only R&S®SMW-K115; guide v06.00 lists -K143 (which itself needs -K115).'],
+             'The R&S online configurator requires only R&S®SMW-K115 (Release 13); guide v06.00 lists -K143, which the guide in turn bases on a baseband generator alone.'],
     ['K148', '5G NR Release 16',                          '1414.6664.02', 'K144'],
     ['K170', '5G NR sidelink',                            '1413.8640.02', 'GEN'],
     ['K171', '5G NR Release 17',                          '1413.7280.02', 'K148'],
@@ -574,32 +574,39 @@ export const OPTIONS = [
     ['K98',  'Modernized GPS',                            '1414.1533.02', 'GEN'],
     ['K106', 'SBAS/QZSS',                                 '1414.2923.02', 'K44'],
     ['K107', 'BeiDou',                                    '1414.1585.02', 'GEN'],
-    ['K108', 'Real-world scenarios',                      '1414.2975.02', 'WGEN&GNSS', '-',
-             'Guide v06.00 lists only the GNSS standards; the R&S online configurator also requires R&S®SMW-B9/-B9F.'],
-    ['K109', 'GNSS real-time interfaces (RT remote control)', '1414.3013.02', 'WGEN&GNSS', '-',
-             'Guide v06.00 lists only the GNSS standards; the R&S online configurator also requires R&S®SMW-B9/-B9F.'],
+    ['K108', 'Real-world scenarios',                      '1414.2975.02', 'GNSS', '-',
+             'The R&S online configurator offers it only with R&S®SMW-B9/-B9F; guide v06.00 and the GNSS specifications (PD 3607.6896.22, option table) also list it for R&S®SMW-B10.'],
+    ['K109', 'GNSS real-time interfaces (RT remote control)', '1414.3013.02', 'GNSS', '-',
+             'The R&S online configurator offers it only with R&S®SMW-B9/-B9F; guide v06.00 and the GNSS specifications (PD 3607.6896.22, option table) also list it for R&S®SMW-B10.'],
     ['K111', 'GBAS',                                      '1414.3059.02', 'GEN', undefined, undefined, 'vendor'],
     ['K122', 'Virtual RTK reference station',             '1414.6993.02',
              'WGEN&(K44|K66|K94|K98|K107|K123|K132)', '-',
-             'The R&S online configurator also requires R&S®SMW-B9/-B9F and additionally accepts -K97.'],
+             'Runs on R&S®SMW-B9/-B9F only (GNSS specifications PD 3607.6896.22, option table). The R&S online configurator additionally accepts -K97 as the base standard.',
+             undefined, 'R&S®SMW-B9/-B9F and one GNSS standard'],
     ['K123', 'Modernized GLONASS',                        '1413.3310.02', 'WGEN', undefined,
-             'Guide v06.00 says R&S®SMW-B9/-B10; the R&S online configurator requires R&S®SMW-B9/-B9F.'],
+             'Runs on R&S®SMW-B9/-B9F only (GNSS specifications PD 3607.6896.22, option table); guide v06.00 says R&S®SMW-B9/-B10.'],
     ['K128', 'P(Y)-/M-/PRS-noise',                        '1413.3361.02', 'WGEN', undefined,
-             'Guide v06.00 says R&S®SMW-B9/-B10; the R&S online configurator requires R&S®SMW-B9/-B9F.'],
+             'Runs on R&S®SMW-B9/-B9F only (GNSS specifications PD 3607.6896.22, option table); guide v06.00 says R&S®SMW-B9/-B10.'],
     ['K129', 'Matched-spectrum GNSS interferer',          '1434.8410.02', 'WGEN&GNSSB', '-'],
     ['K132', 'Modernized BeiDou',                         '1414.6606.02', 'GEN'],
     ['K134', 'Upgrade to dual-frequency GNSS',            '1414.6770.02', 'WGEN&GNSSB', 'WGEN*2&GNSSB*2'],
     ['K135', 'Upgrade to triple-frequency GNSS',          '1414.6793.02', 'K134', 'K134*2'],
-    ['K136', 'Add 6 GNSS channels',                       '1414.6812.02', 'WGEN&GNSSB', '+98', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
-    ['K137', 'Add 12 GNSS channels',                      '1414.6835.02', 'WGEN&GNSSB', '+49', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
-    ['K138', 'Add 24 GNSS channels',                      '1414.6858.02', 'WGEN&GNSSB', '+24', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
-    ['K139', 'Add 48 GNSS channels',                      '1414.6935.02', 'WGEN&GNSSB', '+12', 'Can be installed several times; R&S®SMW-B9/-B9F comes with 24 channels and extensions may add up to 588 more (612 in total, GNSS specifications PD 3607.6896.22).'],
-    ['K360', 'ERA-GLONASS test suite',                    '1414.2800.02', 'K44&K94', '-'],
-    ['K361', 'eCall test suite',                          '1414.2846.02', 'K44&K66&K106', '-'],
+    ['K136', 'Add 6 GNSS channels',                       '1414.6812.02', 'WGEN&GNSSB', '+98', 'Can be installed several times. An instrument starts at 24 GNSS channels; each R&S®SMW-B9/-B9F or -B15 carries up to 102, so 204 with two -B9 and 612 with two -B9 and four -B15 (GNSS specifications PD 3607.6896.22).'],
+    ['K137', 'Add 12 GNSS channels',                      '1414.6835.02', 'WGEN&GNSSB', '+49', 'Can be installed several times. An instrument starts at 24 GNSS channels; each R&S®SMW-B9/-B9F or -B15 carries up to 102, so 204 with two -B9 and 612 with two -B9 and four -B15 (GNSS specifications PD 3607.6896.22).'],
+    ['K138', 'Add 24 GNSS channels',                      '1414.6858.02', 'WGEN&GNSSB', '+24', 'Can be installed several times. An instrument starts at 24 GNSS channels; each R&S®SMW-B9/-B9F or -B15 carries up to 102, so 204 with two -B9 and 612 with two -B9 and four -B15 (GNSS specifications PD 3607.6896.22).'],
+    ['K139', 'Add 48 GNSS channels',                      '1414.6935.02', 'WGEN&GNSSB', '+12', 'Can be installed several times. An instrument starts at 24 GNSS channels; each R&S®SMW-B9/-B9F or -B15 carries up to 102, so 204 with two -B9 and 612 with two -B9 and four -B15 (GNSS specifications PD 3607.6896.22).'],
+    ['K360', 'ERA-GLONASS test suite',                    '1414.2800.02', 'WGEN&K44&K94', '-',
+             'Runs on R&S®SMW-B9/-B9F only (GNSS specifications PD 3607.6896.22, option table).'],
+    ['K361', 'eCall test suite',                          '1414.2846.02', 'WGEN&K44&K66&K106', '-',
+             'Runs on R&S®SMW-B9/-B9F only (GNSS specifications PD 3607.6896.22, option table).'],
     ['K362', 'GNSS test suite',                           '1414.6406.02',
-             'K44|K66|K94|K97|K98|K107|K132', '-'],
+             'WGEN&(K44|K66|K94|K97|K98|K107|K132)', '-',
+             'Runs on R&S®SMW-B9/-B9F only (GNSS specifications PD 3607.6896.22, option table).',
+             undefined, 'R&S®SMW-B9/-B9F and one GNSS standard'],
     ['K363', 'Car navigation test suite',                 '1434.8179.02',
-             'K44&K66&K94&K107&K108', '-', undefined, 'vendor']
+             'WGEN&K44&K66&K94&K107&K108', '-',
+             'Runs on R&S®SMW-B9/-B9F only (GNSS specifications PD 3607.6896.22, option table); its test cases also use the R&S®SMW-K136/-K137 channel packs. Not in configuration guide v06.00.',
+             'vendor']
   ]),
   ...expand(11, 'std-int', 'Broadcast standards', [
     ['K52',  'DVB-H/DVB-T',                               '1413.6090.02', 'GEN'],
@@ -638,7 +645,7 @@ export const OPTIONS = [
     ['K430', 'OneWeb user-defined signal generation',     '1414.3820.02', 'GEN'],
     ['K443', 'Cellular IoT Release 14',                   '1414.6093.02', 'K415'],
     ['K444', '5G New Radio',                              '1414.5022.02', 'GEN'],
-    ['K446', 'Cellular IoT Release 15',                   '1414.6587.02', 'K415'],
+    ['K446', 'Cellular IoT Release 15/16/17',             '1414.6587.02', 'K415'],
     ['K448', '5G New Radio Release 16',                   '1414.6687.02', 'K444'],
     ['K470', '5G NR sidelink',                            '1413.8663.02', 'GEN'],
     ['K471', '5G NR Release 17',                          '1413.7296.02', 'K448'],
@@ -712,15 +719,16 @@ export const OPTIONS = [
 
 /**
  * Expands the compact standards tables above into full option records.
- * Row: [id, name, order, requires, maxSpec?, note?, since?]
+ * Row: [id, name, order, requires, maxSpec?, note?, since?, reqText?]
  *   maxSpec  undefined -> quantity 2 allowed when "<requires>*2" holds
  *            '-'       -> single unit only
  *            '+N'      -> up to N units, no extra condition
  *            other     -> expression that must hold for quantity 2
  *   since    'specs' | 'vendor' when the option is newer than guide v06.00
+ *   reqText  wording for the requirement, where the generated one reads badly
  */
 function expand (step, section, group, rows) {
-  return rows.map(([id, name, order, requires, maxSpec, note, since]) => {
+  return rows.map(([id, name, order, requires, maxSpec, note, since, reqText]) => {
     let max = 1, maxReq = null;
     if (maxSpec === undefined) {
       if (/^[A-Z][A-Z0-9-]*$/.test(requires)) { max = 2; maxReq = requires + '*2'; }
@@ -733,7 +741,7 @@ function expand (step, section, group, rows) {
     }
     const rec = {
       id, name, order, step, section, group, requires, max, maxReq,
-      reqText: humanReq(requires), retrofit: 'keycode',
+      reqText: reqText || humanReq(requires), retrofit: 'keycode',
       note: note || (maxReq ? 'Can be installed twice if the required hardware is present twice.' : undefined)
     };
     if (since) rec.since = since;
@@ -806,7 +814,7 @@ export const EXTRAS = [
     { id: 'DCV-ZP', name: 'Paper printout of the calibration values', order: '1173.6506.02',
       note: 'Listed by the R&S online configurator; not in guide v06.00.' },
     { id: 'ACA-6',  name: 'Accredited calibration, up to 6 GHz', order: '3596.7005.03',
-      note: 'Guide v06.00 numbers. The R&S online configurator quotes accredited calibration by instrument, e.g. 3599.6468.03 (3/6 GHz, one path), 3599.6474.03 (2 × 3 GHz), 3599.6451.03 (2 × 44 GHz), 3599.6480.03 (67 GHz, one path).' },
+      note: 'Guide v06.00 numbers. The R&S online configurator quotes accredited calibration per instrument configuration instead: 3599.6468.03 is designated "3 / 6 GHz - 1 Channel", and 3599.6474.03, 3599.6451.03 and 3599.6480.03 appeared for the 2 × 3 GHz, 2 × 44 GHz and single-path 67 GHz configurations (their designations were not captured).' },
     { id: 'ACA-75', name: 'Accredited calibration, 7.5 GHz', order: '3598.3507.03' },
     { id: 'ACA-44', name: 'Accredited calibration, 12.75 GHz to 44 GHz', order: '3596.7011.03' },
     { id: 'ACA-67', name: 'Accredited calibration, 56 GHz and 67 GHz', order: '3598.9540.03' }
@@ -818,7 +826,8 @@ export const EXTRAS = [
    yet in configuration guide version 06.00. Marked so their origin is clear. */
 OPTIONS.push(...expand(4, 'rf-enh', 'Other RF options', [
   ['K554', 'External multiplier control', '1413.7309.02', 'F20A|F20B', 'F20A&F20B',
-   'One licence per RF path; each path needs a frequency option of 20 GHz or higher (R&S online configurator rule; guide v06.00 has no entry).']
+   'One licence per RF path; each path needs a frequency option of 20 GHz or higher (R&S online configurator rule; guide v06.00 has no entry).',
+   undefined, 'Frequency option with 20 GHz or higher in the path where it is used']
 ]).map(o => ({ ...o, since: 'specs' })));
 
 OPTIONS.push(...expand(9, 'bb-hw', 'Wideband baseband', [

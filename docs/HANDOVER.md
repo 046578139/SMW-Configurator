@@ -36,10 +36,10 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 89 pass, 0 fail
+node --test                        # 91 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 11 of 11 suites passed, 81 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  414 kB
+node tests/browser/run.mjs         # 12 of 12 suites passed, 92 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  418 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
@@ -66,9 +66,12 @@ The vendor's online configurator has been captured (`docs/vendor/`, tooling
 in `tools/vendor/`) and compared with the catalog option by option. The RF
 path matrix, the O-variant rules, the deeper chassis and the phase-noise
 pairing matched. Twenty rule mismatches and fourteen missing options were
-found and fixed; `docs/vendor/README.md` lists what was adopted from the
-vendor, what was kept against it, and why. `tests/vendor.test.mjs` pins every
-adopted rule to the source that decided it.
+found and fixed, then the whole set was re-checked against the primary
+documents, which reversed two of the decisions and sharpened three more;
+`docs/vendor/README.md` lists what was adopted from the vendor, what came
+from the GNSS specifications, what was kept against the vendor, and why.
+`tests/vendor.test.mjs` pins every adopted rule to the source that decided
+it, and `tests/browser/quantity.mjs` covers the quantity controls.
 
 26 defects had been found and fixed before that comparison — 4 reported by
 you, 22 found by review. The ones worth knowing about because they shaped the
@@ -98,6 +101,19 @@ code:
   (`tools/vendor/README.md`). The vendor's "K553 not possible with B1003,
   B1006 or higher required" was misread by one audit pass as excluding B1006 —
   an interactive check showed B1006 is fine, and the 6 GHz floor stayed.
+- **The vendor is not automatically right where the guide is explicit.** It
+  refuses R&S®SMW-K108 and ‑K109 without a wideband generator; the guide and
+  the GNSS option table both list them for R&S®SMW-B10, so following the
+  vendor there rejected configurations two paper sources allow. The rule of
+  thumb that came out of it: adopt a vendor-only rule when a second document
+  supports it or the guide is silent, and read the GNSS option table
+  (PD 3607.6896.22, page 7) before deciding anything about a GNSS option —
+  it settles the wideband question for every one of them.
+- **A quantity a rule excludes must not be offered.** R&S®SMW-B15 comes in
+  0, 2 or 4 units once two generators are installed, so the stepper has to
+  drop 1 rather than let the first click raise an error. `qtyStepsNot` in
+  `catalog.js` expresses that, and the card's invalid flag now reads the same
+  list the stepper does.
 - **`humanReq()` in `catalog.js` mangled every generated requirement text**
   ("R and S®SMW-R and S®SMW-B9") because it inserted "R&S®" before turning the
   "&" operator into a word. Nothing displayed it, so nobody noticed; it is

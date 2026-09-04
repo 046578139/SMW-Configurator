@@ -102,12 +102,7 @@ function toggle (id) {
   const opt = BY_ID[id];
   if (!opt) return;
   if (state.sel[id]) {
-    // radio-like groups stay selected when clicked again
-    if (opt.step === 1 || opt.step === 2 || (opt.step === 5 && opt.meta?.path === 'B')) {
-      delete state.sel[id];
-    } else {
-      delete state.sel[id];
-    }
+    delete state.sel[id];
   } else {
     const choices = qtyChoices(opt, state.sel);
     setQty(id, choices[0] || 1);
@@ -728,6 +723,16 @@ document.addEventListener('click', ev => {
   if (action === 'csv') { downloadCsv(); }
   if (action === 'json') { downloadJson(); }
   if (action === 'print') { window.print(); }
+});
+
+document.addEventListener('change', ev => {
+  const field = ev.target.closest('[data-qty]');
+  if (!field) return;
+  const id = field.dataset.qty;
+  const opt = BY_ID[id];
+  if (!opt) return;
+  const typed = parseInt(field.value, 10);
+  setQty(id, Number.isFinite(typed) ? Math.max(0, Math.min(maxQty(opt, state.sel), typed)) : 0);
 });
 
 document.addEventListener('input', ev => {
