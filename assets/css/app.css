@@ -398,6 +398,14 @@ a { color: var(--accent); }
 .qty input.qty-input:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
 .qty svg { width: 12px; height: 12px; }
 
+/* An option a choice already made rules out: legible, plainly not on offer,
+   and not mistakable for one that is merely unselected. */
+.card.unavailable { opacity: .5; }
+.card.unavailable .tick { cursor: default; border-style: dashed; }
+.card.unavailable .tick:hover { background: none; }
+.card.unavailable .card-body { cursor: default; }
+.card.unavailable .opt-name, .card.unavailable .opt-id { color: var(--text-faint); }
+
 /* frequency option cards -------------------------------------------------- */
 .freq-card { flex-direction: column; align-items: stretch; gap: 9px; padding: 14px; }
 .freq-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }

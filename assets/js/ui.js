@@ -2,7 +2,7 @@
 
 import { BY_ID } from './catalog.js';
 import { esc, productCode } from './util.js';
-import { holds, evaluate, parse, needText, qtyChoices, maxQty } from './rules.js';
+import { holds, evaluate, parse, needText, qtyChoices, maxQty, ruledOutBy } from './rules.js';
 
 const P = {
   wave:    '<path d="M2 12c2 0 2-7 4-7s2 14 4 14 2-7 4-7 2 7 4 7 2-7 4-7"/>',
@@ -67,9 +67,16 @@ export function optionCard (opt, sel, opts = {}) {
   const cap = maxQty(opt, sel);
   const showQty = (opt.max > 1 || opt.qtySteps) && on;
   const invalid = on && (!met || qty > cap || (opt.qtySteps && !choices.includes(qty)));
+  /* Something a choice already made rules out cannot be reached by adding
+     anything, so it is shown as unavailable and says which choice did it,
+     rather than being selectable into an error with no way out. An option
+     already in the configuration stays selectable so it can be removed. */
+  const blocker = on ? null : ruledOutBy(opt, sel);
 
   const chips = [];
-  if (opt.requires) {
+  if (blocker) {
+    chips.push(`<span class="chip">${icon('minus', 11)} not available with ${esc(productCode(blocker))}</span>`);
+  } else if (opt.requires) {
     const res = evaluate(parse(opt.requires), sel);
     chips.push(res.ok
       ? `<span class="chip met">${icon('check', 11)} prerequisites met</span>`
@@ -83,10 +90,10 @@ export function optionCard (opt, sel, opts = {}) {
   }
 
   return `
-<div class="card ${on ? 'on' : 'off'} ${invalid ? 'invalid' : ''}" data-opt="${esc(opt.id)}">
-  <button class="tick ${opts.round ? 'round' : ''}" data-toggle="${esc(opt.id)}"
-    aria-pressed="${on}" aria-label="${on ? 'Remove' : 'Add'} ${esc(opt.id)}">${icon('check', 13)}</button>
-  <div class="card-body" data-toggle="${esc(opt.id)}">
+<div class="card ${on ? 'on' : 'off'} ${invalid ? 'invalid' : ''} ${blocker ? 'unavailable' : ''}" data-opt="${esc(opt.id)}">
+  <button class="tick ${opts.round ? 'round' : ''}" ${blocker ? 'disabled' : `data-toggle="${esc(opt.id)}"`}
+    aria-pressed="${on}" aria-label="${blocker ? `${esc(opt.id)} is not available with ${esc(productCode(blocker))}` : `${on ? 'Remove' : 'Add'} ${esc(opt.id)}`}">${icon('check', 13)}</button>
+  <div class="card-body" ${blocker ? '' : `data-toggle="${esc(opt.id)}"`}>
     <div class="card-top">
       <span class="opt-id">${fullId(opt.id)}</span>
       <span class="opt-kind ${opt.id.startsWith('B') ? 'hw' : 'sw'}">${opt.id.startsWith('B') ? 'hardware' : 'software'}</span>

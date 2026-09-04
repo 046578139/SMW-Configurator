@@ -503,7 +503,7 @@ export function validate (sel) {
  */
 export const MAIN_MODULES = ['B13', 'B13T', 'B13XT'];
 
-function blockedBy (need, sel) {
+function blockedBy (need, sel, depth = 2) {
   const mm = mainModule(sel);
   const fa = freqA(sel);
   const ids = need.ids.filter(id => BY_ID[id]);
@@ -520,6 +520,45 @@ function blockedBy (need, sel) {
     if (o.step === 5 && o.meta?.path === 'B') return !(RF_PATH_MATRIX[fa.id] || []).includes(id);
     return false;
   })) return fa.id;
+  /* One step further: a requirement is equally out of reach when everything
+     that could meet it is itself ruled out. R&S SMW-K123 asks for a wideband
+     generator, which asks for R&S SMW-B13XT - on a B13 instrument the answer
+     the user needs is "not with B13", not "add a B9" they cannot add either. */
+  if (depth > 0) {
+    const blockers = ids.map(id => {
+      if (sel[id]) return null;
+      const o = BY_ID[id];
+      const clash = (o.conflicts || []).find(c => sel[c]);
+      if (clash) return clash;
+      if (!o.requires) return null;
+      for (const n of evaluate(parse(o.requires), sel).need) {
+        const by = blockedBy(n, sel, depth - 1);
+        if (by) return by;
+      }
+      return null;
+    });
+    if (blockers.every(Boolean)) return blockers[0];
+  }
+  return null;
+}
+
+/**
+ * The option already installed that puts `opt` out of reach, or null when it
+ * is merely not set up yet. A clash is decisive; so is a requirement that only
+ * a different single-select choice - a frequency option, a main module - could
+ * meet. The interface uses this to show an option as unavailable rather than
+ * letting it be selected into an error nothing can settle.
+ */
+export function ruledOutBy (opt, sel) {
+  const clash = (opt.conflicts || []).find(id => sel[id]);
+  if (clash) return clash;
+  if (!opt.requires) return null;
+  const res = evaluate(parse(opt.requires), sel);
+  if (res.ok) return null;
+  for (const need of res.need) {
+    const by = blockedBy(need, sel);
+    if (by) return by;
+  }
   return null;
 }
 

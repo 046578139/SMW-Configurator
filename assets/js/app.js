@@ -2,7 +2,8 @@
 
 import { OPTIONS, BY_ID, SECTIONS, EXTRAS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS, RF_PATH_MATRIX }
   from './catalog.js';
-import { validate, autoResolve, holds, qtyChoices, maxQty, freqA, freqB, mainModule } from './rules.js';
+import { validate, autoResolve, holds, qtyChoices, maxQty, freqA, freqB, mainModule, ruledOutBy }
+  from './rules.js';
 import { derive, vitals } from './derive.js';
 import { renderChain, renderRuler } from './diagram.js';
 import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js';
@@ -103,6 +104,10 @@ function toggle (id) {
   if (!opt) return;
   if (state.sel[id]) {
     delete state.sel[id];
+  } else if (ruledOutBy(opt, state.sel)) {
+    // the card says which choice rules it out; adding it would only produce
+    // an error that nothing in this section can settle
+    return;
   } else {
     const choices = qtyChoices(opt, state.sel);
     setQty(id, choices[0] || 1);

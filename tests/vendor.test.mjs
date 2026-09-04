@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { BY_ID, EXTRAS, RF_PATH_MATRIX } from '../assets/js/catalog.js';
-import { validate } from '../assets/js/rules.js';
+import { validate, ruledOutBy } from '../assets/js/rules.js';
 
 const titles = sel => validate(sel).errors.map(e => e.id);
 const ok = sel => validate(sel).ok;
@@ -138,6 +138,23 @@ test('a proposed fix never names an RF path B option the path A option cannot ca
       assert.ok(RF_PATH_MATRIX[a].includes(id), `${id} cannot be paired with ${a}`);
     }
   }
+});
+
+test('an option a choice already made rules out is named, not left to be clicked', () => {
+  // phase coherence cannot go on a BxxxxO frequency option at all, so the
+  // answer is "not with B1044O", never "add one of these fourteen others"
+  assert.equal(ruledOutBy(BY_ID.B90, { B1044O: 1, B13XT: 1 }), 'B1044O');
+  assert.equal(ruledOutBy(BY_ID.K739, { B1044O: 1, B13XT: 1 }), 'B1044O');
+  assert.equal(ruledOutBy(BY_ID.B90, { B1044: 1, B13XT: 1 }), null);
+  // and one step further: the wideband GNSS options ask for a generator that
+  // itself asks for the wideband main module
+  assert.equal(ruledOutBy(BY_ID.K123, { B1003: 1, B13: 1, B10: 1 }), 'B13');
+  assert.equal(ruledOutBy(BY_ID.K123, { B1003: 1, B13XT: 1, B9: 1 }), null);
+  // a frequency floor is a choice already made, too
+  assert.equal(ruledOutBy(BY_ID.K553, { B1003: 1, B13: 1 }), 'B1003');
+  // but a prerequisite that can simply be added is not ruled out
+  assert.equal(ruledOutBy(BY_ID.K512, { B1003: 1, B13: 1 }), null);
+  assert.equal(ruledOutBy(BY_ID.K74, { B1003: 1, B13T: 1, B10: 1 }), null);
 });
 
 /* --------------------------------------------------------------- data */

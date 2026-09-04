@@ -124,6 +124,37 @@ await t('a real rule violation still reads as an error', async () => {
   if (!cls.includes('unmet')) throw new Error('the header does not flag a broken rule: ' + cls.join(' '));
 });
 
+await t('an option ruled out by an earlier choice says so and cannot be ticked', async () => {
+  // B1044O in path A rules out phase coherence entirely
+  await open('B1044O.B13XT');
+  await p.locator('.nav-item', { hasText: 'RF path enhancements' }).click();
+  await p.waitForTimeout(500);
+  const b90 = card('B90');
+  const cls = await b90.getAttribute('class');
+  if (!cls.includes('unavailable')) throw new Error('B90 is not marked unavailable: ' + cls);
+  const chip = (await b90.locator('.chip').first().textContent()).trim();
+  if (!chip.includes('not available with') || !chip.includes('B1044O')) {
+    throw new Error('the card does not name the blocker: ' + chip);
+  }
+  await b90.locator('.card-body').click({ force: true });
+  await p.waitForTimeout(400);
+  if ((await card('B90').getAttribute('class')).includes(' on')) throw new Error('a ruled-out option was added');
+  await tab('checks');
+  if (await p.locator('.panel-body .issue.error').count()) throw new Error('clicking it raised errors');
+});
+
+await t('an option whose prerequisite can simply be added stays selectable', async () => {
+  await open('B1044.B13XT');
+  await p.locator('.nav-item', { hasText: 'RF path enhancements' }).click();
+  await p.waitForTimeout(500);
+  if ((await card('B90').getAttribute('class')).includes('unavailable')) {
+    throw new Error('B90 is unavailable on a frequency option that allows it');
+  }
+  await card('B90').locator('.card-body').click();
+  await p.waitForTimeout(400);
+  if (!(await card('B90').getAttribute('class')).includes(' on')) throw new Error('B90 could not be added');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 console.log(errs.length ? 'JS: ' + [...new Set(errs)].join(' | ') : 'no JS errors');
 await b.close();
