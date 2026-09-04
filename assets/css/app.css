@@ -365,6 +365,8 @@ a { color: var(--accent); }
   background: color-mix(in srgb, var(--ok) 12%, transparent); }
 .chip.unmet { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 40%, transparent);
   background: color-mix(in srgb, var(--warn) 12%, transparent); }
+.chip.step { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, transparent);
+  background: color-mix(in srgb, var(--accent) 12%, transparent); }
 .chip.float { color: var(--accent-3); border-color: color-mix(in srgb, var(--accent-3) 35%, transparent); }
 .chip.new { color: var(--accent-2); border-color: color-mix(in srgb, var(--accent-2) 40%, transparent); }
 .chip svg { width: 11px; height: 11px; }

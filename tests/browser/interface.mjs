@@ -106,6 +106,12 @@ await t('a fresh page presents the two mandatory choices as steps, not errors', 
   if (await p.locator('.nav-item .nav-dot.err').count()) throw new Error('a section is marked broken');
   if (await p.locator('.nav-item .nav-dot.req').count() !== 2) throw new Error('the two sections are not flagged as still to choose');
   if (!(await p.locator('[data-action="resolve"]').isDisabled())) throw new Error('Fix issues offered with nothing broken');
+  const chip = p.locator('#status-chip');
+  const chipText = (await chip.textContent()).trim();
+  if (chipText !== '2 choices left') throw new Error('the header says "' + chipText + '"');
+  if (!(await chip.getAttribute('class')).split(/\s+/).includes('step')) {
+    throw new Error('the header chip is still styled as a warning');
+  }
 });
 
 await t('a real rule violation still reads as an error', async () => {
@@ -114,6 +120,8 @@ await t('a real rule violation still reads as an error', async () => {
   if (!(await p.locator('.panel-body .issue.error').count())) throw new Error('a broken rule was not reported as an error');
   if (!(await p.locator('.tab .badge.bad').count())) throw new Error('the tab badge is not red');
   if (await p.locator('[data-action="resolve"]').isDisabled()) throw new Error('Fix issues not offered');
+  const cls = (await p.locator('#status-chip').getAttribute('class')).split(/\s+/);
+  if (!cls.includes('unmet')) throw new Error('the header does not flag a broken rule: ' + cls.join(' '));
 });
 
 console.log(`\n${pass} passed, ${fail} failed`);

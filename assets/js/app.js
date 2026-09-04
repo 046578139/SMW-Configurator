@@ -511,12 +511,16 @@ function render () {
 
   const st = cached.validation;
   const chip = $('#status-chip');
-  if (!freqA(state.sel) || !mainModule(state.sel)) {
+  /* A choice not yet made is not a fault, so the header says how many are
+     left rather than raising an alarm; only a broken rule does that. */
+  const broken = st.errors.filter(e => !e.todo);
+  const left = st.errors.length - broken.length;
+  if (broken.length) {
     chip.className = 'chip unmet';
-    chip.innerHTML = `${icon('alert', 11)} incomplete`;
-  } else if (st.errors.length) {
-    chip.className = 'chip unmet';
-    chip.innerHTML = `${icon('alert', 11)} ${st.errors.length} issue${st.errors.length === 1 ? '' : 's'}`;
+    chip.innerHTML = `${icon('alert', 11)} ${broken.length} issue${broken.length === 1 ? '' : 's'}`;
+  } else if (left) {
+    chip.className = 'chip step';
+    chip.innerHTML = `${icon('chevron', 11)} ${left} choice${left === 1 ? '' : 's'} left`;
   } else {
     chip.className = 'chip met';
     chip.innerHTML = `${icon('check', 11)} valid`;
