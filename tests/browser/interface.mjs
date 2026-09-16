@@ -200,6 +200,29 @@ await t('an accessory can be ticked, counted, and reaches the parts list', async
   if ((await card('ADP-292F').locator('input.qty-input').inputValue()) !== '3') throw new Error('the quantity did not survive a reload');
 });
 
+await t('an accessory without a type designation leaves the Type cell empty in every export', async () => {
+  await open('B1020.B13T.B10.ADP-292F*3.DCV-2');
+  await p.click('.panel-foot [data-action=export]');
+  await p.waitForTimeout(300);
+  const cell = async order => {
+    const row = p.locator('.modal .table tbody tr', { hasText: order });
+    return (await row.locator('td').first().textContent()).trim();
+  };
+  if (await cell('1036.4790.00') !== '') throw new Error('print table types the adapter as "' + await cell('1036.4790.00') + '"');
+  if (await cell('0240.2193.18') !== 'R&S®DCV-2') throw new Error('print table types DCV-2 as "' + await cell('0240.2193.18') + '"');
+  const fs = await import('fs');
+  const [csv] = await Promise.all([p.waitForEvent('download'), p.click('.modal [data-action=csv]')]);
+  const text = fs.readFileSync(await csv.path(), 'utf8');
+  if (!text.includes('"","Test port adapter, 2.92 mm female","1036.4790.00","3"')) throw new Error('CSV row wrong: ' + (text.split(/\r?\n/).find(l => l.includes('1036.4790.00')) || '(missing)'));
+  if (!text.includes('"R&S®DCV-2","Documentation of calibration values","0240.2193.18","1"')) throw new Error('CSV row for DCV-2 wrong');
+  const [json] = await Promise.all([p.waitForEvent('download'), p.click('.modal [data-action=json]')]);
+  const data = JSON.parse(fs.readFileSync(await json.path(), 'utf8'));
+  const adp = data.items.find(i => i.orderNo === '1036.4790.00');
+  if (!adp || adp.type !== '' || adp.quantity !== 3) throw new Error('JSON item wrong: ' + JSON.stringify(adp));
+  if (data.items.find(i => i.orderNo === '0240.2193.18')?.type !== 'R&S®DCV-2') throw new Error('JSON type for DCV-2 wrong');
+  await p.keyboard.press('Escape');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 console.log(errs.length ? 'JS: ' + [...new Set(errs)].join(' | ') : 'no JS errors');
 await b.close();

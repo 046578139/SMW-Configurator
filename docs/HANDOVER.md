@@ -118,13 +118,28 @@ code:
   once inert cards with their own renderer, which meant no tick, no quantity,
   no place on the parts list and no URL. Folding them into `OPTIONS` (section
   `extras`, `accessory: true`, no `requires`) gave them all of that for free.
-  What did need care is the name: the guide's ordering table gives a type
-  designation to some of them (R&S®ZZA-KN4B, R&S®DCV-2, and one
-  R&S®ACASMW200A shared by all four accredited calibrations) and none at
-  all to the cables and test port adapters, which it lists by order number
-  alone, as the vendor does. `code` on every option and `typeName()` in
+  What did need care is the name: the sources' type column gives some of
+  them a designation of their own (R&S®ZZA-KN4 in the guide, ZZA-KN4B in
+  the specifications and at the vendor; R&S®DCV-2; one R&S®ACASMW200A
+  shared by all four accredited calibrations; R&S®DCV-ZP and the connector
+  code RPC2.9-1.8 only at the vendor) and none at all to the digital I/Q
+  cables, the spare SSD and the other test port adapters, which every source
+  lists by order number alone. `code` on every option and `typeName()` in
   `catalog.js` carry that; `productCode()` would have printed "ADP" for
-  3628.4728.02 and "R&S®SMW-BBCABLE" for a cable.
+  3628.4728.02 and "R&S®SMW-BBCABLE" for a cable. The first pass got
+  DCV-ZP wrong because the vendor capture's `code` field is blank for every
+  R&S®-prefixed row - a regex artefact in `tools/vendor/lib.py`, not
+  evidence; the vendor's type column is `texts[0]` in
+  `docs/vendor/catalog.json`.
+- **Saved configurations live in two layers.** `saved.js` keeps the named
+  list in localStorage always and, when the page runs on claude.ai with the
+  `db` capability declared, in the artifact's shared document store
+  (collection `configs`) that every viewer of the page sees. The hosted list
+  is the record and the local one its cache; only entries never uploaded
+  (`origin: 'local'`) are sent up on connect, so a stale cache cannot bring
+  back what someone else removed. Declaring `db` makes the artifact
+  organization-internal, and a non-empty `capabilities` on republish must
+  restate `downloads` (it is a full-set declaration).
 - **`humanReq()` in `catalog.js` mangled every generated requirement text**
   ("R and S®SMW-R and S®SMW-B9") because it inserted "R&S®" before turning the
   "&" operator into a word. Nothing displayed it, so nobody noticed; it is

@@ -32,6 +32,7 @@ const MODULES = [
   'assets/js/photo.js',
   'assets/js/ui.js',
   'assets/js/presets.js',
+  'assets/js/saved.js',
   'assets/js/app.js'
 ];
 

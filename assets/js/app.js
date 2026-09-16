@@ -10,6 +10,7 @@ import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js'
 import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
+import { SavedStore, packSel, unpackSel } from './saved.js';
 
 const STORE = 'smw200a-config-v1';
 
@@ -19,6 +20,10 @@ const store = {
   get (key) { try { return localStorage.getItem(key); } catch { return null; } },
   set (key, value) { try { localStorage.setItem(key, value); } catch { /* not available */ } }
 };
+
+/* The named configurations behind the Save and Saved buttons: this browser's
+   list, and the page's own list when a host offers one (saved.js). */
+const saved = new SavedStore(store);
 
 /** The host page may stamp a theme on the root element; otherwise follow the OS. */
 function initialTheme () {
@@ -46,21 +51,12 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 /* ============================== persistence ============================== */
 
-const encode = () => {
-  const opts = Object.entries(state.sel).filter(([, q]) => q > 0)
-    .map(([id, q]) => (q > 1 ? `${id}*${q}` : id)).join('.');
-  return `#c=${encodeURIComponent(opts)}&n=${encodeURIComponent(state.name)}`;
-};
+const encode = () =>
+  `#c=${encodeURIComponent(packSel(state.sel))}&n=${encodeURIComponent(state.name)}`;
 
 function decode (hash) {
   const params = new URLSearchParams(hash.replace(/^#/, ''));
-  const sel = {};
-  for (const token of (params.get('c') || '').split('.')) {
-    if (!token) continue;
-    const [id, qty] = token.split('*');
-    if (BY_ID[id]) sel[id] = Math.max(1, parseInt(qty || '1', 10) || 1);
-  }
-  return { sel, name: params.get('n') || 'Untitled configuration' };
+  return { sel: unpackSel(params.get('c')), name: params.get('n') || 'Untitled configuration' };
 }
 
 function save () {
@@ -538,7 +534,7 @@ function toast (message) {
 }
 
 document.addEventListener('click', ev => {
-  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face],[data-swap],[data-view]');
+  const t = ev.target.closest('[data-toggle],[data-step],[data-level],[data-goto],[data-tab],[data-action],[data-fix],[data-drop],[data-setqty],[data-preset],[data-close],[data-face],[data-swap],[data-view],[data-load],[data-forget]');
   if (!t) return;
 
   if (t.dataset.view) {
@@ -616,9 +612,33 @@ document.addEventListener('click', ev => {
     }
     return;
   }
+  if (t.dataset.load) {
+    const rec = saved.find(t.dataset.load);
+    if (rec) {
+      state.sel = unpackSel(rec.c);
+      state.name = rec.name;
+      closeModal();
+      afterChange();
+      toast(`Loaded “${rec.name}”`);
+    }
+    return;
+  }
+  if (t.dataset.forget) {
+    const rec = saved.find(t.dataset.forget);
+    if (rec) { saved.remove(rec.id); openSaved(); toast(`Removed “${rec.name}”`); }
+    return;
+  }
   if (t.dataset.close !== undefined) { closeModal(); return; }
 
   const action = t.dataset.action;
+  if (action === 'save') {
+    if (!Object.keys(state.sel).length) { toast('Nothing to save yet'); return; }
+    const { rec, replaced } = saved.save({ name: state.name, sel: state.sel });
+    if ($('.saved-list, .saved-empty')) openSaved();     // the list is open: refresh it
+    toast(`${replaced ? 'Updated' : 'Saved'} “${rec.name}”`);
+    return;
+  }
+  if (action === 'saved') { openSaved(); return; }
   if (action === 'resolve') {
     const before = validate(state.sel).errors.length;
     state.sel = autoResolve(state.sel);
@@ -808,6 +828,58 @@ function openPresets () {
   </div>`);
 }
 
+function openSaved () {
+  const rows = saved.list.map(r => `
+    <div class="saved-row" data-saved="${esc(r.id)}">
+      <div class="saved-main">
+        <div class="saved-name">${esc(r.name)}</div>
+        <div class="saved-meta">${esc(r.sum)}${r.savedAt ? ` · ${esc(when(r.savedAt))}` : ''}</div>
+      </div>
+      <button class="btn" data-load="${esc(r.id)}">Load</button>
+      <button class="btn btn-icon btn-ghost" data-forget="${esc(r.id)}"
+        title="Remove “${esc(r.name)}”" aria-label="Remove ${esc(r.name)}">${icon('trash', 15)}</button>
+    </div>`).join('');
+  openModal(`
+  <div class="modal" role="dialog" aria-label="Saved configurations">
+    <div class="modal-head">
+      <div style="flex:1">
+        <h2>Saved configurations</h2>
+        <p>${saved.hosted
+          ? 'Kept on this page – everyone who opens it sees the same list.'
+          : 'Kept in this browser. Open the page on claude.ai to keep them on the page itself.'}</p>
+      </div>
+      <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
+    </div>
+    <div class="modal-body">
+      ${rows ? `<div class="saved-list">${rows}</div>`
+             : `<div class="empty saved-empty">Nothing saved yet. Save keeps the current configuration
+                under the name in the header; saving under the same name updates it.</div>`}
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-primary" data-action="save">${icon('save', 15)} Save current as “${esc(state.name)}”</button>
+    </div>
+  </div>`);
+}
+
+/** "16 Sep 2026, 19:40" in the viewer's locale; the raw stamp if it does not parse. */
+function when (iso) {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime()) ? iso
+    : d.toLocaleString(undefined, { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+/** The count on the Saved button, and a word when the page could not keep a save. */
+function renderSavedCount () {
+  const el = $('#saved-count');
+  if (el) el.textContent = saved.list.length;
+  if (saved.lastError && !saved.lastError.shown) {
+    saved.lastError.shown = true;
+    toast(saved.lastError.code === 'quota_exceeded'
+      ? 'The page’s list is full – kept in this browser instead'
+      : 'Could not keep that on the page – kept in this browser instead');
+  }
+}
+
 function openExport () {
   const lines = bomLines(state.sel, BASE_UNIT);
   const v = cached.validation;
@@ -974,6 +1046,13 @@ export function boot () {
   applyTheme();
   render();
   watchScroll();
+
+  /* The saved list: this browser's copy now, the page's own copy once the
+     host answers - or never, on a static server, which is fine. */
+  saved.load();
+  saved.onChange(renderSavedCount);
+  renderSavedCount();
+  saved.connect(window.claude?.use?.('db') ?? Promise.resolve(null));
   window.addEventListener('hashchange', () => {
     const { sel, name } = decode(location.hash);
     if (Object.keys(sel).length) { state.sel = sel; state.name = name; render(); }

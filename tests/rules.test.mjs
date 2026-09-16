@@ -36,7 +36,7 @@ test('every requirement expression parses and names known options', () => {
   const known = new Set(OPTIONS.map(o => o.id));
   const leaves = node => node.ids ? [node] : (node.and || node.or).flatMap(leaves);
   for (const o of OPTIONS) {
-    for (const expr of [o.requires, o.maxReq, ...(o.perPath || [])].filter(Boolean)) {
+    for (const expr of [o.requires, o.maxReq, o.hintIf, ...(o.perPath || [])].filter(Boolean)) {
       const ast = parse(expr);
       for (const leaf of leaves(ast)) {
         for (const id of leaf.ids) {
@@ -396,8 +396,12 @@ test('options sharing a product code never print an invented one', () => {
   // designation, and half the accessories have none at all
   for (const o of OPTIONS) {
     if (o.id.startsWith('K200')) assert.equal(o.code, 'K200');
-    else if (o.accessory) assert.ok(o.code === null || typeof o.code === 'string', `${o.id} has no code field`);
-    else assert.equal(o.code, o.id);
+    else if (o.accessory) {
+      // an accessory says what the sources print, null included, in EXTRAS
+      const it = EXTRAS.flatMap(g => g.items).find(x => x.id === o.id);
+      assert.ok(it && it.code !== undefined, `${o.id} does not declare its type designation`);
+      assert.equal(o.code, it.code);
+    } else assert.equal(o.code, o.id);
   }
 });
 
@@ -442,11 +446,15 @@ test('accessories print the type designation the guide gives them, or the order 
   assert.equal(typeName('ZV-Z196'), 'R&S®ZV-Z196');
   assert.equal(typeName('DCV-2'), 'R&S®DCV-2');
   assert.equal(typeName('SMW-T0'), 'R&S®SMW-T0');
+  // two the vendor prints a type for where the guide has none, or no row
+  assert.equal(typeName('DCV-ZP'), 'R&S®DCV-ZP');
+  assert.equal(typeName('ADP-185292'), 'RPC2.9-1.8');
   // the four accredited calibrations are one designation with four order numbers
   for (const id of ['ACA-6', 'ACA-75', 'ACA-44', 'ACA-67']) assert.equal(typeName(id), 'R&S®ACASMW200A');
-  // cables and test port adapters are listed by order number alone, so an id
-  // of ours must never reach a parts list as if it were a product code
-  for (const id of ['BBCABLE', 'BBCABLE-2M', 'SSD-SPARE', 'DCV-ZP', 'ADP-292F', 'ADP-292M', 'ADP-NF', 'ADP-NM', 'ADP-185FF', 'ADP-185292']) {
+  // the digital I/Q cables, the spare SSD and the other adapters are listed by
+  // order number alone in every source, so an id of ours must never reach a
+  // parts list as if it were a product code
+  for (const id of ['BBCABLE', 'BBCABLE-2M', 'SSD-SPARE', 'ADP-292F', 'ADP-292M', 'ADP-NF', 'ADP-NM', 'ADP-185FF']) {
     assert.equal(typeName(id), BY_ID[id].order, id);
   }
   // and nothing changed for the instrument, its options, or the waveform packages

@@ -786,10 +786,13 @@ function humanReq (expr) {
  * a `requires`, and the quantity is the customer's to choose. `hintIf` only
  * decides whether a card says the configuration suggests the item.
  *
- * `code` is the type designation the guide's ordering table prints. Half of
- * these have none: the cables and the test port adapters are listed by order
- * number alone, by the guide and by the R&S online configurator both, so that
- * is what a parts list has to carry for them.
+ * `code` is the type designation the sources print in their type column -
+ * the guide's ordering table first, the R&S online configurator for what the
+ * guide does not list (its `texts[0]` in docs/vendor/catalog.json; the
+ * capture's own `code` field is blank for every R&S(R)-prefixed row, which is
+ * a regex artefact, not evidence). Several have none: the digital I/Q
+ * cables, the spare SSD and most test port adapters are listed by order
+ * number alone, so that is what a parts list has to carry for them.
  */
 export const EXTRAS = [
   { group: 'Recommended extras', items: [
@@ -803,9 +806,9 @@ export const EXTRAS = [
     { id: 'DIGIQ-HS', name: 'Cable for HS digital I/Q interface (optical, QSFP+)', order: '3641.2948.03', code: 'DIGIQ-HS',
       hintIf: 'K19' },
     { id: 'TS-USB1',  name: 'USB serial adapter for RS-232 remote control', order: '6124.2531.00', code: 'TS-USB1' },
-    { id: 'SSD-SPARE', name: 'Spare SSD for R&S®SMW200A', order: '1414.1910.02', code: null,
-      note: 'Listed by the R&S online configurator, by order number and with a quantity field; not in guide v06.00.' },
-    { id: 'SMW-T0',   name: 'Trial license, 3 months', order: '1414.6970.23', code: 'SMW-T0', max: 1,
+    { id: 'SSD-SPARE', name: 'Spare SSD for R&S®SMW200A', order: '1414.1910.02', code: null, since: 'vendor',
+      note: 'The R&S online configurator lists it by order number, with a quantity field.' },
+    { id: 'SMW-T0',   name: 'Trial license, 3 months', order: '1414.6970.23', code: 'SMW-T0', max: 1, since: 'vendor',
       note: 'Pre-selected by the R&S online configurator. Covers K16, K17, K22, K23, K24, K44, K61, K62, K66, K94, K107, K300, K301, K302, K304, K306, K307, K309, K502, K540, K541, K542, K544, K548, K703, K704, K720, K739, K810 and K811.' }
   ]},
   { group: 'Test port adapters', items: [
@@ -820,8 +823,9 @@ export const EXTRAS = [
     { id: 'ADP-185FF', name: 'Coaxial adapter 1.85 mm (f) – 1.85 mm (f)', order: '3588.9654.00', code: null,
       hintIf: 'B1044|B2044|B1044N|B2044N|B1044O|B2044O|B1056|B1056N|B1056O|B1067|B1067N|B1067O',
       note: 'The guide lists this one twice: as a coaxial adapter for the 44 GHz options and as the 1.85 mm female/female wear and tear adapter for the 56 and 67 GHz options.' },
-    { id: 'ADP-185292', name: 'Coaxial adapter 1.85 mm (f) – 2.92 mm (f)', order: '3628.4728.02', code: null,
-      hintIf: 'B1044|B2044|B1044N|B2044N|B1044O|B2044O' }
+    { id: 'ADP-185292', name: 'Coaxial adapter 1.85 mm (f) – 2.92 mm (f)', order: '3628.4728.02', code: 'RPC2.9-1.8', brand: '',
+      hintIf: 'B1044|B2044|B1044N|B2044N|B1044O|B2044O',
+      note: 'The R&S online configurator prints RPC2.9-1.8 in its type column for this adapter, the only one of the six it does; guide v06.00 lists it by order number.' }
   ]},
   { group: 'Power combiner kits and cables (R&S®SMW-K555)', items: [
     { id: 'SMW-ZKK',  name: 'Combiner kit, 40 GHz', order: '1434.7908.02', code: 'SMW-ZKK', hintIf: 'K555' },
@@ -831,8 +835,7 @@ export const EXTRAS = [
   ]},
   { group: 'Documentation and calibration', items: [
     { id: 'DCV-2', name: 'Documentation of calibration values', order: '0240.2193.18', code: 'DCV-2', max: 1 },
-    { id: 'DCV-ZP', name: 'Paper printout of the calibration values', order: '1173.6506.02', code: null, max: 1,
-      note: 'Listed by the R&S online configurator, by order number; not in guide v06.00.' },
+    { id: 'DCV-ZP', name: 'Paper printout of the calibration values', order: '1173.6506.02', code: 'DCV-ZP', max: 1, since: 'vendor' },
     { id: 'ACA-6',  name: 'Accredited calibration, up to 6 GHz', order: '3596.7005.03', code: 'ACASMW200A', max: 1,
       note: 'All four accredited calibrations share the type designation R&S®ACASMW200A and differ only by order number. The R&S online configurator quotes them per instrument configuration instead: 3599.6468.03 is designated "3 / 6 GHz - 1 Channel", and 3599.6474.03, 3599.6451.03 and 3599.6480.03 appeared for the 2 × 3 GHz, 2 × 44 GHz and single-path 67 GHz configurations (their designations were not captured).' },
     { id: 'ACA-75', name: 'Accredited calibration, 7.5 GHz', order: '3598.3507.03', code: 'ACASMW200A', max: 1 },
@@ -847,11 +850,12 @@ export const EXTRAS = [
 const ACCESSORY_MAX = 20;
 
 OPTIONS.push(...EXTRAS.flatMap(g => g.items.map(it => ({
-  id: it.id, name: it.name, order: it.order, code: it.code, brand: 'R&S®',
+  id: it.id, name: it.name, order: it.order, code: it.code, brand: it.brand ?? 'R&S®',
   step: 0, section: 'extras', group: g.group,
   accessory: true, retrofit: 'accessory',
   max: it.max || ACCESSORY_MAX,
-  hintIf: it.hintIf, note: it.note
+  hintIf: it.hintIf, note: it.note,
+  ...(it.since ? { since: it.since } : {})
 }))));
 
 
@@ -890,11 +894,11 @@ export const BY_ID = Object.assign(Object.create(null),
 /**
  * The type designation printed on a quotation.
  *
- * Most options are R&S(R)SMW- plus their code. The accessories are not: a few
- * carry their own R&S type designation (R&S(R)ZZA-KN4B, R&S(R)DCV-2), and the
- * rest - the cables and the test port adapters - are listed by order number
- * alone, by the configuration guide and by the R&S online configurator both,
- * so the order number is what a parts list has to carry for them.
+ * Most options are R&S(R)SMW- plus their code. The accessories are not: some
+ * carry a type designation of their own (R&S(R)ZZA-KN4B, R&S(R)DCV-2, the
+ * connector code RPC2.9-1.8), and the rest - the digital I/Q cables, the
+ * spare SSD, most test port adapters - are listed by order number alone in
+ * every source, so the order number is what a parts list has to carry.
  */
 export function typeName (id) {
   if (id === BASE_UNIT.id) return 'R&S®SMW200A';

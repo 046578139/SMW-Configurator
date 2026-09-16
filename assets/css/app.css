@@ -196,6 +196,11 @@ a { color: var(--accent); }
 .btn-ghost:hover { background: var(--surface-2); }
 .btn-icon { padding: 8px; }
 .btn:disabled { opacity: .45; pointer-events: none; }
+.btn .count {
+  font-family: var(--mono); font-size: 11px; line-height: 16px; min-width: 16px;
+  padding: 0 5px; border-radius: 20px; text-align: center;
+  background: var(--surface-3); color: var(--text-dim);
+}
 
 /* ------------------------------------------------------------------ rail */
 .rail {
@@ -594,6 +599,16 @@ a { color: var(--accent); }
 .modal-foot { padding: 13px 18px; border-top: 1px solid var(--line); display: flex; gap: 8px; justify-content: flex-end; }
 
 .preset-grid { display: grid; gap: 11px; grid-template-columns: repeat(auto-fill, minmax(238px, 1fr)); }
+
+.saved-list { display: flex; flex-direction: column; gap: 8px; }
+.saved-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border: 1px solid var(--line); border-radius: 11px;
+  background: var(--surface-2);
+}
+.saved-main { flex: 1; min-width: 0; }
+.saved-name { font-weight: 640; font-size: 13.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.saved-meta { font-size: 11.5px; color: var(--text-faint); margin-top: 2px; font-family: var(--mono); }
 .preset {
   text-align: left; padding: 15px; border-radius: var(--radius);
   border: 1px solid var(--line); background: var(--surface-2);

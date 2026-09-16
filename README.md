@@ -24,6 +24,12 @@ phase noise levels that must match across paths, the standard/wideband baseband
 split, floating licences, per-RF-path option sets, and quantity steps such as
 the fading simulator's 1 / 2 / 4.
 
+**Keeps named configurations.** *Save* in the header keeps the current
+configuration under its name; *Saved* lists them with what they are and when,
+to load or remove. The list lives in the browser and, on claude.ai, in the
+page's own store as well, so a configuration saved there is on the page for
+everyone who opens it. Saving under the same name updates the entry.
+
 **Shows the instrument, not a list of checkboxes.** Two views of it, switched
 with *Photo* / *Schematic*, either face, either one enlarged.
 
@@ -182,6 +188,7 @@ assets/js/
   photo.js              the photographs, with the configuration marked on them
   ui.js                 icon set and stateless render helpers
   presets.js            validated starting points
+  saved.js              named configurations: this browser's list and the page's
   app.js                state, rendering, events, export
 tests/rules.test.mjs    rule regression tests
 tests/panel.test.mjs    panel, scale and photo overlay tests
