@@ -136,6 +136,38 @@ const rows = p => p.locator('.saved-row');
     if (!(await p.locator('.toast').last().textContent()).includes('Nothing to save')) throw new Error('no word about it');
   });
 
+  await t('an entry naming options a later catalog dropped loads what is left and says so', async () => {
+    await p.evaluate(key => localStorage.setItem(key, JSON.stringify([
+      { id: 'old1', name: 'From an older catalog', c: 'B1006.B13.K9999.K8888*2', sum: '', savedAt: '2026-01-01T00:00:00.000Z', origin: 'local' }
+    ])), 'smw200a-saved-v1');
+    await open(p, 'B1003.B13');
+    await p.click('[data-action="saved"]');
+    await p.waitForTimeout(300);
+    await rows(p).first().locator('[data-load]').click();
+    await p.waitForTimeout(400);
+    const note = await p.locator('.toast').last().textContent();
+    if (!note.includes('2 options no longer in the catalog')) throw new Error('the toast says: ' + note);
+    if (!(await p.locator('.card[data-opt="B1006"].on').count())) throw new Error('what is left was not loaded');
+  });
+
+  await t('a save in another tab of this browser shows up here without a reload', async () => {
+    await p.evaluate(() => localStorage.removeItem('smw200a-saved-v1'));
+    await open(p, 'B1003.B13');
+    const other = await ctx.newPage();
+    await other.goto(`${BASE}/index.html#c=B1020.B13T.B10`);
+    await other.waitForTimeout(600);
+    await other.fill('#config-name', 'From the other tab');
+    await other.locator('#config-name').press('Tab');
+    await other.click('[data-action="save"]');
+    await other.waitForTimeout(400);
+    if (await count(p) !== '1') throw new Error('this tab counts ' + await count(p));
+    await p.click('[data-action="saved"]');
+    await p.waitForTimeout(300);
+    if (!(await rows(p).first().textContent()).includes('From the other tab')) throw new Error('the other tab\'s entry is not listed');
+    await other.close();
+    await p.click('[data-close]');
+  });
+
   if (errs.length) { console.log('FAIL JS errors: ' + [...new Set(errs)].join(' | ')); fail++; }
   await ctx.close();
 }

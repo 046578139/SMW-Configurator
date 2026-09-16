@@ -12,10 +12,11 @@
  *     page for the next person who opens it, in any browser.
  *
  * When the hosted store is reachable it is the record and the local list is
- * its cache: the hosted list replaces the local one, and anything saved
- * locally before the store answered is sent up once. When it is not - a
- * static server, a saved file, a host that never answers - the local list is
- * all there is, and the page says so.
+ * its cache: the hosted list replaces the mirrored part of the local one,
+ * while anything this browser holds that the page does not - saved before the
+ * store answered, or refused by it - stays in the list and is sent up once.
+ * When the store is not reachable - a static server, a saved file, a host
+ * that never answers - the local list is all there is, and the page says so.
  */
 
 import { BY_ID } from './catalog.js';
@@ -52,6 +53,13 @@ export function summarize (sel) {
 
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const byDate = (x, y) => (y.savedAt || '').localeCompare(x.savedAt || '');
+const pause = ms => new Promise(r => setTimeout(r, ms));
+
+/* An id is also a document path segment, so a record whose id would not make
+   one - storage is writable by anything on the origin - is not a record. */
+const ID_OK = /^[A-Za-z0-9_\-.~:@+]{1,200}$/;
+const valid = r => r && typeof r.id === 'string' && ID_OK.test(r.id) &&
+  typeof r.name === 'string' && typeof r.c === 'string';
 
 /**
  * The list, with its two layers behind one interface.
@@ -67,6 +75,7 @@ export class SavedStore {
     this.hosted = false;
     this.db = null;
     this.listeners = [];
+    this.lastError = null;
   }
 
   onChange (fn) { this.listeners.push(fn); }
@@ -76,9 +85,7 @@ export class SavedStore {
   load () {
     try {
       const raw = JSON.parse(this.storage.get(SAVED_KEY) || '[]');
-      this.list = Array.isArray(raw)
-        ? raw.filter(r => r && typeof r.id === 'string' && typeof r.name === 'string' && typeof r.c === 'string')
-        : [];
+      this.list = Array.isArray(raw) ? raw.filter(valid) : [];
     } catch { this.list = []; }
     this.list.sort(byDate);
     return this.list;
@@ -95,6 +102,7 @@ export class SavedStore {
    * Saves under the name, replacing an entry that already carries it - the
    * name field in the header is the handle, so saving twice updates rather
    * than piling up copies. Returns the record and whether it replaced one.
+   * A new record is local until the page confirms it holds it.
    */
   save ({ name, sel }) {
     const clean = String(name || '').trim() || 'Untitled configuration';
@@ -105,7 +113,7 @@ export class SavedStore {
       c: packSel(sel),
       sum: summarize(sel),
       savedAt: new Date().toISOString(),
-      origin: this.hosted ? 'hosted' : 'local'
+      origin: 'local'
     };
     this.list = [rec, ...this.list.filter(r => r.id !== rec.id)];
     this.persist();
@@ -117,18 +125,28 @@ export class SavedStore {
     const had = this.find(id);
     this.list = this.list.filter(r => r.id !== id);
     this.persist();
-    if (this.db && had) {
-      this.db.collection('configs').doc(id).delete().catch(err => this.fail(err, 'remove'));
-    }
+    if (this.db && had && had.origin === 'hosted') this.drop(id);
     return !!had;
   }
 
-  /** Writes one record to the hosted store. */
-  push (rec) {
+  /** Writes one record to the hosted store; one retry when the store is briefly away. */
+  push (rec, retried = false) {
+    if (!this.db) return Promise.resolve();
     const body = { name: rec.name, c: rec.c, sum: rec.sum, savedAt: rec.savedAt };
     return this.db.collection('configs').doc(rec.id).set(body)
       .then(() => { rec.origin = 'hosted'; })
-      .catch(err => this.fail(err, 'save'));
+      .catch(err => {
+        if (err?.code === 'unavailable' && !retried) return pause(300 + Math.random() * 400).then(() => this.push(rec, true));
+        this.fail(err, 'save');
+      });
+  }
+
+  drop (id, retried = false) {
+    if (!this.db) return Promise.resolve();
+    return this.db.collection('configs').doc(id).delete().catch(err => {
+      if (err?.code === 'unavailable' && !retried) return pause(300 + Math.random() * 400).then(() => this.drop(id, true));
+      this.fail(err, 'remove');
+    });
   }
 
   fail (err, what) {
@@ -145,29 +163,30 @@ export class SavedStore {
     try { db = await dbPromise; } catch { db = null; }
     if (!db) return false;
     this.db = db;
-    let first = true;
+    let settled = false;      // a definitive snapshot - not one served from a cache - has arrived
     db.collection('configs').orderBy('savedAt', 'desc').limit(500).onSnapshot(snap => {
-      const hosted = snap.docs.filter(d => d.exists).map(d => {
+      const hosted = (snap.docs || []).filter(d => d.exists).map(d => {
         const b = d.data() || {};
         return { id: d.id, name: String(b.name || ''), c: String(b.c || ''),
           sum: String(b.sum || ''), savedAt: String(b.savedAt || ''), origin: 'hosted' };
-      }).filter(r => r.name && typeof r.c === 'string');
-      /* Anything saved into the local list before the store answered has not
-         been sent yet; mirrored entries have, and are never sent again - that
-         would bring back a configuration someone else deleted. */
-      const pending = first ? this.list.filter(r => r.origin !== 'hosted' && !hosted.some(h => h.id === r.id)) : [];
-      first = false;
+      }).filter(valid).filter(r => r.name);
+      /* What this browser holds that the page does not - saved before the
+         store answered, or refused by it - stays in the list. It is sent up
+         once, when the first definitive snapshot shows it really absent;
+         mirrored entries are never sent again, which would bring back a
+         configuration someone else deleted. */
+      const local = this.list.filter(r => r.origin !== 'hosted' && !hosted.some(h => h.id === r.id));
       this.hosted = true;
-      this.list = [...pending, ...hosted].sort(byDate);
+      this.list = [...local, ...hosted].sort(byDate);
+      if (snap.metadata?.fromCache) { this.emit(); return; }   // the record is still to come
       this.persist();
-      for (const rec of pending) this.push(rec);
+      if (!settled) { settled = true; for (const rec of local) this.push(rec); }
     }, err => {
       /* A dead subscription leaves the page with what it last saw; the
          local layer keeps working, and further saves stay local. */
-      this.fail(err, 'subscribe');
       this.db = null;
       this.hosted = false;
-      this.emit();
+      this.fail(err, 'subscribe');
     });
     return true;
   }

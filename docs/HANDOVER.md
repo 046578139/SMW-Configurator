@@ -36,17 +36,20 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 91 pass, 0 fail
+node --test                        # 115 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 12 of 12 suites passed, 92 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  418 kB
+node tests/browser/run.mjs         # 14 of 14 suites passed, 110 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  465 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
-the photo overlay geometry and the rules adopted from the vendor comparison. The browser suites cover what a unit test
-cannot see: labels overlapping in a drawing, a sandboxed frame still being able
-to clear a configuration, the standalone build running from `file://` with no
-network at all. They start their own static server on port 8899 — nothing to
+the photo overlay geometry, the rules adopted from the vendor comparison, the
+saved-configurations store against a stand-in for the artifact's document
+store, and the document reader behind Import. The browser suites cover what a
+unit test cannot see: labels overlapping in a drawing, a sandboxed frame still
+being able to clear a configuration, the standalone build running from
+`file://` with no network at all, and the Save / Saved / Import dialogs with
+stand-ins for the host's AI and the PDF renderer. They start their own static server on port 8899 — nothing to
 launch first, except `tools/build-standalone.mjs` before the `standalone`
 suite, which reads `dist/`.
 
@@ -131,6 +134,22 @@ code:
   R&S®-prefixed row - a regex artefact in `tools/vendor/lib.py`, not
   evidence; the vendor's type column is `texts[0]` in
   `docs/vendor/catalog.json`.
+- **Import reads by order number first.** `import.js` matches a document's
+  lines against the catalog: an order number settles an item (every order
+  number in the catalog is unique, and a test keeps it so), a type
+  designation settles it where the code maps to one option (R&S®SMW-K200
+  and R&S®ACASMW200A do not, so those lines are listed as needing the
+  number), and the quantity comes from "2 x", "2 pcs", "Qty: 2" or the
+  second of two leading columns (an R&S quotation prints position, then
+  quantity). Pasted text, a PDF's text layer (pdf.js 4.10.38 from cdnjs,
+  loaded on first use; `window.pdfjsLib` is used instead when a host or a
+  test provides one) and what the AI transcribes off an image all go through
+  the same `readText()`, so one set of rules and tests covers every way in.
+  The AI is the `sample` capability: consent is per call and costs the
+  viewer, so it runs only from the Scan button, streams nothing, and can be
+  stopped; images go as blobs, so PDF pages are rendered to PNG first, up to
+  `limits().images.maxCount` per call. Real-world check: importing the
+  configuration guide PDF itself reads its ordering tables.
 - **Saved configurations live in two layers.** `saved.js` keeps the named
   list in localStorage always and, when the page runs on claude.ai with the
   `db` capability declared, in the artifact's shared document store

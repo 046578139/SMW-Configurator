@@ -41,7 +41,8 @@ const P = {
   gauge:   '<path d="M12 21a9 9 0 100-18 9 9 0 000 18z"/><path d="M12 12l4-4"/>',
   chevron: '<path d="M9 18l6-6-6-6"/>',
   save:    '<path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
-  bookmark:'<path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>'
+  bookmark:'<path d="M19 21l-7-5-7 5V5a2 2 0 012-2h10a2 2 0 012 2z"/>',
+  upload:  '<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>'
 };
 
 export const icon = (name, size = 16) =>

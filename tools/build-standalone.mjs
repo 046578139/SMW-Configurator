@@ -33,6 +33,7 @@ const MODULES = [
   'assets/js/ui.js',
   'assets/js/presets.js',
   'assets/js/saved.js',
+  'assets/js/import.js',
   'assets/js/app.js'
 ];
 
@@ -44,7 +45,7 @@ function flatten (source, path) {
     // bare re-exports such as `export { esc };`
     .replace(/^export\s*\{[^}]*\}\s*;/gm, '')
     // the `export` keyword in front of a declaration
-    .replace(/^export\s+(?=(?:const|let|function|class)\b)/gm, '');
+    .replace(/^export\s+(?=(?:const|let|function|class|async\s+function)\b)/gm, '');
 
   for (const leftover of stripped.match(/^\s*(?:import|export)\b.*/gm) || []) {
     throw new Error(`${path}: unhandled module syntax -> ${leftover.trim()}`);

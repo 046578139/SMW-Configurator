@@ -10,7 +10,8 @@ import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js'
 import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
-import { SavedStore, packSel, unpackSel } from './saved.js';
+import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
+import { readText, readAI, readPdf, canvasToBlob, AI_PROMPT } from './import.js';
 
 const STORE = 'smw200a-config-v1';
 
@@ -617,9 +618,13 @@ document.addEventListener('click', ev => {
     if (rec) {
       state.sel = unpackSel(rec.c);
       state.name = rec.name;
+      // an entry may name options a later catalog no longer carries
+      const gone = rec.c.split('.').filter(Boolean).length - Object.keys(state.sel).length;
       closeModal();
       afterChange();
-      toast(`Loaded “${rec.name}”`);
+      toast(gone > 0
+        ? `Loaded “${rec.name}” – ${gone} option${gone === 1 ? '' : 's'} no longer in the catalog`
+        : `Loaded “${rec.name}”`);
     }
     return;
   }
@@ -633,12 +638,17 @@ document.addEventListener('click', ev => {
   const action = t.dataset.action;
   if (action === 'save') {
     if (!Object.keys(state.sel).length) { toast('Nothing to save yet'); return; }
-    const { rec, replaced } = saved.save({ name: state.name, sel: state.sel });
+    const { rec, replaced } = saved.save({ name: saveName(), sel: state.sel });
     if ($('.saved-list, .saved-empty')) openSaved();     // the list is open: refresh it
     toast(`${replaced ? 'Updated' : 'Saved'} “${rec.name}”`);
     return;
   }
   if (action === 'saved') { openSaved(); return; }
+  if (action === 'import') { openImport(); return; }
+  if (action === 'import-scan') { scanImport(); return; }
+  if (action === 'import-stop') { imp.ctl?.abort(); return; }
+  if (action === 'import-load') { applyImport('replace'); return; }
+  if (action === 'import-merge') { applyImport('merge'); return; }
   if (action === 'resolve') {
     const before = validate(state.sel).errors.length;
     state.sel = autoResolve(state.sel);
@@ -743,6 +753,12 @@ document.addEventListener('click', ev => {
 });
 
 document.addEventListener('change', ev => {
+  const edited = ev.target.closest('[data-import-qty]');
+  if (edited && imp.result) {
+    const it = imp.result.items.find(i => i.id === edited.dataset.importQty);
+    if (it) { it.qty = Math.max(1, Math.min(999, parseInt(edited.value, 10) || 1)); edited.value = it.qty; }
+    return;
+  }
   const field = ev.target.closest('[data-qty]');
   if (!field) return;
   const id = field.dataset.qty;
@@ -802,6 +818,8 @@ function openModal (html) {
 function closeModal () {
   $('.scrim')?.remove();
   document.body.classList.remove('modal-open');
+  imp.ctl?.abort();          // an AI reading still running belongs to the closed dialog
+  revokeImportUrls();
 }
 
 function openPresets () {
@@ -828,6 +846,11 @@ function openPresets () {
   </div>`);
 }
 
+/* The header's name is the handle, but the default one would make every save
+   the same entry - and on a narrow screen the field is not even shown - so an
+   untitled configuration is saved under what it is. */
+const saveName = () => (state.name === 'Untitled configuration' ? summarize(state.sel) : state.name);
+
 function openSaved () {
   const rows = saved.list.map(r => `
     <div class="saved-row" data-saved="${esc(r.id)}">
@@ -845,8 +868,10 @@ function openSaved () {
       <div style="flex:1">
         <h2>Saved configurations</h2>
         <p>${saved.hosted
-          ? 'Kept on this page – everyone who opens it sees the same list.'
-          : 'Kept in this browser. Open the page on claude.ai to keep them on the page itself.'}</p>
+          ? 'Kept on this page – everyone who opens it sees the same list, and can change it.'
+          : window.claude?.use
+            ? 'Kept in this browser – the page’s own list is not available right now.'
+            : 'Kept in this browser. On claude.ai the list is kept on the page itself.'}</p>
       </div>
       <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
     </div>
@@ -856,9 +881,274 @@ function openSaved () {
                 under the name in the header; saving under the same name updates it.</div>`}
     </div>
     <div class="modal-foot">
-      <button class="btn btn-primary" data-action="save">${icon('save', 15)} Save current as “${esc(state.name)}”</button>
+      <button class="btn btn-primary" data-action="save">${icon('save', 15)} Save current as “${esc(saveName())}”</button>
     </div>
   </div>`);
+}
+
+/* ============================== import ================================= */
+
+/* The import dialog's working state: what was dropped in, what was read from
+   it, and the AI reading in flight, if any. */
+const imp = { file: null, urls: [], pages: [], text: '', result: null, ctl: null, ai: null, limits: null };
+
+/* The host's AI, where there is one (the sample capability on claude.ai).
+   Resolved once; null everywhere else, and the dialog says so. */
+let aiPromise;
+const aiHost = () => (aiPromise ??= (window.claude?.use?.('sample') ?? Promise.resolve(null)).catch(() => null));
+
+function revokeImportUrls () {
+  for (const u of imp.urls) URL.revokeObjectURL(u);
+  imp.urls = [];
+}
+
+function openImport () {
+  imp.ctl?.abort();
+  revokeImportUrls();
+  Object.assign(imp, { file: null, pages: [], text: '', result: null, ctl: null });
+  openModal(`
+  <div class="modal modal-wide" role="dialog" aria-label="Import a configuration">
+    <div class="modal-head">
+      <div style="flex:1">
+        <h2>Import a configuration</h2>
+        <p>Drop a Rohde &amp; Schwarz quotation or configuration list – a PDF or a photograph – or paste its
+          text. Order numbers and type designations are matched against the catalog.</p>
+      </div>
+      <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
+    </div>
+    <div class="modal-body import-body">
+      <div class="import-src">
+        <label class="dropzone" id="import-drop" for="import-file">
+          ${icon('upload', 22)}
+          <strong>Drop a file here or click to choose</strong>
+          <span>PDF, JPEG, PNG, WebP, GIF or plain text</span>
+          <input id="import-file" type="file" accept=".pdf,application/pdf,image/*,.txt,.csv,.md,text/plain" hidden>
+        </label>
+        <textarea id="import-text" class="import-text" spellcheck="false" rows="7"
+          placeholder="…or paste the text of the quotation here" aria-label="Document text"></textarea>
+        <div class="import-tools">
+          <button class="btn" data-action="import-scan" id="import-scan" hidden>${icon('sparkle', 15)} Scan with AI</button>
+          <button class="btn" data-action="import-stop" id="import-stop" hidden>${icon('x', 15)} Stop</button>
+          <span class="import-status" id="import-status" aria-live="polite"></span>
+        </div>
+      </div>
+      <div class="import-out">
+        <div class="import-preview" id="import-preview"></div>
+        <div id="import-result"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <span class="import-note" id="import-note"></span>
+      <button class="btn" data-action="import-merge" id="import-merge" disabled>Add to current</button>
+      <button class="btn btn-primary" data-action="import-load" id="import-load" disabled>${icon('download', 15)} Replace configuration</button>
+    </div>
+  </div>`);
+
+  const file = $('#import-file');
+  file.addEventListener('change', () => { if (file.files[0]) takeImportFile(file.files[0]); });
+  const drop = $('#import-drop');
+  drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+  drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+  drop.addEventListener('drop', e => {
+    e.preventDefault(); drop.classList.remove('over');
+    const f = e.dataTransfer?.files?.[0];
+    if (f) takeImportFile(f);
+  });
+  let timer;
+  $('#import-text').addEventListener('input', e => {
+    clearTimeout(timer);
+    timer = setTimeout(() => readImportText(e.target.value, 'pasted text'), 250);
+  });
+  aiHost().then(async host => {
+    if (!host || !$('#import-scan')) return;
+    imp.limits = await (host.limits?.() ?? Promise.resolve(null)).catch(() => null);
+    imp.ai = host;
+    syncImportTools();
+  });
+}
+
+const importStatus = text => { const el = $('#import-status'); if (el) el.textContent = text; };
+
+async function takeImportFile (f) {
+  revokeImportUrls();
+  Object.assign(imp, { file: f, pages: [], text: '', result: null });
+  const preview = $('#import-preview');
+  if (!preview) return;
+  const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
+
+  if (f.type.startsWith('image/')) {
+    const url = URL.createObjectURL(f);
+    imp.urls.push(url);
+    preview.innerHTML = `<img src="${url}" alt="${esc(f.name)}">`;
+    importStatus('');
+    renderImportResult();
+    syncImportTools();
+    return;
+  }
+  if (isPdf) {
+    preview.innerHTML = '';
+    importStatus('Opening the PDF…');
+    try {
+      const pdf = await readPdf(await f.arrayBuffer());
+      if (imp.file !== f) return;                       // another file came in meanwhile
+      imp.pages = pdf.pages;
+      const shown = pdf.pages.filter(p => p.canvas);
+      preview.innerHTML = shown.map(p =>
+        `<figure class="import-page"><figcaption>Page ${p.n} of ${pdf.count}</figcaption></figure>`).join('');
+      shown.forEach((p, i) => preview.children[i].prepend(p.canvas));
+      if (pdf.text.trim()) {
+        readImportText(pdf.text, f.name);
+        importStatus(pdf.count > shown.length
+          ? `The text of all ${pdf.count} pages was read; the first ${shown.length} are shown.` : '');
+      } else {
+        renderImportResult();
+        importStatus('This PDF carries no text – it looks scanned.');
+      }
+    } catch {
+      if (imp.file !== f) return;
+      imp.pages = [];
+      importStatus('The PDF could not be opened here. The PDF reader loads from the web on first use; paste the text instead.');
+    }
+    syncImportTools();
+    return;
+  }
+  // anything else is taken as text
+  const text = await f.text();
+  const box = $('#import-text');
+  if (box) box.value = text.slice(0, 200000);
+  preview.innerHTML = '';
+  importStatus('');
+  readImportText(text, f.name);
+  syncImportTools();
+}
+
+function readImportText (text, source) {
+  imp.text = text;
+  imp.source = source;
+  imp.result = text.trim() ? readText(text) : null;
+  renderImportResult();
+}
+
+/* The Scan button shows where there is something to look at and a host to
+   look at it; the status line says what to do where there is not. */
+function syncImportTools () {
+  const scan = $('#import-scan');
+  if (!scan) return;
+  const isImage = !!imp.file?.type.startsWith('image/');
+  const scannable = isImage || imp.pages.some(p => p.canvas);
+  scan.hidden = !(imp.ai && imp.limits?.images && scannable);
+  const st = $('#import-status');
+  if (st && !st.textContent && scannable && !imp.result?.items.length) {
+    st.textContent = !scan.hidden ? 'Scan with AI reads the page for you.'
+      : isImage ? 'An image can be viewed here; reading it needs the AI on claude.ai – or paste the text.'
+      : 'Reading a scanned page needs the AI on claude.ai – or paste the text.';
+  }
+}
+
+function renderImportResult () {
+  const out = $('#import-result');
+  if (!out) return;
+  const r = imp.result;
+  const load = $('#import-load'), merge = $('#import-merge'), note = $('#import-note');
+  if (!r) { out.innerHTML = ''; load.disabled = merge.disabled = true; note.textContent = ''; return; }
+  const n = r.items.length;
+  const u = r.unknown.length;
+  out.innerHTML = `
+    <div class="import-summary">${n ? `${n} option${n === 1 ? '' : 's'} recognised` : 'Nothing recognised'}${
+      r.base ? ' · base unit' : ''}${u ? ` · ${u} line${u === 1 ? '' : 's'} not in the catalog` : ''}</div>
+    ${n ? `<table class="table import-table">
+      <thead><tr><th>Type</th><th>Designation</th><th>Order No.</th><th style="text-align:right">Qty</th></tr></thead>
+      <tbody>${r.items.map(it => {
+        const o = BY_ID[it.id];
+        return `<tr>
+          <td class="c-id">${esc(typeName(it.id))}</td>
+          <td>${esc(o.name)}</td>
+          <td class="c-order">${esc(o.order)}</td>
+          <td class="c-qty"><input class="qty-input" type="number" min="1" max="999" value="${it.qty}"
+            data-import-qty="${esc(it.id)}" aria-label="Quantity of ${esc(it.id)}"></td>
+        </tr>`; }).join('')}</tbody>
+    </table>` : ''}
+    ${u ? `<div class="import-unknown"><div class="group-head">Not in the catalog</div>${
+      r.unknown.map(x => `<div class="import-unknown-line"><span>${esc(x.line)}</span><small>${esc(x.why)}</small></div>`).join('')}</div>` : ''}`;
+  load.disabled = merge.disabled = !n;
+  note.textContent = n
+    ? 'Replace starts from the document alone; Add keeps what is configured and raises a quantity where the document has more.'
+    : '';
+}
+
+function applyImport (mode) {
+  const r = imp.result;
+  if (!r?.items.length) return;
+  const sel = mode === 'merge' ? { ...state.sel } : {};
+  for (const it of r.items) sel[it.id] = mode === 'merge' ? Math.max(sel[it.id] || 0, it.qty) : it.qty;
+  state.sel = sel;
+  if (mode !== 'merge') {
+    state.name = r.name ? `Quotation ${r.name}` : imp.file ? `Imported from ${imp.file.name}` : 'Imported configuration';
+  }
+  const n = r.items.length;
+  closeModal();
+  afterChange();
+  toast(`${mode === 'merge' ? 'Added' : 'Loaded'} ${n} option${n === 1 ? '' : 's'} from the document`);
+}
+
+const importErrorText = code => ({
+  cancelled: 'Stopped.',
+  not_granted: 'Reading with AI was not allowed for this page.',
+  sampling_disabled: 'AI is not available on this account.',
+  rate_limited: 'Too many requests for now – try again in a little while.',
+  image_rejected: 'That image could not be read – try a smaller or clearer one.',
+  refused: 'The AI declined to read this document.',
+  invalid_json: 'The AI answered, but not in a form that could be read – try again.',
+  empty_completion: 'The AI returned nothing – try again.',
+  prompt_too_large: 'The document is too large to send at once.'
+})[code] || 'The document could not be read just now – try again.';
+
+/* Asks the host's AI to read the page(s). Consent, cost and time are the
+   viewer's, so this runs on the button alone, shows that it is working, and
+   can be stopped. */
+async function scanImport () {
+  const host = imp.ai;
+  const scan = $('#import-scan'), stop = $('#import-stop');
+  if (!host || !scan) return;
+  let images;
+  try {
+    if (imp.file?.type.startsWith('image/')) {
+      images = [imp.file];
+    } else {
+      const max = imp.limits?.images?.maxCount || 1;
+      const canvases = imp.pages.filter(p => p.canvas).map(p => p.canvas);
+      images = await Promise.all(canvases.slice(0, max).map(c => canvasToBlob(c)));
+      if (canvases.length > max) toast(`Only the first ${max} page${max === 1 ? '' : 's'} can be scanned at once`);
+    }
+  } catch { importStatus('The pages could not be prepared for scanning.'); return; }
+  if (!images?.length) return;
+
+  imp.ctl?.abort();
+  const ctl = new AbortController();
+  imp.ctl = ctl;
+  scan.disabled = true;
+  stop.hidden = false;
+  importStatus('Reading the document… this can take up to a minute.');
+  try {
+    const items = await host.json(AI_PROMPT, { images, signal: ctl.signal, modelTier: 'default' });
+    if (ctl.signal.aborted) return;
+    imp.result = readAI(items);
+    imp.source = 'AI';
+    renderImportResult();
+    importStatus(imp.result.items.length
+      ? 'Check the quantities before loading – a column can be misread.'
+      : 'The AI found no line item it could name.');
+  } catch (err) {
+    importStatus(importErrorText(err?.code));
+    if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'images_unavailable'].includes(err?.code)) {
+      imp.ai = null;
+      scan.hidden = true;
+    }
+  } finally {
+    if (imp.ctl === ctl) imp.ctl = null;
+    scan.disabled = false;
+    stop.hidden = true;
+  }
 }
 
 /** "16 Sep 2026, 19:40" in the viewer's locale; the raw stamp if it does not parse. */
@@ -872,10 +1162,12 @@ function when (iso) {
 function renderSavedCount () {
   const el = $('#saved-count');
   if (el) el.textContent = saved.list.length;
-  if (saved.lastError && !saved.lastError.shown) {
-    saved.lastError.shown = true;
-    toast(saved.lastError.code === 'quota_exceeded'
-      ? 'The page’s list is full – kept in this browser instead'
+  const e = saved.lastError;
+  if (e && !e.shown) {
+    e.shown = true;
+    toast(e.what === 'subscribe' ? 'The page’s list could not be reached – using this browser’s'
+      : e.what === 'remove' ? 'That could not be removed from the page – it may come back'
+      : e.code === 'quota_exceeded' ? 'The page’s list is full – kept in this browser instead'
       : 'Could not keep that on the page – kept in this browser instead');
   }
 }
@@ -1053,6 +1345,10 @@ export function boot () {
   saved.onChange(renderSavedCount);
   renderSavedCount();
   saved.connect(window.claude?.use?.('db') ?? Promise.resolve(null));
+  // a save or removal in another tab of this browser
+  window.addEventListener('storage', e => {
+    if (e.key === SAVED_KEY) { saved.load(); renderSavedCount(); if ($('.saved-list, .saved-empty')) openSaved(); }
+  });
   window.addEventListener('hashchange', () => {
     const { sel, name } = decode(location.hash);
     if (Object.keys(sel).length) { state.sel = sel; state.name = name; render(); }

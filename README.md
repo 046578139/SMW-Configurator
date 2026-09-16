@@ -28,7 +28,19 @@ the fading simulator's 1 / 2 / 4.
 configuration under its name; *Saved* lists them with what they are and when,
 to load or remove. The list lives in the browser and, on claude.ai, in the
 page's own store as well, so a configuration saved there is on the page for
-everyone who opens it. Saving under the same name updates the entry.
+everyone who opens it – and anyone who opens it can change or remove one.
+Keeping that store makes the page organization-internal on claude.ai; it
+cannot be shared publicly. Saving under the same name updates the entry.
+
+**Reads a quotation back in.** *Import* in the header takes a Rohde & Schwarz
+quotation or configuration list – a PDF, a photograph, or pasted text – shows
+it, and matches every order number and type designation against the catalog
+into a review table with quantities to correct before loading. A text PDF or
+pasted text is read exactly, with no AI involved; a photograph or a scanned
+PDF is read by the AI the page can call on claude.ai (*Scan with AI*, at the
+viewer's say-so and on the viewer's account). Lines the catalog does not
+carry are listed rather than dropped. The PDF renderer loads from a CDN on
+the first PDF; nothing else is fetched.
 
 **Shows the instrument, not a list of checkboxes.** Two views of it, switched
 with *Photo* / *Schematic*, either face, either one enlarged.
@@ -189,6 +201,7 @@ assets/js/
   ui.js                 icon set and stateless render helpers
   presets.js            validated starting points
   saved.js              named configurations: this browser's list and the page's
+  import.js             reading a quotation: order numbers, type codes, quantities; PDF and AI paths
   app.js                state, rendering, events, export
 tests/rules.test.mjs    rule regression tests
 tests/panel.test.mjs    panel, scale and photo overlay tests
