@@ -11,7 +11,7 @@ dependencies. Open `index.html` and it runs.
 
 ## What it does
 
-**Checks the rules, rather than just collecting clicks.** All 253 options carry
+**Checks the rules, rather than just collecting clicks.** All 253 instrument options carry
 their prerequisites, conflicts and quantity limits from the configuration guide.
 Selecting R&S®SMW-K512 without R&S®SMW-K511 is not silently accepted — the
 Checks panel names what is missing and offers to add it. *Fix issues* follows
@@ -173,7 +173,7 @@ index.html              shell and layout
 assets/css/app.css      design system, both themes
 assets/js/
   util.js               shared helpers
-  catalog.js            239 options: order numbers, rules, quantity limits
+  catalog.js            253 options and 23 accessories: order numbers, rules, quantity limits
   rules.js              expression parser, validator, autoResolve
   derive.js             selection -> instrument capabilities
   diagram.js            display, signal chain, frequency scale (SVG)

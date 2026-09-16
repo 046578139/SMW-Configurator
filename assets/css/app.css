@@ -344,6 +344,7 @@ a { color: var(--accent); }
 }
 .opt-kind.hw { background: color-mix(in srgb, var(--accent-2) 20%, transparent); color: var(--accent-2); }
 .opt-kind.sw { background: color-mix(in srgb, var(--accent-3) 20%, transparent); color: var(--accent-3); }
+.opt-kind.acc { background: color-mix(in srgb, var(--text-faint) 18%, transparent); color: var(--text-dim); }
 .opt-name { font-size: 13.5px; color: var(--text); margin: 3px 0 0; line-height: 1.42; }
 .card.off .opt-name { color: var(--text-dim); }
 .opt-meta {

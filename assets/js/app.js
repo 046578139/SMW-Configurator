@@ -1,8 +1,8 @@
 /** Application state, rendering and event wiring. */
 
-import { OPTIONS, BY_ID, SECTIONS, EXTRAS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS, RF_PATH_MATRIX }
+import { OPTIONS, BY_ID, SECTIONS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS, RF_PATH_MATRIX, typeName }
   from './catalog.js';
-import { validate, autoResolve, holds, qtyChoices, maxQty, freqA, freqB, mainModule, ruledOutBy }
+import { validate, autoResolve, qtyChoices, maxQty, freqA, freqB, mainModule, ruledOutBy }
   from './rules.js';
 import { derive, vitals } from './derive.js';
 import { renderChain, renderRuler } from './diagram.js';
@@ -10,7 +10,6 @@ import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js'
 import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
-import { productCode } from './util.js';
 
 const STORE = 'smw200a-config-v1';
 
@@ -195,7 +194,9 @@ function renderSection (sec) {
   else if (sec.id === 'rf-b') body = renderFreqB();
   else if (sec.id === 'phase') body = renderPhase();
   else if (sec.id === 'bb-hw') body = renderBasebandHw();
-  else if (sec.id === 'extras') body = renderExtras();
+  /* the accessories keep the ordering information's own sequence: half of them
+     have no type designation to sort by */
+  else if (sec.id === 'extras') body = renderGrouped(sectionOptions('extras'), { sort: false });
   else body = renderGrouped(sectionOptions(sec.id));
 
   return `
@@ -211,7 +212,7 @@ function renderSection (sec) {
 
 const byCode = (x, y) => x.id.localeCompare(y.id, undefined, { numeric: true });
 
-function renderGrouped (opts) {
+function renderGrouped (opts, { sort = true } = {}) {
   if (!opts.length) return '<div class="empty">Nothing to configure here yet.</div>';
   const groups = [];
   for (const o of opts) {
@@ -222,7 +223,7 @@ function renderGrouped (opts) {
   /* Options added after the guide (since: 'specs' / 'vendor') are appended to
      the catalog; sorting by code keeps every group in the ordering-information
      order the guide and the vendor both use. */
-  for (const g of groups) g.items.sort(byCode);
+  if (sort) for (const g of groups) g.items.sort(byCode);
   return groups.map(g => `
     ${groups.length > 1 ? `<div class="group-head">${esc(g.name)}</div>` : ''}
     <div class="cards">${g.items.map(o => optionCard(o, state.sel)).join('')}</div>`).join('');
@@ -304,25 +305,6 @@ function renderBasebandHw () {
     <div class="cards">${opts.map(o => optionCard(o, state.sel)).join('')}</div>
     ${other.length ? `<div class="group-head">Selected but not compatible</div>
       <div class="cards">${other.map(o => optionCard(o, state.sel)).join('')}</div>` : ''}`;
-}
-
-function renderExtras () {
-  return EXTRAS.map(g => `
-    <div class="group-head">${esc(g.group)}</div>
-    <div class="cards">${g.items.map(it => {
-      const suggested = it.hintIf && holds(it.hintIf, state.sel);
-      return `
-      <div class="card off" style="cursor:default">
-        <span class="tick" style="visibility:hidden"></span>
-        <div class="card-body">
-          <div class="card-top"><span class="opt-id">${esc(it.id)}</span>
-            ${suggested ? '<span class="chip met">suggested for this configuration</span>' : ''}</div>
-          <p class="opt-name">${esc(it.name)}</p>
-          ${it.note ? `<p class="opt-note">${esc(it.note)}</p>` : ''}
-          <div class="opt-meta"><span class="opt-order">${esc(it.order)}</span></div>
-        </div>
-      </div>`;
-    }).join('')}</div>`).join('');
 }
 
 function renderSearch () {
@@ -854,7 +836,7 @@ function openExport () {
             <tr class="head-row"><td colspan="4">${esc(g.name)}</td></tr>
             ${g.rows.map(r => `
               <tr>
-                <td class="c-id">${r.id === BASE_UNIT.id ? 'R&amp;S®SMW200A' : `R&amp;S®SMW-${esc(productCode(r.id))}`}</td>
+                <td class="c-id">${esc(typeCol(r.id))}</td>
                 <td>${esc(r.name)}</td>
                 <td class="c-order">${esc(r.order)}</td>
                 <td class="c-qty">${r.qty}</td>
@@ -909,13 +891,17 @@ async function download (filename, mime, text) {
   toast(`${filename} downloaded`);
 }
 
+/* The tables carry the order number in a column of their own, so an accessory
+   R&S lists by order number alone gets an empty Type cell there rather than
+   the number twice - which is how the vendor's own parts list reads. */
+const typeCol = id => (BY_ID[id]?.code === null ? '' : typeName(id));
+
 const slug = () => state.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'smw200a';
 
 function downloadCsv () {
   const rows = [['Type', 'Designation', 'Order No.', 'Quantity']];
   for (const l of bomLines(state.sel, BASE_UNIT)) {
-    rows.push([l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${productCode(l.id)}`,
-      l.name, l.order, l.qty]);
+    rows.push([typeCol(l.id), l.name, l.order, l.qty]);
   }
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
   download(`${slug()}.csv`, 'text/csv;charset=utf-8', '﻿' + csv);
@@ -930,8 +916,7 @@ function downloadJson () {
     valid: v.ok,
     issues: v.errors.map(e => ({ title: e.title, detail: e.detail })),
     items: bomLines(state.sel, BASE_UNIT).map(l => ({
-      type: l.id === BASE_UNIT.id ? 'R&S®SMW200A' : `R&S®SMW-${productCode(l.id)}`,
-      designation: l.name, orderNo: l.order, quantity: l.qty, group: l.group
+      type: typeCol(l.id), designation: l.name, orderNo: l.order, quantity: l.qty, group: l.group
     })),
     capabilities: derive(state.sel),
     link: location.origin + location.pathname + encode()

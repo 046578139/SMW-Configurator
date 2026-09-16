@@ -9,10 +9,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { OPTIONS, BY_ID, RF_PATH_MATRIX, O_VARIANTS } from '../assets/js/catalog.js';
+import { OPTIONS, BY_ID, RF_PATH_MATRIX, O_VARIANTS, EXTRAS, BASE_UNIT, typeName } from '../assets/js/catalog.js';
 import {
-  validate, autoResolve, holds, parse, evaluate, maxQty, qtyChoices, needText
+  validate, autoResolve, holds, parse, evaluate, maxQty, qtyChoices, needText, ruledOutBy
 } from '../assets/js/rules.js';
+import { bomLines } from '../assets/js/ui.js';
 import { productCode } from '../assets/js/util.js';
 import { derive } from '../assets/js/derive.js';
 import { PRESETS } from '../assets/js/presets.js';
@@ -390,10 +391,75 @@ test('options sharing a product code never print an invented one', () => {
     const issue = validate({ [id]: 1 }).errors.find(e => e.id.includes(id));
     if (issue) assert.equal(/K200-\d/.test(issue.title), false, issue.title);
   }
-  // and every other id is its own code
+  // and every other option's code is its id, unless the catalog says what
+  // R&S prints instead - the four accredited calibrations share one type
+  // designation, and half the accessories have none at all
   for (const o of OPTIONS) {
-    if (!o.id.startsWith('K200')) assert.equal(productCode(o.id), o.id);
+    if (o.id.startsWith('K200')) assert.equal(o.code, 'K200');
+    else if (o.accessory) assert.ok(o.code === null || typeof o.code === 'string', `${o.id} has no code field`);
+    else assert.equal(o.code, o.id);
   }
+});
+
+/* ------------------------------------------------------------ accessories */
+
+test('accessories are options without rules, so they can be ordered', () => {
+  for (const it of EXTRAS.flatMap(g => g.items)) {
+    const o = BY_ID[it.id];
+    assert.ok(o, `${it.id} is not in the catalog`);
+    assert.equal(o.section, 'extras');
+    assert.equal(o.accessory, true);
+    assert.equal(o.requires, undefined, `${it.id} carries a rule the guide does not have`);
+    assert.equal(ruledOutBy(o, { B1003: 1, B13: 1 }), null);
+    assert.ok(o.max >= 1);
+  }
+  // one of each per instrument, the rest in whatever quantity is needed
+  for (const id of ['SMW-T0', 'DCV-2', 'DCV-ZP', 'ACA-6', 'ACA-75', 'ACA-44', 'ACA-67', 'ZZA-KN4B']) {
+    assert.equal(BY_ID[id].max, 1, `${id} is per instrument`);
+  }
+  for (const id of ['BBCABLE', 'BBCABLE-2M', 'DIGIQ-HS', 'ADP-292F', 'SMW-ZKK', 'SSD-SPARE']) {
+    assert.ok(maxQty(BY_ID[id], {}) > 12, `${id} needs a quantity field, not a stepper`);
+  }
+  // and a selection of them validates clean and lands on the parts list last
+  const sel = { B1003: 1, B13: 1, B10: 1, 'ADP-NF': 3, 'DCV-2': 1, 'ACA-6': 1, BBCABLE: 2 };
+  assert.ok(ok(sel), JSON.stringify(validate(sel).errors));
+  const ids = bomLines(sel, BASE_UNIT).map(l => l.id);
+  assert.deepEqual(ids.slice(0, 4), ['SMW200A', 'B1003', 'B13', 'B10']);
+  assert.deepEqual(new Set(ids.slice(4)), new Set(['ADP-NF', 'DCV-2', 'ACA-6', 'BBCABLE']));
+  assert.equal(bomLines(sel, BASE_UNIT).find(l => l.id === 'ADP-NF').qty, 3);
+  // an accessory is neither instrument hardware nor a licence
+  const d = derive(sel);
+  assert.equal(d.hwCount, 3);
+  assert.equal(d.swCount, 0);
+});
+
+test('accessories print the type designation the guide gives them, or the order number', () => {
+  // the guide's ordering table: R&S type designations where R&S has one
+  assert.equal(typeName('ZZA-KN4B'), 'R&S®ZZA-KN4B');
+  assert.equal(typeName('DIGIQ-HS'), 'R&S®DIGIQ-HS');
+  assert.equal(typeName('TS-USB1'), 'R&S®TS-USB1');
+  assert.equal(typeName('SMW-ZKK'), 'R&S®SMW-ZKK');
+  assert.equal(typeName('ZV-Z196'), 'R&S®ZV-Z196');
+  assert.equal(typeName('DCV-2'), 'R&S®DCV-2');
+  assert.equal(typeName('SMW-T0'), 'R&S®SMW-T0');
+  // the four accredited calibrations are one designation with four order numbers
+  for (const id of ['ACA-6', 'ACA-75', 'ACA-44', 'ACA-67']) assert.equal(typeName(id), 'R&S®ACASMW200A');
+  // cables and test port adapters are listed by order number alone, so an id
+  // of ours must never reach a parts list as if it were a product code
+  for (const id of ['BBCABLE', 'BBCABLE-2M', 'SSD-SPARE', 'DCV-ZP', 'ADP-292F', 'ADP-292M', 'ADP-NF', 'ADP-NM', 'ADP-185FF', 'ADP-185292']) {
+    assert.equal(typeName(id), BY_ID[id].order, id);
+  }
+  // and nothing changed for the instrument, its options, or the waveform packages
+  assert.equal(typeName('SMW200A'), 'R&S®SMW200A');
+  assert.equal(typeName('B1044O'), 'R&S®SMW-B1044O');
+  assert.equal(typeName('K200-50'), 'R&S®SMW-K200');
+});
+
+test('the combiner note stops once a combiner kit is in the configuration', () => {
+  const sel = { B1044: 1, B2044: 1, B13XT: 1, B9: 2, K525: 2, K527: 2, K555: 1 };
+  assert.ok(validate(sel).info.some(i => i.id === 'k555-combiner'));
+  assert.ok(!validate({ ...sel, 'SMW-ZKK': 1 }).info.some(i => i.id === 'k555-combiner'));
+  assert.ok(!validate({ ...sel, 'SMW-ZKV': 1 }).info.some(i => i.id === 'k555-combiner'));
 });
 
 /* ------------------------------------------------ fidelity to the guide */

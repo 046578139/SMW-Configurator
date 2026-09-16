@@ -134,8 +134,8 @@ export function derive (sel) {
     hasAnalogIQIn: !!q(sel, 'K739'),
     panel: panelState(sel, a, b, paths, genStd, genWide),
     coherent: !!q(sel, 'B90'),
-    hwCount: OPTIONS.filter(o => o.id.startsWith('B') && sel[o.id]).reduce((n, o) => n + sel[o.id], 0),
-    swCount: OPTIONS.filter(o => o.id.startsWith('K') && sel[o.id]).reduce((n, o) => n + sel[o.id], 0)
+    hwCount: OPTIONS.filter(o => !o.accessory && o.id.startsWith('B') && sel[o.id]).reduce((n, o) => n + sel[o.id], 0),
+    swCount: OPTIONS.filter(o => !o.accessory && o.id.startsWith('K') && sel[o.id]).reduce((n, o) => n + sel[o.id], 0)
   };
 }
 

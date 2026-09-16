@@ -1,6 +1,6 @@
 /** Icon set and stateless render helpers. */
 
-import { BY_ID } from './catalog.js';
+import { BY_ID, typeName } from './catalog.js';
 import { esc, productCode } from './util.js';
 import { holds, evaluate, parse, needText, qtyChoices, maxQty, ruledOutBy } from './rules.js';
 
@@ -48,14 +48,11 @@ export const icon = (name, size = 16) =>
 
 export { esc };
 
-/** "R&S®SMW-K144" with the ® rendered small. */
-const fullId = id => {
-  const code = esc(productCode(id));
+/** "R&S®SMW-K144"; for an accessory without a type designation, its order number. */
+const fullId = id =>
   // B1044O / B1056N and friends: highlight the trailing letter so it cannot be
   // mistaken for a digit when someone copies an order code.
-  const m = code.match(/^(B\d+)([A-Z]+)$/);
-  return `R&amp;S®SMW-${m ? `${m[1]}<span class="opt-suffix">${m[2]}</span>` : code}`;
-};
+  esc(typeName(id)).replace(/(SMW-B\d+)([A-Z]+)$/, '$1<span class="opt-suffix">$2</span>');
 
 /* ------------------------------------------------------------------ cards */
 
@@ -72,6 +69,9 @@ export function optionCard (opt, sel, opts = {}) {
      rather than being selectable into an error with no way out. An option
      already in the configuration stays selectable so it can be removed. */
   const blocker = on ? null : ruledOutBy(opt, sel);
+  /* The accessories are neither instrument hardware nor a licence; the cables
+     among them start with a B, so the badge cannot be read off the id. */
+  const kind = opt.accessory ? 'acc' : opt.id.startsWith('B') ? 'hw' : 'sw';
 
   const chips = [];
   if (blocker) {
@@ -82,10 +82,15 @@ export function optionCard (opt, sel, opts = {}) {
       ? `<span class="chip met">${icon('check', 11)} prerequisites met</span>`
       : `<span class="chip unmet">${icon('alert', 11)} needs ${esc(res.need.map(needText).join(' + ')).replace(/R&amp;S®SMW-/g, '')}</span>`);
   }
+  if (opt.hintIf && holds(opt.hintIf, sel)) {
+    chips.push(`<span class="chip met">${icon('check', 11)} suggested for this configuration</span>`);
+  }
   if (opt.floating) chips.push('<span class="chip float">floating license</span>');
   if (opt.since === 'specs') chips.push('<span class="chip new">newer than guide v06.00</span>');
   if (opt.since === 'vendor') chips.push('<span class="chip new">from the R&amp;S online configurator, not in guide v06.00</span>');
-  if (opt.max > 1 || opt.qtySteps) {
+  /* An accessory's ceiling is only there to bound a number field - saying "up
+     to 20 ×" would read as a rule the ordering information does not have. */
+  if ((opt.max > 1 || opt.qtySteps) && !opt.accessory) {
     chips.push(`<span class="chip">up to ${opt.qtySteps ? opt.qtySteps[opt.qtySteps.length - 1] : opt.max} ×</span>`);
   }
 
@@ -96,12 +101,12 @@ export function optionCard (opt, sel, opts = {}) {
   <div class="card-body" ${blocker ? '' : `data-toggle="${esc(opt.id)}"`}>
     <div class="card-top">
       <span class="opt-id">${fullId(opt.id)}</span>
-      <span class="opt-kind ${opt.id.startsWith('B') ? 'hw' : 'sw'}">${opt.id.startsWith('B') ? 'hardware' : 'software'}</span>
+      <span class="opt-kind ${kind}">${kind === 'acc' ? 'accessory' : kind === 'hw' ? 'hardware' : 'software'}</span>
     </div>
     <p class="opt-name">${esc(opt.name)}</p>
     ${opt.note ? `<p class="opt-note">${esc(opt.note)}</p>` : ''}
     <div class="opt-meta">
-      <span class="opt-order">${esc(opt.order)}</span>
+      ${opt.code === null ? '' : `<span class="opt-order">${esc(opt.order)}</span>`}
       ${chips.join('')}
     </div>
   </div>
@@ -190,7 +195,7 @@ export function issueItem (issue, kind) {
 export function bomLines (sel, base) {
   const lines = [{ id: base.id, name: base.name, order: base.order, qty: 1, group: 'Base unit' }];
   const order = ['rf-a', 'baseband', 'rf-b', 'phase', 'rf-enh', 'bb-hw', 'bb-enh',
-    'fading', 'std-int', 'std-wiq', 'pulse', 'other'];
+    'fading', 'std-int', 'std-wiq', 'pulse', 'other', 'extras'];
   const seen = Object.keys(sel).filter(id => sel[id] > 0 && BY_ID[id]);
   seen.sort((a, b) => {
     const oa = order.indexOf(BY_ID[a].section), ob = order.indexOf(BY_ID[b].section);
@@ -222,7 +227,7 @@ export function bomPane (sel, base) {
           <div>
             <div class="bom-id">${fullId(r.id)}</div>
             <div class="bom-name">${esc(r.name)}</div>
-            <div class="bom-order">${esc(r.order)}</div>
+            ${BY_ID[r.id]?.code === null ? '' : `<div class="bom-order">${esc(r.order)}</div>`}
           </div>
           <div class="bom-qty">×${r.qty}</div>
         </div>`).join('')}

@@ -155,6 +155,51 @@ await t('an option whose prerequisite can simply be added stays selectable', asy
   if (!(await card('B90').getAttribute('class')).includes(' on')) throw new Error('B90 could not be added');
 });
 
+await t('an accessory can be ticked, counted, and reaches the parts list', async () => {
+  await open('B1020.B13T.B10');
+  await p.locator('.nav-item', { hasText: 'Accessories' }).click();
+  await p.waitForTimeout(500);
+  const adp = card('ADP-292F');
+  if (!(await adp.count())) throw new Error('no card for the test port adapter');
+  // a 20 GHz instrument has a 2.92 mm port, so the adapter is suggested
+  const chip = (await adp.locator('.chip').allTextContents()).join(' ');
+  if (!chip.includes('suggested for this configuration')) throw new Error('the suggestion chip is missing: ' + chip);
+  if (await adp.locator('.tick').isDisabled()) throw new Error('the tick is disabled');
+  await adp.locator('.tick').click();
+  await p.waitForTimeout(500);
+  if (!(await adp.getAttribute('class')).includes(' on')) throw new Error('the adapter was not added');
+  const field = adp.locator('input.qty-input');
+  if (!(await field.count())) throw new Error('no quantity counter on the accessory');
+  await adp.locator('[data-step="ADP-292F:up"]').click();
+  await adp.locator('[data-step="ADP-292F:up"]').click();
+  await p.waitForTimeout(400);
+  const shown = await adp.locator('input.qty-input').inputValue();
+  if (shown !== '3') throw new Error('two clicks on + gave ' + shown);
+  // per-instrument items get a plain tick, not a counter
+  await card('DCV-2').locator('.tick').click();
+  await p.waitForTimeout(400);
+  if (await card('DCV-2').locator('.qty').count()) throw new Error('a per-instrument accessory got a counter');
+  await tab('checks');
+  if (await p.locator('.panel-body .issue.error').count()) throw new Error('accessories raised errors');
+  await tab('order');
+  const rows = await p.locator('.bom-row').allTextContents();
+  const row = rows.find(r => r.includes('1036.4790.00'));
+  if (!row) throw new Error('the adapter is not on the parts list');
+  if (!row.includes('×3')) throw new Error('the parts list quantity is wrong: ' + row.replace(/\s+/g, ' ').trim());
+  if (row.includes('SMW-ADP')) throw new Error('an invented product code reached the parts list: ' + row);
+  if (!rows.some(r => r.includes('DCV-2') && !r.includes('SMW-DCV'))) throw new Error('DCV-2 is misnamed on the parts list');
+  // the count on the rail and the URL both carry the accessories
+  const count = (await p.locator('.nav-item', { hasText: 'Accessories' }).locator('.nav-count').textContent()).trim();
+  if (count !== '4') throw new Error('the rail counts ' + count + ' accessories, expected 4');
+  const hash = await p.evaluate(() => location.hash);
+  if (!hash.includes('ADP-292F*3') || !hash.includes('DCV-2')) throw new Error('the link does not carry them: ' + hash);
+  await p.reload();
+  await p.waitForTimeout(700);
+  await p.locator('.nav-item', { hasText: 'Accessories' }).click();
+  await p.waitForTimeout(400);
+  if ((await card('ADP-292F').locator('input.qty-input').inputValue()) !== '3') throw new Error('the quantity did not survive a reload');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 console.log(errs.length ? 'JS: ' + [...new Set(errs)].join(' | ') : 'no JS errors');
 await b.close();

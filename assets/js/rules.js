@@ -12,10 +12,9 @@
  * configuration guide words "two R&S SMW-B9/-B10".
  */
 
-import { productCode } from './util.js';
 import {
   OPTIONS, BY_ID, SHORTHAND, RF_PATH_MATRIX, B94L_REQUIRED,
-  O_VARIANTS, PHASE_NOISE_LEVELS
+  O_VARIANTS, PHASE_NOISE_LEVELS, typeName
 } from './catalog.js';
 
 /* ---------------------------------------------------------------- parser */
@@ -167,7 +166,7 @@ function stepAllowed (opt, q, sel) {
 
 /* -------------------------------------------------------------- messages */
 
-const label = id => (BY_ID[id] ? `R&S®SMW-${productCode(id)}` : id);
+const label = id => (BY_ID[id] ? typeName(id) : id);
 
 export function needText (need) {
   const names = need.ids.map(label);
@@ -470,10 +469,9 @@ export function validate (sel) {
       detail: 'Without R&S®SMW-B10 or -B9 the instrument produces CW and analog modulation only – no digital standards, ARB playback or fading.',
       section: 'bb-hw', fix: [mm === 'B13XT' ? 'B9' : 'B10'] });
   }
-  /* accessories are not selectable, so the combiner kit is always worth naming */
-  if (sel.K555) {
+  if (sel.K555 && !sel['SMW-ZKK'] && !sel['SMW-ZKV']) {
     add(info, { id: 'k555-combiner', title: 'R&S®SMW-K555 needs an external power combiner',
-      detail: 'Add the R&S®SMW-ZKK (40 GHz) or R&S®SMW-ZKV (67 GHz) combiner kit, plus an analyzer or power meter.',
+      detail: 'Add the R&S®SMW-ZKK (40 GHz) or R&S®SMW-ZKV (67 GHz) combiner kit from the accessories, plus an analyzer or power meter.',
       section: 'extras' });
   }
   if (paths > 1 && !sel.B90 && (sel.K74 || sel.K75)) {

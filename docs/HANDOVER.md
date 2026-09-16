@@ -56,7 +56,7 @@ suites also honour `SMW_BASE`, `SMW_ROOT` and `SMW_OUT` (see
 
 ## Where the work stands
 
-253 options across 13 sections, every rule from the configuration guide plus
+253 options and 23 accessories across 13 sections, every rule from the configuration guide plus
 the rules the vendor's own configurator enforces beyond it, 8 validated
 starting points, two views of the instrument (photograph with a configuration
 overlay, and a schematic that matches any configuration exactly), a frequency
@@ -71,7 +71,7 @@ documents, which reversed two of the decisions and sharpened three more;
 `docs/vendor/README.md` lists what was adopted from the vendor, what came
 from the GNSS specifications, what was kept against the vendor, and why.
 `tests/vendor.test.mjs` pins every adopted rule to the source that decided
-it, and `tests/browser/quantity.mjs` covers the quantity controls.
+it, and `tests/browser/interface.mjs` covers the quantity controls.
 
 26 defects had been found and fixed before that comparison — 4 reported by
 you, 22 found by review. The ones worth knowing about because they shaped the
@@ -114,6 +114,17 @@ code:
   drop 1 rather than let the first click raise an error. `qtyStepsNot` in
   `catalog.js` expresses that, and the card's invalid flag now reads the same
   list the stepper does.
+- **Accessories are options without rules, not a separate list.** They were
+  once inert cards with their own renderer, which meant no tick, no quantity,
+  no place on the parts list and no URL. Folding them into `OPTIONS` (section
+  `extras`, `accessory: true`, no `requires`) gave them all of that for free.
+  What did need care is the name: the guide's ordering table gives a type
+  designation to some of them (R&S®ZZA-KN4B, R&S®DCV-2, and one
+  R&S®ACASMW200A shared by all four accredited calibrations) and none at
+  all to the cables and test port adapters, which it lists by order number
+  alone, as the vendor does. `code` on every option and `typeName()` in
+  `catalog.js` carry that; `productCode()` would have printed "ADP" for
+  3628.4728.02 and "R&S®SMW-BBCABLE" for a cable.
 - **`humanReq()` in `catalog.js` mangled every generated requirement text**
   ("R and S®SMW-R and S®SMW-B9") because it inserted "R&S®" before turning the
   "&" operator into a word. Nothing displayed it, so nobody noticed; it is
