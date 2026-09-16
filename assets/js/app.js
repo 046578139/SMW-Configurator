@@ -11,7 +11,7 @@ import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
 import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
-import { readText, readAI, readPdf, canvasToBlob, AI_PROMPT } from './import.js';
+import { readText, readAI, readPdf, canvasToBlob, ocrImage, AI_PROMPT } from './import.js';
 
 const STORE = 'smw200a-config-v1';
 
@@ -646,6 +646,7 @@ document.addEventListener('click', ev => {
   if (action === 'saved') { openSaved(); return; }
   if (action === 'import') { openImport(); return; }
   if (action === 'import-scan') { scanImport(); return; }
+  if (action === 'import-ocr') { ocrImport(); return; }
   if (action === 'import-stop') { imp.ctl?.abort(); return; }
   if (action === 'import-load') { applyImport('replace'); return; }
   if (action === 'import-merge') { applyImport('merge'); return; }
@@ -927,6 +928,7 @@ function openImport () {
         <textarea id="import-text" class="import-text" spellcheck="false" rows="7"
           placeholder="…or paste the text of the quotation here" aria-label="Document text"></textarea>
         <div class="import-tools">
+          <button class="btn" data-action="import-ocr" id="import-ocr" hidden>${icon('search', 15)} Read the image</button>
           <button class="btn" data-action="import-scan" id="import-scan" hidden>${icon('sparkle', 15)} Scan with AI</button>
           <button class="btn" data-action="import-stop" id="import-stop" hidden>${icon('x', 15)} Stop</button>
           <span class="import-status" id="import-status" aria-live="polite"></span>
@@ -960,6 +962,7 @@ function openImport () {
     timer = setTimeout(() => readImportText(e.target.value, 'pasted text'), 250);
   });
   aiHost().then(async host => {
+    imp.aiWhy = !window.claude?.use ? 'no host' : host ? null : 'the host offers the page no AI';
     if (!host || !$('#import-scan')) return;
     imp.limits = await (host.limits?.() ?? Promise.resolve(null)).catch(() => null);
     imp.ai = host;
@@ -1029,19 +1032,69 @@ function readImportText (text, source) {
   renderImportResult();
 }
 
-/* The Scan button shows where there is something to look at and a host to
-   look at it; the status line says what to do where there is not. */
+/* Where there is a picture and no text, two readers are offered: the OCR
+   engine, which runs in the page wherever it can be fetched, and the host's
+   AI where the host has one. The status line says what is on offer and why
+   the rest is not, so a greyed button is never a mystery. */
 function syncImportTools () {
-  const scan = $('#import-scan');
-  if (!scan) return;
+  const scan = $('#import-scan'), ocr = $('#import-ocr');
+  if (!scan || !ocr) return;
   const isImage = !!imp.file?.type.startsWith('image/');
-  const scannable = isImage || imp.pages.some(p => p.canvas);
-  scan.hidden = !(imp.ai && imp.limits?.images && scannable);
+  // a picture, or rendered pages whose text layer gave nothing to read
+  const scannable = isImage || (imp.pages.some(p => p.canvas) && !imp.result?.items.length);
+  ocr.hidden = !scannable;
+  scan.hidden = !(imp.ai && scannable);
   const st = $('#import-status');
   if (st && !st.textContent && scannable && !imp.result?.items.length) {
-    st.textContent = !scan.hidden ? 'Scan with AI reads the page for you.'
-      : isImage ? 'An image can be viewed here; reading it needs the AI on claude.ai – or paste the text.'
-      : 'Reading a scanned page needs the AI on claude.ai – or paste the text.';
+    const what = isImage ? 'the image' : 'the pages';
+    st.textContent = !scan.hidden
+      ? `Read ${what} runs here in the page; Scan with AI reads ${what} with Claude on your account.`
+      : `Read ${what} runs here in the page${imp.aiWhy === 'no host' ? '' : ` – ${imp.aiWhy || 'the AI has not answered yet'}`}.`;
+  }
+}
+
+const importErrorOf = err => err?.code || (/Failed to fetch|import|network|load/i.test(err?.message || '') ? 'offline' : 'error');
+
+/* Reads the picture in the page. The engine and its language data come from
+   the CDN on the first use, several megabytes, so the status says what is
+   happening and the reading can be stopped. */
+async function ocrImport () {
+  const ocr = $('#import-ocr'), scan = $('#import-scan'), stop = $('#import-stop');
+  if (!ocr) return;
+  const isImage = !!imp.file?.type.startsWith('image/');
+  const sources = isImage ? [imp.file] : imp.pages.filter(p => p.canvas).map(p => p.canvas);
+  if (!sources.length) return;
+  const MAX = 5;
+  if (sources.length > MAX) toast(`Reading the first ${MAX} pages; paste the rest as text if needed`);
+
+  imp.ctl?.abort();
+  const ctl = new AbortController();
+  imp.ctl = ctl;
+  ocr.disabled = true; scan.disabled = true; stop.hidden = false;
+  importStatus('Loading the reader…');
+  try {
+    const texts = [];
+    for (const [i, src] of sources.slice(0, MAX).entries()) {
+      const page = sources.length > 1 ? ` page ${i + 1} of ${Math.min(sources.length, MAX)}` : '';
+      texts.push(await ocrImage(src, { signal: ctl.signal,
+        onProgress: p => importStatus(`Reading${page}… ${Math.round(p * 100)} %`) }));
+    }
+    if (ctl.signal.aborted) return;
+    const text = texts.join('\n');
+    const box = $('#import-text');
+    if (box) box.value = text;                    // so a misread digit can be corrected and read again
+    readImportText(text, isImage ? 'the image' : 'the pages');
+    importStatus(imp.result?.items.length
+      ? 'Read in the page – check the quantities and the codes, a picture is never read perfectly. The text is in the box to correct.'
+      : 'Nothing recognisable was read. A sharper, larger picture reads better; or paste the text.');
+  } catch (err) {
+    const code = importErrorOf(err);
+    importStatus(code === 'cancelled' ? 'Stopped.'
+      : code === 'offline' ? 'The reader could not be fetched (it comes from the web on first use) – paste the text instead.'
+      : 'The image could not be read here – paste the text instead.');
+  } finally {
+    if (imp.ctl === ctl) imp.ctl = null;
+    ocr.disabled = false; scan.disabled = false; stop.hidden = true;
   }
 }
 
@@ -1093,6 +1146,7 @@ function applyImport (mode) {
 
 const importErrorText = code => ({
   cancelled: 'Stopped.',
+  images_unavailable: 'This viewer cannot send images to the AI – Read the image instead.',
   not_granted: 'Reading with AI was not allowed for this page.',
   sampling_disabled: 'AI is not available on this account.',
   rate_limited: 'Too many requests for now – try again in a little while.',
@@ -1108,7 +1162,7 @@ const importErrorText = code => ({
    can be stopped. */
 async function scanImport () {
   const host = imp.ai;
-  const scan = $('#import-scan'), stop = $('#import-stop');
+  const scan = $('#import-scan'), stop = $('#import-stop'), ocr = $('#import-ocr');
   if (!host || !scan) return;
   let images;
   try {
@@ -1126,7 +1180,7 @@ async function scanImport () {
   imp.ctl?.abort();
   const ctl = new AbortController();
   imp.ctl = ctl;
-  scan.disabled = true;
+  scan.disabled = true; if (ocr) ocr.disabled = true;
   stop.hidden = false;
   importStatus('Reading the document… this can take up to a minute.');
   try {
@@ -1142,11 +1196,12 @@ async function scanImport () {
     importStatus(importErrorText(err?.code));
     if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'images_unavailable'].includes(err?.code)) {
       imp.ai = null;
+      imp.aiWhy = err.code === 'images_unavailable' ? 'this viewer cannot send images to the AI' : 'the AI is not available in this view';
       scan.hidden = true;
     }
   } finally {
     if (imp.ctl === ctl) imp.ctl = null;
-    scan.disabled = false;
+    scan.disabled = false; if (ocr) ocr.disabled = false;
     stop.hidden = true;
   }
 }

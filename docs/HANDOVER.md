@@ -38,8 +38,8 @@ is a regression, not a fresh-container quirk.
 ```sh
 node --test                        # 115 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 14 of 14 suites passed, 110 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  465 kB
+node tests/browser/run.mjs         # 14 of 14 suites passed, 112 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  472 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
@@ -145,11 +145,27 @@ code:
   loaded on first use; `window.pdfjsLib` is used instead when a host or a
   test provides one) and what the AI transcribes off an image all go through
   the same `readText()`, so one set of rules and tests covers every way in.
-  The AI is the `sample` capability: consent is per call and costs the
-  viewer, so it runs only from the Scan button, streams nothing, and can be
-  stopped; images go as blobs, so PDF pages are rendered to PNG first, up to
-  `limits().images.maxCount` per call. Real-world check: importing the
-  configuration guide PDF itself reads its ordering tables.
+  Pictures are read in the page by Tesseract.js 5.1.1 (ESM build, worker and
+  wasm core from jsdelivr, English data from `@tesseract.js-data/eng`,
+  fetched on first use, about 7 MB); small sources are drawn up to 1800 px
+  wide first, and `normalizeOcr()` puts O/0, I/1, S/5 and comma-for-dot
+  slips right inside order numbers and code digits only. The AI is the
+  `sample` capability: consent is per call and costs the viewer, so it runs
+  only from the Scan button and can be stopped; images go as blobs, so PDF
+  pages are rendered to PNG first, up to `limits().images.maxCount` per
+  call. The Scan button is offered whenever the host resolves `sample`, and
+  the status line names what is missing when it does not (the first cut hid
+  it on a missing `limits()`, which left an image with no reading path).
+  Real-world checks, both through the CDN in Chromium with the proxy flags
+  from "Container notes": importing the configuration guide PDF itself reads
+  all 28 pages and 252 options; a synthetic distributor quotation screenshot
+  (item, description, model, part number, quantity, price) reads all 13
+  options with their quantities in 6 s (`/tmp` scripts in the session, not
+  kept: build a page with Playwright, screenshot it, upload the PNG).
+  Quantities come from five layouts: "2 x", "2 pcs", "Qty: 2", position then
+  quantity before the type (R&S), and the integer right after the order
+  number (distributors); a price never reads as one because it carries a
+  decimal part.
 - **Saved configurations live in two layers.** `saved.js` keeps the named
   list in localStorage always and, when the page runs on claude.ai with the
   `db` capability declared, in the artifact's shared document store

@@ -36,11 +36,14 @@ cannot be shared publicly. Saving under the same name updates the entry.
 quotation or configuration list – a PDF, a photograph, or pasted text – shows
 it, and matches every order number and type designation against the catalog
 into a review table with quantities to correct before loading. A text PDF or
-pasted text is read exactly, with no AI involved; a photograph or a scanned
-PDF is read by the AI the page can call on claude.ai (*Scan with AI*, at the
-viewer's say-so and on the viewer's account). Lines the catalog does not
-carry are listed rather than dropped. The PDF renderer loads from a CDN on
-the first PDF; nothing else is fetched.
+pasted text is read exactly, with no AI involved. A photograph, a screenshot
+or a scanned PDF is read in the page by an OCR engine (*Read the image*;
+Tesseract, fetched from a CDN on first use), which puts the usual slips in
+numbers and codes right and leaves the text in the box to correct; on
+claude.ai the page can also hand the picture to Claude (*Scan with AI*, at the
+viewer's say-so and on the viewer's account). Lines the catalog does not carry
+are listed rather than dropped. Nothing is fetched until a PDF or a picture
+is read.
 
 **Shows the instrument, not a list of checkboxes.** Two views of it, switched
 with *Photo* / *Schematic*, either face, either one enlarged.

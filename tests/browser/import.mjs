@@ -34,6 +34,16 @@ const HOST = `
   });
   sample.limits = async () => ({ maxPromptBytes: 65536, images: { maxCount: 2, maxInputBytes: 20e6, mediaTypes: ['image/png', 'image/jpeg'] } });
   window.claude = { use: name => new Promise(r => setTimeout(() => r(name === 'sample' ? sample : null), 40)) };
+  window.__ocr = { calls: 0 };
+  window.Tesseract = { createWorker: async (lang, oem, opts) => ({
+    async recognize () {
+      window.__ocr.calls++;
+      opts.logger?.({ status: 'recognizing text', progress: 0.5 });
+      await new Promise(r => setTimeout(r, 120));
+      return { data: { text: '1.2 Frequency range 100 kHz to 20 GHz SMW-B1O2O 1428.51O7.O2 1 111,295.00\\n1.5 Wideband baseband generator SMW-B9 1413.735O.O2 2 87,100.00' } };
+    },
+    async terminate () { window.__ocr.terminated = true; }
+  }) };
   const run = (str, x, y, w) => ({ str, transform: [1, 0, 0, 1, x, y], width: w || str.length * 5, height: 9 });
   window.pdfjsLib = { GlobalWorkerOptions: {}, getDocument: () => ({ promise: Promise.resolve({ numPages: 1, getPage: async () => ({
     getTextContent: async () => ({ items: [
@@ -105,14 +115,28 @@ const rowsOf = p => p.locator('.import-table tbody tr');
     if (await p.inputValue('#config-name') !== 'Quotation 4711-2026') throw new Error('name is ' + await p.inputValue('#config-name'));
   });
 
-  await t('an image is shown, and the page says reading it needs the AI', async () => {
+  await t('an image is shown with Read the image on offer, and no AI without a host', async () => {
     await openImport(p);
     await p.setInputFiles('#import-file', { name: 'photo.png', mimeType: 'image/png', buffer: PNG });
     await p.waitForTimeout(300);
     if (!(await p.locator('#import-preview img').count())) throw new Error('no image shown');
+    if (!(await p.locator('#import-ocr').isVisible())) throw new Error('Read the image not offered');
     if (await p.locator('#import-scan').isVisible()) throw new Error('Scan with AI offered without a host');
     const st = await p.locator('#import-status').textContent();
-    if (!st.includes('claude.ai')) throw new Error('status says: ' + st);
+    if (!st.includes('runs here in the page')) throw new Error('status says: ' + st);
+    if (!(await p.locator('#import-load').isDisabled())) throw new Error('Replace enabled with nothing read');
+    await p.keyboard.press('Escape');
+  });
+
+  await t('a reader that cannot be fetched says so', async () => {
+    await openImport(p);
+    await p.evaluate(() => { window.Tesseract = { createWorker: async () => { throw new TypeError('Failed to fetch'); } }; });
+    await p.setInputFiles('#import-file', { name: 'photo.png', mimeType: 'image/png', buffer: PNG });
+    await p.waitForTimeout(300);
+    await p.click('#import-ocr');
+    await p.waitForTimeout(400);
+    const st = await p.locator('#import-status').textContent();
+    if (!st.includes('could not be fetched')) throw new Error('status says: ' + st);
     if (!(await p.locator('#import-load').isDisabled())) throw new Error('Replace enabled with nothing read');
     await p.keyboard.press('Escape');
   });
@@ -134,6 +158,31 @@ const rowsOf = p => p.locator('.import-table tbody tr');
 /* --------------------------------------------------------- with a host */
 {
   const { ctx, p, errs } = await page(true);
+
+  await t('Read the image reads a picture in the page, corrects the slips, and fills the text box', async () => {
+    await openImport(p);
+    await p.setInputFiles('#import-file', { name: 'photo.png', mimeType: 'image/png', buffer: PNG });
+    await p.waitForTimeout(300);
+    if (!(await p.locator('#import-ocr').isVisible())) throw new Error('Read the image not offered');
+    await p.click('#import-ocr');
+    await p.waitForTimeout(60);
+    if (!(await p.locator('#import-stop').isVisible())) throw new Error('no Stop while reading');
+    await p.waitForTimeout(500);
+    const ocr = await p.evaluate(() => window.__ocr);
+    if (ocr.calls !== 1 || !ocr.terminated) throw new Error('engine use: ' + JSON.stringify(ocr));
+    const got = {};
+    for (const row of await rowsOf(p).all()) {
+      const cells = await row.locator('td').allTextContents();
+      got[cells[2].trim()] = await row.locator('input').inputValue();
+    }
+    if (got['1428.5107.02'] !== '1' || got['1413.7350.02'] !== '2') throw new Error('read ' + JSON.stringify(got));
+    const box = await p.inputValue('#import-text');
+    if (!box.includes('SMW-B1020 1428.5107.02')) throw new Error('the corrected text is not in the box: ' + box.slice(0, 80));
+    const st = await p.locator('#import-status').textContent();
+    if (!st.includes('check the quantities')) throw new Error('status says: ' + st);
+    if (await p.locator('#import-load').isDisabled()) throw new Error('Replace still disabled');
+    await p.keyboard.press('Escape');
+  });
 
   await t('with a host, an image can be scanned and the result added to the configuration', async () => {
     await openImport(p);
@@ -167,7 +216,8 @@ const rowsOf = p => p.locator('.import-table tbody tr');
       got[cells[2].trim()] = await row.locator('input').inputValue();
     }
     if (got['1428.4800.02'] !== '2' || got['1413.3003.02'] !== '1') throw new Error('read ' + JSON.stringify(got));
-    if (!(await p.locator('#import-scan').isVisible())) throw new Error('Scan with AI not offered for a rendered page');
+    // the text layer settled it, so neither picture reader is offered
+    if (await p.locator('#import-scan').isVisible() || await p.locator('#import-ocr').isVisible()) throw new Error('a picture reader offered for a page whose text was read');
     await p.click('#import-load');
     await p.waitForTimeout(600);
     const hash = await p.evaluate(() => location.hash);

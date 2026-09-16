@@ -11,10 +11,11 @@
  * PDF's text layer, text pasted from an email, or the line items an AI read
  * off a photographed page - so they all end in the same review table.
  *
- * Nothing here is loaded until it is used: the PDF renderer comes from a CDN
- * on the first PDF, and the AI is the host's, offered only where the host
- * has one (the `sample` capability on claude.ai). A static copy of the page
- * still reads pasted text and shows an uploaded image.
+ * Nothing here is loaded until it is used: the PDF renderer and the OCR
+ * engine come from a CDN on first use, and the AI is the host's, offered
+ * only where the host has one (the `sample` capability on claude.ai). A
+ * static copy of the page still reads pasted text, shows an uploaded image,
+ * and reads it with the OCR engine when it can fetch that.
  */
 
 import { OPTIONS, BASE_UNIT } from './catalog.js';
@@ -52,9 +53,11 @@ const NAME_RE = /(?:quotation|quote|offer|angebot|order confirmation|auftragsbes
 /**
  * What one line of a document says: the order numbers and type codes on it
  * and the quantity it carries. Quantity is read from the forms the documents
- * use - "2 x", "2 pcs", "Qty: 2", or the second of two leading columns (an
- * R&S quotation prints position and quantity before the type) - and is 1
- * where nothing says otherwise. The review table lets the reader correct it.
+ * use - "2 x", "2 pcs", "Qty: 2", the second of two leading columns (an R&S
+ * quotation prints position and quantity before the type), or the integer
+ * right after the order number (a distributor's quotation prints the part
+ * number, then the quantity, then the price) - and is 1 where nothing says
+ * otherwise. The review table lets the reader correct it.
  */
 export function readLine (raw) {
   const line = String(raw || '').replace(/\s+/g, ' ').trim();
@@ -77,6 +80,9 @@ export function readLine (raw) {
   else if ((m = rest.match(/\b(?:qty|quantity|menge|anzahl)\.?\s*[:#]?\s*(\d{1,3})\b/i))) qty = +m[1];
   else if ((m = rest.match(/^\s*(\d{1,3})\s+(\d{1,3})\s+#/))) qty = +m[2];
   else if ((m = rest.match(/^\s*(\d{1,3})\s+(\d{1,3})\s/))) qty = +m[2];
+  // "... 1413.7350.02 2 87,100.00": the quantity sits after the number, and a
+  // price never reads as one - it carries a decimal part
+  else if (orders.length && (m = rest.match(/#\s+(\d{1,3})\b(?![.,]\d)/))) qty = +m[1];
   if (!(qty >= 1 && qty <= 999)) qty = 1;
   return { line, orders, codes, qty };
 }
@@ -246,3 +252,78 @@ export async function readPdf (data, { render = 20, scale = 1.4, maxPages = 400 
 /** A page's rendering as an image file the AI accepts. */
 export const canvasToBlob = (canvas, type = 'image/png') =>
   new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('no image'))), type));
+
+/* ------------------------------------------------------------------ OCR */
+
+const TESSERACT = {
+  lib: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.esm.min.js',
+  worker: 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js',
+  core: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1',
+  lang: 'https://cdn.jsdelivr.net/npm/@tesseract.js-data/eng@1.0.0/4.0.0_best_int'
+};
+
+let tesseract = null;
+
+/** The OCR engine, from the host if it has one, else from the CDN on first use. */
+export async function loadTesseract () {
+  if (globalThis.Tesseract) return globalThis.Tesseract;
+  if (!tesseract) {
+    tesseract = import(/* @vite-ignore */ TESSERACT.lib)
+      .then(m => m.default || m)
+      .catch(err => { tesseract = null; throw err; });
+  }
+  return tesseract;
+}
+
+/**
+ * What OCR gets wrong in the tokens that matter: a 0 read as O, a 1 as I
+ * or l, a 5 as S, inside an order number or the digits of a type code,
+ * and a comma for the dot between the groups. Prose is left alone.
+ */
+export function normalizeOcr (text) {
+  const digits = s => s.replace(/[Oo]/g, '0').replace(/[Il|]/g, '1').replace(/S/g, '5');
+  return String(text || '')
+    .replace(/\b([0-9OoIl|S]{4})\s?[.,\u00b7]\s?([0-9OoIl|S]{4})\s?[.,\u00b7]\s?([0-9OoIl|S]{2})\b/g,
+      (m, a, b, c) => `${digits(a)}.${digits(b)}.${digits(c)}`)
+    .replace(/\b([BK])([0-9OoIl|S]{1,4})([A-Z]{0,2})\b/g, (m, k, d, suf) => k + digits(d) + suf);
+}
+
+/* A photographed page reads best at about 300 dpi; a screenshot's 10 px
+   type does not. Small sources are drawn larger before they are read. */
+async function enlarge (source, minWidth = 1800, maxWidth = 4000) {
+  if (typeof document === 'undefined') return source;
+  const bitmap = source instanceof HTMLCanvasElement ? source : await createImageBitmap(source);
+  const scale = Math.min(maxWidth / bitmap.width, Math.max(1, minWidth / bitmap.width));
+  if (scale <= 1.01) return source;
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+/**
+ * Reads the text off an image - a File, a Blob or a canvas - in the page.
+ * `onProgress` gets 0..1 while it reads; `signal` stops it. Resolves the
+ * text with the OCR slips in numbers and codes put right.
+ */
+export async function ocrImage (source, { onProgress, signal } = {}) {
+  const T = await loadTesseract();
+  if (signal?.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' });
+  const worker = await T.createWorker('eng', 1, {
+    workerPath: TESSERACT.worker, corePath: TESSERACT.core, langPath: TESSERACT.lang,
+    logger: m => { if (onProgress && m.status === 'recognizing text') onProgress(m.progress || 0); }
+  });
+  const stop = () => worker.terminate();
+  signal?.addEventListener('abort', stop, { once: true });
+  try {
+    const { data } = await worker.recognize(await enlarge(source));
+    if (signal?.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' });
+    return normalizeOcr(data?.text || '');
+  } finally {
+    signal?.removeEventListener('abort', stop);
+    await worker.terminate().catch(() => {});
+  }
+}

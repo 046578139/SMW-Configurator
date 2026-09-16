@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { readLine, readText, readAI, textLines, AI_PROMPT } from '../assets/js/import.js';
+import { readLine, readText, readAI, textLines, normalizeOcr, AI_PROMPT } from '../assets/js/import.js';
 import { OPTIONS, BY_ID, BASE_UNIT } from '../assets/js/catalog.js';
 
 const QUOTE = `Rohde & Schwarz GmbH & Co. KG
@@ -81,6 +81,13 @@ test('quantities are read from the forms documents use, and default to one', () 
   assert.equal(q('R&S SMW-K22 1413.4306.02 250.00 250.00'), 1);   // prices are not quantities
   assert.equal(q('R&S SMW-B1003 1428.4700.02'), 1);
   assert.equal(q('1000 x SMW-B9'), 1);                        // out of range reads as one
+  // a distributor's layout: item, description, model, part number, quantity, price
+  assert.equal(q('1.5 Wideband baseband generator, 500 MHz, 256 MS (HW opt.) SMW-B9 1413.7350.02 2 87,100.00'), 2);
+  assert.equal(q('1.14 Fading Simulator and signal processor (HW opt.) SMW-B15 1414.4710.02 4 135,140.00'), 4);
+  assert.equal(q('1.1 Vector signal generator, base unit SMW200A 1412.0000.02 1 6,075.00'), 1);
+  assert.equal(q('SMW-K22 1413.4306.02 250.00'), 1);          // a price after the number is not a quantity
+  assert.equal(q('SMW-K22 1413.4306.02 10,000.00 10,000.00'), 1);
+  assert.equal(q('SMW-K22 1413.4306.02 2'), 2);
   assert.equal(readLine(''), null);
   assert.equal(readLine('nothing here').orders.length, 0);
 });
@@ -123,6 +130,18 @@ test('what an AI transcribes is read by the same rules', () => {
   assert.deepEqual(readAI(null).items, []);
   assert.match(AI_PROMPT, /JSON array/);
   assert.match(AI_PROMPT, /dddd\.dddd\.dd/);
+});
+
+test('what OCR gets wrong in numbers and codes is put right, and prose is left alone', () => {
+  assert.equal(normalizeOcr('SMW-B1O2O 1428.51O7.O2'), 'SMW-B1020 1428.5107.02');
+  assert.equal(normalizeOcr('SMW-KSO3 1414,362O,O2'), 'SMW-K503 1414.3620.02');
+  assert.equal(normalizeOcr('SMW-BI3XT 1413 . 8005 . 02'), 'SMW-B13XT 1413.8005.02');
+  assert.equal(normalizeOcr('Blue sky, BIT, 16.09.2026, 10,000.00'), 'Blue sky, B1T, 16.09.2026, 10,000.00');
+  assert.equal(normalizeOcr(''), '');
+  assert.equal(normalizeOcr(null), '');
+  // and the reader then settles the corrected line by its order number
+  const r = readText(normalizeOcr('1.2 Frequency range 100 kHz to 20 GHz SMW-B1O2O 1428.51O7.O2 1 111,295.00'));
+  assert.deepEqual(r.items.map(i => [i.id, i.qty, i.via]), [['B1020', 1, 'order']]);
 });
 
 test('a page\'s text runs are joined into lines by baseline, with columns kept apart', () => {
