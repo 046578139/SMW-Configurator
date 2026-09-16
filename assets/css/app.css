@@ -624,7 +624,10 @@ a { color: var(--accent); }
 }
 .import-text:focus { outline: none; border-color: var(--accent); box-shadow: var(--glow); }
 .import-tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.import-status { font-size: 11.5px; color: var(--text-faint); flex: 1; min-width: 0; line-height: 1.4; }
+/* the status line takes a full row of its own under the buttons, never the
+   sliver left beside them */
+.import-status { font-size: 11.5px; color: var(--text-faint); flex: 1 1 100%; min-width: 0; line-height: 1.45; }
+.import-status:empty { display: none; }
 .import-note { flex: 1; font-size: 11.5px; color: var(--text-faint); align-self: center; line-height: 1.4; }
 .import-out { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .import-preview { display: flex; flex-direction: column; gap: 10px; max-height: 320px; overflow: auto; }
