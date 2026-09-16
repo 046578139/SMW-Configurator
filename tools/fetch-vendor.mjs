@@ -50,11 +50,12 @@ for (const [rel, url] of Object.entries(VENDOR.files)) {
   total += size;
   console.log(`${(size / 1024).toFixed(0).padStart(6)} kB  ${rel}`);
 }
-/* A host that serves files by extension may not serve .gz; the engine asks for
-   <langPath>/eng.traineddata.gz and detects gzip by its first bytes, so a copy
-   under a served name is what the page points it at (import.js). */
-copyFileSync(resolve(out, 'tesseract/eng.traineddata.gz'), resolve(out, 'tesseract/eng.traineddata.gz.txt'));
+/* A host that serves files by extension may not serve .gz, and checks a text
+   name for text; the engine asks for <langPath>/eng.traineddata.gz and tells
+   gzip by its first bytes, so a copy under a served binary name is what the
+   page points it at (import.js). */
+copyFileSync(resolve(out, 'tesseract/eng.traineddata.gz'), resolve(out, 'tesseract/eng.traineddata.gz.wasm'));
 writeFileSync(resolve(out, 'manifest.json'), JSON.stringify({
-  tesseract: VENDOR.tesseract, pdfjs: VENDOR.pdfjs, files: [...Object.keys(VENDOR.files), 'tesseract/eng.traineddata.gz.txt']
+  tesseract: VENDOR.tesseract, pdfjs: VENDOR.pdfjs, files: [...Object.keys(VENDOR.files), 'tesseract/eng.traineddata.gz.wasm']
 }, null, 2) + '\n');
 console.log(`${(total / 1024 / 1024).toFixed(1)} MB in ${out}`);
