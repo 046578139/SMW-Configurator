@@ -17,7 +17,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -50,7 +50,11 @@ for (const [rel, url] of Object.entries(VENDOR.files)) {
   total += size;
   console.log(`${(size / 1024).toFixed(0).padStart(6)} kB  ${rel}`);
 }
+/* A host that serves files by extension may not serve .gz; the engine asks for
+   <langPath>/eng.traineddata.gz and detects gzip by its first bytes, so a copy
+   under a served name is what the page points it at (import.js). */
+copyFileSync(resolve(out, 'tesseract/eng.traineddata.gz'), resolve(out, 'tesseract/eng.traineddata.gz.txt'));
 writeFileSync(resolve(out, 'manifest.json'), JSON.stringify({
-  tesseract: VENDOR.tesseract, pdfjs: VENDOR.pdfjs, files: Object.keys(VENDOR.files)
+  tesseract: VENDOR.tesseract, pdfjs: VENDOR.pdfjs, files: [...Object.keys(VENDOR.files), 'tesseract/eng.traineddata.gz.txt']
 }, null, 2) + '\n');
 console.log(`${(total / 1024 / 1024).toFixed(1)} MB in ${out}`);

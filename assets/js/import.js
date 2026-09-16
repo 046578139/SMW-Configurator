@@ -350,9 +350,13 @@ let tesseract = null;
 /** Where the engine's files are: the page's own copies when published with it, else the CDN. */
 async function tesseractPaths () {
   const base = await vendorBase();
+  /* The engine asks for <langPath>/eng.traineddata.gz. A host that serves
+     files by extension may not serve .gz, so the copy carries a served name
+     and the path ends in a fragment: the fetch drops what follows it, and the
+     engine tells gzip by the first bytes, not by the name. */
   return base
     ? { lib: base + 'tesseract/tesseract.esm.min.js', worker: base + 'tesseract/worker.min.js',
-        core: base + 'tesseract', lang: base + 'tesseract' }
+        core: base + 'tesseract', lang: base + 'tesseract/eng.traineddata.gz.txt#' }
     : TESSERACT;
 }
 
