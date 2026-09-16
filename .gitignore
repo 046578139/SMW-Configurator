@@ -10,3 +10,4 @@ tests/browser/out/
 
 # python bytecode from tools/vendor
 __pycache__/
+vendor/

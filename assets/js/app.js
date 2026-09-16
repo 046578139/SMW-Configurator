@@ -780,7 +780,8 @@ document.addEventListener('click', ev => {
 });
 
 document.addEventListener('keydown', ev => {
-  if (ev.key === '/' && document.activeElement.tagName !== 'INPUT') {
+  const typing = /^(INPUT|TEXTAREA)$/.test(document.activeElement?.tagName) || document.activeElement?.isContentEditable;
+  if (ev.key === '/' && !typing) {
     ev.preventDefault(); $('#search').focus();
   }
   if (ev.key === 'Escape') {
@@ -1017,6 +1018,7 @@ async function takeImportFile (f) {
   }
   // anything else is taken as text
   const text = await f.text();
+  if (imp.file !== f) return;                         // another file came in meanwhile
   const box = $('#import-text');
   if (box) box.value = text.slice(0, 200000);
   preview.innerHTML = '';
@@ -1075,16 +1077,16 @@ const importErrorOf = err => err?.code || (/Failed to fetch|import|network|load/
    happening and the reading can be stopped. */
 async function ocrImport () {
   const ocr = $('#import-ocr'), scan = $('#import-scan'), stop = $('#import-stop');
-  if (!ocr) return;
+  if (!ocr || imp.busy) return;
   const isImage = !!imp.file?.type.startsWith('image/');
   const sources = isImage ? [imp.file] : imp.pages.filter(p => p.canvas).map(p => p.canvas);
   if (!sources.length) return;
   const MAX = 5;
   if (sources.length > MAX) toast(`Reading the first ${MAX} pages; paste the rest as text if needed`);
 
-  imp.ctl?.abort();
   const ctl = new AbortController();
   imp.ctl = ctl;
+  imp.busy = true;
   ocr.disabled = true; scan.disabled = true; stop.hidden = false;
   importStatus('Loading the reader…');
   try {
@@ -1110,6 +1112,7 @@ async function ocrImport () {
       : `The image could not be read here. ${other}`);
   } finally {
     if (imp.ctl === ctl) imp.ctl = null;
+    imp.busy = false;
     ocr.disabled = false; scan.disabled = false; stop.hidden = true;
   }
 }
@@ -1179,7 +1182,19 @@ const importErrorText = code => ({
 async function scanImport () {
   const host = imp.ai;
   const scan = $('#import-scan'), stop = $('#import-stop'), ocr = $('#import-ocr');
-  if (!host || !scan) return;
+  if (!host || !scan || imp.busy) return;
+  // busy from the first moment: preparing the pages already takes a while
+  const ctl = new AbortController();
+  imp.ctl = ctl;
+  imp.busy = true;
+  scan.disabled = true; if (ocr) ocr.disabled = true;
+  stop.hidden = false;
+  const idle = () => {
+    if (imp.ctl === ctl) imp.ctl = null;
+    imp.busy = false;
+    scan.disabled = false; if (ocr) ocr.disabled = false;
+    stop.hidden = true;
+  };
   let images;
   try {
     if (imp.file?.type.startsWith('image/')) {
@@ -1190,14 +1205,9 @@ async function scanImport () {
       images = await Promise.all(canvases.slice(0, max).map(c => canvasToBlob(c)));
       if (canvases.length > max) toast(`Only the first ${max} page${max === 1 ? '' : 's'} can be scanned at once`);
     }
-  } catch { importStatus('The pages could not be prepared for scanning.'); return; }
-  if (!images?.length) return;
+  } catch { importStatus('The pages could not be prepared for scanning.'); idle(); return; }
+  if (!images?.length || ctl.signal.aborted) { idle(); return; }
 
-  imp.ctl?.abort();
-  const ctl = new AbortController();
-  imp.ctl = ctl;
-  scan.disabled = true; if (ocr) ocr.disabled = true;
-  stop.hidden = false;
   importStatus('Reading the document… this can take up to a minute.');
   try {
     const items = await host.json(AI_PROMPT, { images, signal: ctl.signal, modelTier: 'default' });
@@ -1216,9 +1226,7 @@ async function scanImport () {
       scan.hidden = true;
     }
   } finally {
-    if (imp.ctl === ctl) imp.ctl = null;
-    scan.disabled = false; if (ocr) ocr.disabled = false;
-    stop.hidden = true;
+    idle();
   }
 }
 

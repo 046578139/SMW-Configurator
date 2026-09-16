@@ -25,6 +25,7 @@ const HOST = `
   sample.json = (input, opts) => new Promise((resolve, reject) => {
     window.__ai.calls++; window.__ai.images = (opts.images || []).length; window.__ai.prompt = input;
     if (opts.signal?.aborted) return reject({ code: 'cancelled', message: 'aborted' });
+    opts.signal?.addEventListener('abort', () => { window.__ai.aborted = (window.__ai.aborted || 0) + 1; reject({ code: 'cancelled', message: 'aborted' }); });
     setTimeout(() => resolve([
       { type: 'R&S SMW-B1003', order: null, qty: 1, designation: '100 kHz to 3 GHz' },
       { type: 'R&S SMW-B13', order: null, qty: 1 },
@@ -193,6 +194,12 @@ const rowsOf = p => p.locator('.import-table tbody tr');
   });
 
   await t('with a host, an image can be scanned and the result added to the configuration', async () => {
+    // B10 is already at three here and K62 is not on the document: Add must keep both
+    await p.goto(`${BASE}/index.html#c=B1003.B13.B10*3.K62`);
+    await p.reload();
+    await p.waitForTimeout(600);
+    await p.fill('#config-name', 'Bench rig');
+    await p.locator('#config-name').press('Tab');
     await openImport(p);
     await p.setInputFiles('#import-file', { name: 'photo.png', mimeType: 'image/png', buffer: PNG });
     await p.waitForTimeout(300);
@@ -208,7 +215,9 @@ const rowsOf = p => p.locator('.import-table tbody tr');
     await p.click('#import-merge');
     await p.waitForTimeout(600);
     const hash = await p.evaluate(() => location.hash);
-    for (const s of ['B1003', 'B13', 'B10*2', 'ADP-292F*3']) if (!hash.includes(s)) throw new Error(s + ' missing from ' + hash);
+    for (const s of ['B1003', 'B13', 'B10*3', 'K62', 'ADP-292F*3']) if (!hash.includes(s)) throw new Error(s + ' missing from ' + hash);
+    if (hash.includes('B10*2')) throw new Error('Add lowered a quantity: ' + hash);
+    if (await p.inputValue('#config-name') !== 'Bench rig') throw new Error('Add renamed the configuration');
   });
 
   await t('a PDF is rendered page by page and its text read on arrival', async () => {
@@ -263,11 +272,15 @@ const rowsOf = p => p.locator('.import-table tbody tr');
     await p.waitForTimeout(300);
     const st = await p.locator('#import-status').textContent();
     if (await rowsOf(p).count()) throw new Error('a stopped reading still produced rows');
-    if (!/Stopped|Reading/.test(st)) throw new Error('status: ' + st);
+    if (st !== 'Stopped.') throw new Error('status: ' + st);
+    if ((await p.evaluate(() => window.__ai.aborted)) !== 1) throw new Error('the AI call was not told to stop');
+    if (await p.locator('#import-scan').isDisabled()) throw new Error('Scan still disabled after Stop');
     await p.click('#import-scan');
+    await p.waitForTimeout(20);
     await p.keyboard.press('Escape');
     await p.waitForTimeout(300);
     if (await p.locator('.scrim').count()) throw new Error('Escape did not close the dialog');
+    if ((await p.evaluate(() => window.__ai.aborted)) !== 2) throw new Error('closing the dialog did not stop the call');
   });
 
   if (errs.length) { console.log('FAIL JS errors: ' + [...new Set(errs)].join(' | ')); fail++; }

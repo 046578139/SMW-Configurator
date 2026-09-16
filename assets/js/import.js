@@ -50,41 +50,87 @@ const NAME_RE = /(?:quotation|quote|offer|angebot|order confirmation|auftragsbes
 
 /* ------------------------------------------------------------ one line */
 
+/* What may stand before a quantity's digit: not another digit or a decimal
+   mark (a price), and not a letter - "DVB-S2X" is a designation, not two of
+   something. */
+const QTY_LOCAL_BEFORE = /(?<![\dA-Za-z.,\/-])(\d{1,3})\s*[x×]\s*$/i;
+const QTY_LOCAL_AFTER = /^\s*(\d{1,3})\s*(?:pcs?|pieces?|units?|ea|st(?:k|ück)?)\b/i;
+const QTY_EXPLICIT = /\b(?:qty|quantity|menge|anzahl)\.?\s*[:#]?\s*(\d{1,3})\b/i;
+const QTY_COLUMNS = /^\s*(\d{1,3})\s+(\d{1,3})\s+(?=#|\S)/;
+const QTY_AFTER_ORDER = /#+\s+(\d{1,3})\b(?![.,]\d)/;
+
 /**
- * What one line of a document says: the order numbers and type codes on it
- * and the quantity it carries. Quantity is read from the forms the documents
- * use - "2 x", "2 pcs", "Qty: 2", the second of two leading columns (an R&S
- * quotation prints position and quantity before the type), or the integer
- * right after the order number (a distributor's quotation prints the part
- * number, then the quantity, then the price) - and is 1 where nothing says
- * otherwise. The review table lets the reader correct it.
+ * What one line of a document says: the items on it - order numbers and type
+ * codes, in order of appearance, each with its own quantity - and, for a
+ * line that carries one item, the quantity read from the line as a whole.
+ *
+ * A quantity next to an item belongs to that item alone: "2 x R&S SMW-B10"
+ * in a summary sentence raises B10, not the options named beside it. A line
+ * with one item also takes "Qty: 2", the second of two leading columns (an
+ * R&S quotation prints position and quantity before the type), or the
+ * integer right after the order number (a distributor prints part number,
+ * quantity, price). Everything else is 1; the review table lets the reader
+ * correct it.
+ *
+ * A type code with no "R&S" or "SMW-" in front of it counts only when it is
+ * four characters or more: "B15 2TT" is a postcode, "Hall B13" a venue.
  */
 export function readLine (raw) {
   const line = String(raw || '').replace(/\s+/g, ' ').trim();
   if (!line) return null;
 
-  const orders = [];
-  let rest = line.replace(ORDER_RE, (m, a, b, c) => { orders.push(`${a}.${b}.${c}`); return ' # '; });
-  const codes = [];
-  rest = rest.replace(CODE_RE, (m, code) => {
-    const exact = [...BY_CODE.keys()].find(k => k.toLowerCase() === code.toLowerCase());
-    if (exact) codes.push(exact);
-    return ' # ';
-  });
-  if (!orders.length && !codes.length) return { line, orders, codes, qty: 1 };
+  const spans = [];
+  for (const m of line.matchAll(ORDER_RE)) {
+    spans.push({ kind: 'order', value: `${m[1]}.${m[2]}.${m[3]}`, start: m.index, end: m.index + m[0].length });
+  }
+  for (const m of line.matchAll(CODE_RE)) {
+    const start = m.index, end = m.index + m[0].length;
+    if (spans.some(x => start < x.end && end > x.start)) continue;
+    const exact = [...BY_CODE.keys()].find(k => k.toLowerCase() === m[1].toLowerCase());
+    if (!exact) continue;
+    const prefixed = /^(?:R\s*&|SMW)/i.test(m[0]);
+    if (!prefixed && exact.length < 4) continue;
+    spans.push({ kind: 'code', value: exact, start, end });
+  }
+  spans.sort((a, b) => a.start - b.start);
+  if (!spans.length) return { line, orders: [], codes: [], qty: 1, items: [] };
 
+  /* the items blanked out, same length, so positions still hold */
+  let rest = line;
+  for (const x of spans) rest = rest.slice(0, x.start) + '#'.repeat(x.end - x.start) + rest.slice(x.end);
+
+  const local = x => {
+    const before = rest.slice(0, x.start).replace(/[\s#]+$/, '');
+    let m = before.match(QTY_LOCAL_BEFORE);
+    if (m) return +m[1];
+    const after = rest.slice(x.end);
+    m = after.match(QTY_LOCAL_AFTER);
+    return m ? +m[1] : 0;
+  };
+  const items = spans.map(x => ({ kind: x.kind, value: x.value, qty: local(x) }));
+
+  /* one item on the line: the line's own quantity forms apply */
+  const orders = items.filter(i => i.kind === 'order');
+  const single = orders.length === 1 ? orders[0] : (!orders.length && items.length === 1 ? items[0] : null);
   let qty = 1;
-  let m;
-  if ((m = rest.match(/(?<![\d.,])(\d{1,3})\s*[x×]\s*(?:#|$)/i))) qty = +m[1];
-  else if ((m = rest.match(/(?<![\d.,])(\d{1,3})\s*(?:pcs?|pieces?|units?|ea|st(?:k|ück)?)\b/i))) qty = +m[1];
-  else if ((m = rest.match(/\b(?:qty|quantity|menge|anzahl)\.?\s*[:#]?\s*(\d{1,3})\b/i))) qty = +m[1];
-  else if ((m = rest.match(/^\s*(\d{1,3})\s+(\d{1,3})\s+#/))) qty = +m[2];
-  else if ((m = rest.match(/^\s*(\d{1,3})\s+(\d{1,3})\s/))) qty = +m[2];
-  // "... 1413.7350.02 2 87,100.00": the quantity sits after the number, and a
-  // price never reads as one - it carries a decimal part
-  else if (orders.length && (m = rest.match(/#\s+(\d{1,3})\b(?![.,]\d)/))) qty = +m[1];
-  if (!(qty >= 1 && qty <= 999)) qty = 1;
-  return { line, orders, codes, qty };
+  if (single) {
+    let m;
+    if ((m = rest.match(QTY_EXPLICIT))) qty = +m[1];
+    else if (single.qty) qty = single.qty;
+    else if ((m = rest.match(QTY_COLUMNS))) qty = +m[2];
+    else if (orders.length && (m = rest.match(QTY_AFTER_ORDER))) qty = +m[1];
+    if (!(qty >= 1 && qty <= 999)) qty = 1;
+    for (const it of items) if (it.kind === single.kind && it.value === single.value) it.qty = qty;
+  }
+  for (const it of items) if (!(it.qty >= 1 && it.qty <= 999)) it.qty = 1;
+
+  return {
+    line,
+    orders: orders.map(i => i.value),
+    codes: items.filter(i => i.kind === 'code').map(i => i.value),
+    qty: single ? qty : (items[0]?.qty || 1),
+    items
+  };
 }
 
 /* ------------------------------------------------------- the document */
@@ -95,11 +141,17 @@ export function readLine (raw) {
  * catalog does not carry, with a word on why; base says whether the base
  * unit was on the document.
  *
- * An option named on several lines is one item at the largest quantity
- * seen, not the sum: a quotation that repeats its items in a summary, or a
- * guide that mentions an option in every rule, is describing it again, not
- * ordering it again - two of something is printed as a quantity of two. A
- * line settled by order number outranks one that only names the code.
+ * A line with an order number is settled by that number, right or wrong: a
+ * number the catalog lacks is listed, and the type code beside it is not
+ * taken instead - a timed licence printed with the perpetual option's code
+ * must not import as the perpetual option. Codes alone settle a line only
+ * where the code maps to one option.
+ *
+ * An option named on several lines is one item: the line that carries its
+ * order number has the say on the quantity; among lines that only name the
+ * code, the largest quantity stands. A quotation that repeats its items in
+ * a summary, or a guide that mentions an option in every rule, is
+ * describing it again, not ordering it again.
  */
 export function readText (text) {
   const items = new Map();
@@ -108,26 +160,29 @@ export function readText (text) {
   const add = (id, qty, via, line) => {
     const cur = items.get(id);
     if (!cur) { items.set(id, { id, qty, via, line }); return; }
+    if (via === 'order' && cur.via !== 'order') { Object.assign(cur, { qty, via, line }); return; }
+    if (via === 'code' && cur.via === 'order') return;
     if (qty > cur.qty) { cur.qty = qty; cur.line = line; }
-    if (via === 'order' && cur.via !== 'order') { cur.via = 'order'; cur.line = line; }
   };
 
   for (const raw of String(text || '').split(/\r?\n/)) {
     const r = readLine(raw);
-    if (!r || (!r.orders.length && !r.codes.length)) continue;
-    let settled = false;
-    for (const order of r.orders) {
-      if (order === BASE_UNIT.order) { base = true; settled = true; continue; }
-      const id = BY_ORDER.get(order);
-      if (id) { add(id, r.qty, 'order', r.line); settled = true; }
-      else unknown.push({ line: r.line, order, why: `order number ${order} is not in the catalog` });
+    if (!r || !r.items.length) continue;
+    const orders = r.items.filter(i => i.kind === 'order');
+    if (orders.length) {
+      for (const it of orders) {
+        if (it.value === BASE_UNIT.order) { base = true; continue; }
+        const id = BY_ORDER.get(it.value);
+        if (id) add(id, it.qty, 'order', r.line);
+        else unknown.push({ line: r.line, order: it.value, why: `order number ${it.value} is not in the catalog` });
+      }
+      continue;
     }
-    if (settled) continue;
-    for (const code of r.codes) {
-      const ids = BY_CODE.get(code) || [];
-      if (ids.length === 1) { add(ids[0], r.qty, 'code', r.line); settled = true; }
+    for (const it of r.items) {
+      const ids = BY_CODE.get(it.value) || [];
+      if (ids.length === 1) add(ids[0], it.qty, 'code', r.line);
       else if (ids.length > 1) {
-        unknown.push({ line: r.line, code, why: `${code} covers ${ids.length} order numbers; the number is needed to tell them apart` });
+        unknown.push({ line: r.line, code: it.value, why: `${it.value} covers ${ids.length} order numbers; the number is needed to tell them apart` });
       }
     }
   }
@@ -163,6 +218,31 @@ export function readAI (items) {
   return readText(lines.join('\n'));
 }
 
+/* --------------------------------------------------- where the files are */
+
+/* Same-origin copies of the third-party files, when the page was published
+   with them (tools/fetch-vendor.mjs): a host may let a script in from a CDN
+   and still block a worker's fetch from one - the OCR language data is
+   fetched, not scripted - and its own origin is quicker besides. Looked for
+   once, next to the page; a static copy of the page has none and uses the
+   CDN. */
+let vendorPromise = null;
+export function vendorBase () {
+  if (!vendorPromise) {
+    vendorPromise = (async () => {
+      if (typeof location === 'undefined' || !/^https?:$/.test(location.protocol)) return null;
+      const base = new URL('vendor/', location.href).href;
+      try {
+        const r = await fetch(base + 'manifest.json', { cache: 'force-cache' });
+        if (!r.ok) return null;
+        const m = await r.json();
+        return m && m.tesseract && m.pdfjs ? base : null;
+      } catch { return null; }
+    })();
+  }
+  return vendorPromise;
+}
+
 /* ----------------------------------------------------------------- PDFs */
 
 const PDFJS = {
@@ -172,14 +252,17 @@ const PDFJS = {
 
 let pdfjs = null;
 
-/** The renderer, from the host if it has one, else from the CDN on first use. */
+/** The renderer, from the host if it has one, else the page's own copy, else the CDN. */
 export async function loadPdfJs () {
   if (globalThis.pdfjsLib) return globalThis.pdfjsLib;
   if (!pdfjs) {
-    pdfjs = import(/* @vite-ignore */ PDFJS.lib).then(lib => {
-      lib.GlobalWorkerOptions.workerSrc = PDFJS.worker;
+    pdfjs = (async () => {
+      const base = await vendorBase();
+      const paths = base ? { lib: base + 'pdfjs/pdf.min.mjs', worker: base + 'pdfjs/pdf.worker.min.mjs' } : PDFJS;
+      const lib = await import(/* @vite-ignore */ paths.lib);
+      lib.GlobalWorkerOptions.workerSrc = paths.worker;
       return lib;
-    }).catch(err => { pdfjs = null; throw err; });
+    })().catch(err => { pdfjs = null; throw err; });
   }
   return pdfjs;
 }
@@ -264,11 +347,21 @@ const TESSERACT = {
 
 let tesseract = null;
 
-/** The OCR engine, from the host if it has one, else from the CDN on first use. */
+/** Where the engine's files are: the page's own copies when published with it, else the CDN. */
+async function tesseractPaths () {
+  const base = await vendorBase();
+  return base
+    ? { lib: base + 'tesseract/tesseract.esm.min.js', worker: base + 'tesseract/worker.min.js',
+        core: base + 'tesseract', lang: base + 'tesseract' }
+    : TESSERACT;
+}
+
+/** The OCR engine, from the host if it has one, else the page's own copy, else the CDN. */
 export async function loadTesseract () {
   if (globalThis.Tesseract) return globalThis.Tesseract;
   if (!tesseract) {
-    tesseract = import(/* @vite-ignore */ TESSERACT.lib)
+    tesseract = tesseractPaths()
+      .then(paths => import(/* @vite-ignore */ paths.lib))
       .then(m => m.default || m)
       .catch(err => { tesseract = null; throw err; });
   }
@@ -332,8 +425,9 @@ export function warmOcr ({ onProgress, timeoutMs = 60000 } = {}) {
   if (!workerPromise) {
     workerPromise = (async () => {
       const T = await loadTesseract();
+      const paths = await tesseractPaths();
       const worker = await T.createWorker('eng', 1, {
-        workerPath: TESSERACT.worker, corePath: TESSERACT.core, langPath: TESSERACT.lang,
+        workerPath: paths.worker, corePath: paths.core, langPath: paths.lang,
         logger: report
       });
       return worker;

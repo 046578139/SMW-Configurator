@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { readLine, readText, readAI, textLines, normalizeOcr, ocrImage, warmOcr, resetOcr, AI_PROMPT } from '../assets/js/import.js';
-import { OPTIONS, BY_ID, BASE_UNIT } from '../assets/js/catalog.js';
+import { OPTIONS, BY_ID, BASE_UNIT, typeName } from '../assets/js/catalog.js';
 
 const QUOTE = `Rohde & Schwarz GmbH & Co. KG
 Quotation No. 4711-2026 Date 16.09.2026
@@ -90,6 +90,57 @@ test('quantities are read from the forms documents use, and default to one', () 
   assert.equal(q('SMW-K22 1413.4306.02 2'), 2);
   assert.equal(readLine(''), null);
   assert.equal(readLine('nothing here').orders.length, 0);
+});
+
+test('no designation in the catalog reads as a quantity, and "DVB-S2X" is not two of anything', () => {
+  // every option printed as a quotation line at quantity 1 must read as 1
+  for (const o of OPTIONS) {
+    const line = `3 1 ${o.code ? typeName(o.id) : ''} ${o.name} ${o.order} 1,000.00 1,000.00`;
+    const r = readLine(line);
+    assert.deepEqual(r.orders, [o.order], `${o.id}: ${line}`);
+    assert.equal(r.qty, 1, `${o.id}: ${line}`);
+  }
+  assert.equal(readLine('5 1 R&S®SMW-K116 DVB-S2/DVB-S2X 1414.2630.02 3,000.00 3,000.00').qty, 1);
+  assert.equal(readLine('R&S®SMW-K116 1414.2630.02 DVB-S2/DVB-S2X').qty, 1);
+  assert.equal(readAI([{ type: 'R&S SMW-K116', order: '1414.2630.02', qty: 1, designation: 'DVB-S2/S2X' }]).items[0].qty, 1);
+  // and an explicit quantity beats anything the designation could look like
+  assert.equal(readAI([{ type: 'R&S SMW-K116', order: null, qty: 3, designation: '2 x something' }]).items[0].qty, 3);
+});
+
+test('a quantity next to an item belongs to that item, not to the whole line', () => {
+  const r = readText('R&S SMW200A with R&S SMW-B1020, R&S SMW-B13T, 2 x R&S SMW-B10 and R&S SMW-K144, SMW-B9 4 pcs');
+  assert.deepEqual(Object.fromEntries(r.items.map(i => [i.id, i.qty])), { B1020: 1, B13T: 1, B10: 2, K144: 1, B9: 4 });
+  const line = readLine('2 x SMW-B10 and 3 x SMW-K144');
+  assert.deepEqual(line.items.map(i => [i.value, i.qty]), [['B10', 2], ['K144', 3]]);
+});
+
+test('the line with the order number has the say on a quantity; a mention never changes it', () => {
+  const r = readText(`2 1 R&S SMW-B1020 1428.5107.02
+4 2 R&S SMW-B10 1413.1200.02
+Configuration: R&S SMW-B1020, 2 x R&S SMW-B10, 5 x R&S SMW-B1020`);
+  assert.deepEqual(r.items.map(i => [i.id, i.qty, i.via]), [['B1020', 1, 'order'], ['B10', 2, 'order']]);
+  // the mention comes first: the order line still wins when it arrives
+  const s = readText(`5 x R&S SMW-B1020\n2 1 R&S SMW-B1020 1428.5107.02`);
+  assert.deepEqual(s.items.map(i => [i.id, i.qty, i.via]), [['B1020', 1, 'order']]);
+  // among mentions alone, the largest stands
+  assert.equal(readText('2 x SMW-B10\n3 x SMW-B10\nSMW-B10').items[0].qty, 3);
+});
+
+test('a short code with nothing in front of it is an address, not an option', () => {
+  const r = readText(`University of Birmingham, Edgbaston, Birmingham B15 2TT
+Messe München, Hall B13, Stand 210, Building B9, Gate K22, Solihull B90 4AA
+R&S SMW-B15 and SMW-B13 and K144 and B1044O`);
+  assert.deepEqual(r.items.map(i => i.id), ['B15', 'B13', 'K144', 'B1044O']);
+  assert.equal(readLine('B15 2TT').items.length, 0);
+  assert.equal(readLine('SMW-B15 2TT').items.length, 1);
+  assert.equal(readLine('R&S B15').items.length, 1);
+});
+
+test('a line whose order number the catalog lacks is listed, and its code is not taken instead', () => {
+  const r = readText('6 1 R&S®SMW-K144 5G NR (1 year licence) 1414.4990.71');
+  assert.equal(r.items.length, 0, 'the perpetual option was imported for a timed licence');
+  assert.equal(r.unknown.length, 1);
+  assert.match(r.unknown[0].why, /1414\.4990\.71/);
 });
 
 test('an order number is read with its dots spaced out or replaced', () => {

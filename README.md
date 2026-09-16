@@ -43,7 +43,10 @@ numbers and codes right and leaves the text in the box to correct; on
 claude.ai the page can also hand the picture to Claude (*Scan with AI*, at the
 viewer's say-so and on the viewer's account). Lines the catalog does not carry
 are listed rather than dropped. Nothing is fetched until a PDF or a picture
-is read.
+is read, and a deployment can serve those files itself: `node
+tools/fetch-vendor.mjs vendor` puts the engine and the renderer next to
+`index.html` (about 13 MB, not committed), the page uses them when they are
+there and the CDN when not.
 
 **Shows the instrument, not a list of checkboxes.** Two views of it, switched
 with *Photo* / *Schematic*, either face, either one enlarged.

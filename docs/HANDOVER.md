@@ -36,10 +36,10 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 118 pass, 0 fail
+node --test                        # 123 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
 node tests/browser/run.mjs         # 14 of 14 suites passed, 113 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  476 kB
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  480 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
@@ -156,7 +156,19 @@ code:
   reports, one worker is kept for every read on the page, and a start that
   takes over a minute fails with `timeout` and a pointer to the other ways
   in - a viewer that blocks blob workers or cross-origin fetches would
-  otherwise wait for ever. The AI is the
+  otherwise wait for ever. Which is what happened on claude.ai: the engine's
+  core (a script) came in from the CDN, the language data (a fetch from
+  inside the worker) never did, so `tools/fetch-vendor.mjs` downloads the
+  engine, its language data and the PDF renderer into `dist/vendor/` (or
+  `vendor/` for Pages), the artifact is published with them as supporting
+  files, and `vendorBase()` in `import.js` looks for `vendor/manifest.json`
+  beside the page once and prefers those same-origin copies. Quantities are
+  per item: "2 x" applies to the code it precedes, an order line's quantity
+  outranks a code mention, an explicit "Qty:" outranks everything, a
+  designation never reads as one (a test prints every catalog option as a
+  quotation line), a short code with no prefix is an address, and a line
+  whose order number the catalog lacks is listed rather than read by its
+  code – a timed licence must not import as the perpetual option. The AI is the
   `sample` capability: consent is per call and costs the viewer, so it runs
   only from the Scan button and can be stopped; images go as blobs, so PDF
   pages are rendered to PNG first, up to `limits().images.maxCount` per
