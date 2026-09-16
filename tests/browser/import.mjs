@@ -242,6 +242,17 @@ const rowsOf = p => p.locator('.import-table tbody tr');
     if (!(await p.inputValue('#config-name')).includes('quote.pdf')) throw new Error('name is ' + await p.inputValue('#config-name'));
   });
 
+  await t('a sandboxed host that cannot print is offered the PDF instead', async () => {
+    if (await p.locator('.scrim').count()) { await p.keyboard.press('Escape'); await p.waitForTimeout(150); }
+    await p.click('.panel-foot [data-action=export]');
+    await p.waitForTimeout(300);
+    if (await p.locator('.modal [data-action=print]').count()) throw new Error('Print offered where window.print() is ignored');
+    if (!(await p.locator('.modal [data-action=pdf]').count())) throw new Error('no PDF button');
+    const note = await p.locator('.modal-foot').textContent();
+    if (!note.includes('cannot print')) throw new Error('the footer does not say why: ' + note.replace(/\s+/g, ' ').trim());
+    await p.keyboard.press('Escape');
+  });
+
   await t('Stop answers at once while the reader is still loading', async () => {
     await p.reload();                   // the engine is kept per page; a fresh page has none
     await p.waitForTimeout(600);

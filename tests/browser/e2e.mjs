@@ -117,6 +117,22 @@ await step('JSON downloads with capabilities', async () => {
   if (data.capabilities.phaseNoise !== 'Ultra low') throw new Error('capabilities wrong');
 });
 
+await step('PDF downloads, well-formed and ASCII', async () => {
+  if (!(await p.locator('.scrim').count())) {
+    await p.click('.panel-foot [data-action=export]');
+    await p.waitForTimeout(200);
+  }
+  const [dl] = await Promise.all([p.waitForEvent('download'), p.click('.modal [data-action=pdf]')]);
+  const fs = await import('fs');
+  const text = fs.readFileSync(await dl.path()).toString('latin1');
+  if (!text.startsWith('%PDF-1.4')) throw new Error('not a PDF');
+  if (!/%%EOF\n$/.test(text)) throw new Error('unterminated PDF');
+  if (/[^\x00-\x7f]/.test(text)) throw new Error('a byte outside ASCII');
+  if (!text.includes('1428.4800.02') || !text.includes('(Page 1 of')) throw new Error('the parts list is not in the PDF');
+  // the sandboxed host cannot print, so it is offered the PDF alone; here both are
+  if (!(await p.locator('.modal [data-action=print]').count())) throw new Error('Print missing where printing works');
+});
+
 await step('escape closes the modal', async () => {
   await p.keyboard.press('Escape');
   await p.waitForTimeout(200);

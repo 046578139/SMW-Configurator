@@ -24,6 +24,10 @@ phase noise levels that must match across paths, the standard/wideband baseband
 split, floating licences, per-RF-path option sets, and quantity steps such as
 the fading simulator's 1 / 2 / 4.
 
+**Puts the parts list on paper.** *Export* prints it, saves it as CSV or JSON,
+or writes it as a PDF in the page itself – a viewer that frames the page in a
+sandbox cannot print, so there the PDF is the way to paper.
+
 **Keeps named configurations.** *Save* in the header keeps the current
 configuration under its name; *Saved* lists them with what they are and when,
 to load or remove. The list lives in the browser and, on claude.ai, in the

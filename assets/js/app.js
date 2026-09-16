@@ -12,6 +12,7 @@ import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from '.
 import { PRESETS } from './presets.js';
 import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
 import { readText, readAI, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
+import { partsListPdf } from './pdf.js';
 
 const STORE = 'smw200a-config-v1';
 
@@ -751,6 +752,7 @@ document.addEventListener('click', ev => {
   if (action === 'csv') { downloadCsv(); }
   if (action === 'json') { downloadJson(); }
   if (action === 'print') { window.print(); }
+  if (action === 'pdf') { downloadPdf(); }
 });
 
 document.addEventListener('change', ev => {
@@ -1251,6 +1253,11 @@ function renderSavedCount () {
   }
 }
 
+/* A viewer that frames the page in a sandbox without the modal permission
+   ignores window.print() outright, so the sandboxed host gets no Print
+   button - the PDF the page writes itself is the way to paper there. */
+const printable = () => !window.claude?.use;
+
 function openExport () {
   const lines = bomLines(state.sel, BASE_UNIT);
   const v = cached.validation;
@@ -1290,9 +1297,11 @@ function openExport () {
     <div class="modal-foot">
       ${savingBlocked
         ? `<span style="flex:1;font-size:11.5px;color:var(--text-faint);align-self:center">
-             Saving files is turned off in this view – print the list or copy the link instead.</span>`
-        : ''}
-      <button class="btn" data-action="print">${icon('print', 15)} Print</button>
+             Saving files is turned off in this view – ${printable() ? 'print the list or ' : ''}copy the link instead.</span>`
+        : !printable() ? `<span style="flex:1;font-size:11.5px;color:var(--text-faint);align-self:center">
+             This view cannot print; the PDF is the parts list on paper.</span>` : ''}
+      ${printable() ? `<button class="btn" data-action="print">${icon('print', 15)} Print</button>` : ''}
+      <button class="btn" data-action="pdf">${icon('print', 15)} PDF</button>
       ${savingBlocked ? '' : `<button class="btn" data-action="json">${icon('copy', 15)} JSON</button>
       <button class="btn btn-primary" data-action="csv">${icon('download', 15)} CSV</button>`}
     </div>
@@ -1348,6 +1357,27 @@ function downloadCsv () {
   }
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
   download(`${slug()}.csv`, 'text/csv;charset=utf-8', '﻿' + csv);
+}
+
+function downloadPdf () {
+  const lines = bomLines(state.sel, BASE_UNIT);
+  const v = validate(state.sel);
+  const groups = [];
+  for (const l of lines) {
+    const last = groups[groups.length - 1];
+    const row = { type: typeCol(l.id) || l.order, name: l.name, order: l.order, qty: l.qty };
+    if (last && last.name === l.group) last.rows.push(row);
+    else groups.push({ name: l.group, rows: [row] });
+  }
+  const pdf = partsListPdf({
+    title: state.name,
+    subtitle: `${lines.length} line items · ${v.errors.length
+      ? `${v.errors.length} open issue${v.errors.length === 1 ? '' : 's'}`
+      : 'validated against the configuration guide'} · ${new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`,
+    groups,
+    footer: `Unofficial planning aid built from ${GUIDE.title}, ${GUIDE.version}. Not a quotation – confirm any configuration with Rohde & Schwarz before ordering.`
+  });
+  download(`${slug()}.pdf`, 'application/pdf', pdf);
 }
 
 function downloadJson () {

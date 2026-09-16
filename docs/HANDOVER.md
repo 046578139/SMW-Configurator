@@ -36,10 +36,10 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 123 pass, 0 fail
+node --test                        # 126 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 14 of 14 suites passed, 113 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  480 kB
+node tests/browser/run.mjs         # 14 of 14 suites passed, 115 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  489 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
@@ -134,6 +134,14 @@ code:
   R&S®-prefixed row - a regex artefact in `tools/vendor/lib.py`, not
   evidence; the vendor's type column is `texts[0]` in
   `docs/vendor/catalog.json`.
+- **The PDF is written by the page.** `pdf.js` writes the parts list as a
+  PDF 1.4 with Helvetica, uncompressed and ASCII-only (WinAnsi octal escapes
+  for the registered sign and the like), so the same string goes to the
+  host's save or to a blob download; `tests/pdf.test.mjs` checks the xref
+  offsets and stream lengths the way a reader does, and pdfminer reads it.
+  It exists because a sandboxed viewer ignores `window.print()` without the
+  modal permission; on such a host (`window.claude.use` present) the Print
+  button is not offered and the footer says why.
 - **Import reads by order number first.** `import.js` matches a document's
   lines against the catalog: an order number settles an item (every order
   number in the catalog is unique, and a test keeps it so), a type
