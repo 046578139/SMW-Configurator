@@ -34,12 +34,13 @@ const HOST = `
   });
   sample.limits = async () => ({ maxPromptBytes: 65536, images: { maxCount: 2, maxInputBytes: 20e6, mediaTypes: ['image/png', 'image/jpeg'] } });
   window.claude = { use: name => new Promise(r => setTimeout(() => r(name === 'sample' ? sample : null), 40)) };
-  window.__ocr = { calls: 0 };
-  window.Tesseract = { createWorker: async (lang, oem, opts) => ({
+  window.__ocr = { calls: 0, workers: 0 };
+  window.Tesseract = { createWorker: async (lang, oem, opts) => (window.__ocr.workers++, {
     async recognize () {
-      window.__ocr.calls++;
+      window.__ocr.calls++; window.__ocr.workers = (window.__ocr.workers || 0);
+      opts.logger?.({ status: 'loading language traineddata', progress: 0.4 });
       opts.logger?.({ status: 'recognizing text', progress: 0.5 });
-      await new Promise(r => setTimeout(r, 120));
+      await new Promise(r => setTimeout(r, 600));
       return { data: { text: '1.2 Frequency range 100 kHz to 20 GHz SMW-B1O2O 1428.51O7.O2 1 111,295.00\\n1.5 Wideband baseband generator SMW-B9 1413.735O.O2 2 87,100.00' } };
     },
     async terminate () { window.__ocr.terminated = true; }
@@ -131,6 +132,7 @@ const rowsOf = p => p.locator('.import-table tbody tr');
   await t('a reader that cannot be fetched says so', async () => {
     await openImport(p);
     await p.evaluate(() => { window.Tesseract = { createWorker: async () => { throw new TypeError('Failed to fetch'); } }; });
+    await p.waitForTimeout(300);        // the warm-up on a static host already ran into it
     await p.setInputFiles('#import-file', { name: 'photo.png', mimeType: 'image/png', buffer: PNG });
     await p.waitForTimeout(300);
     await p.click('#import-ocr');
@@ -165,11 +167,17 @@ const rowsOf = p => p.locator('.import-table tbody tr');
     await p.waitForTimeout(300);
     if (!(await p.locator('#import-ocr').isVisible())) throw new Error('Read the image not offered');
     await p.click('#import-ocr');
-    await p.waitForTimeout(60);
+    await p.waitForTimeout(100);
     if (!(await p.locator('#import-stop').isVisible())) throw new Error('no Stop while reading');
-    await p.waitForTimeout(500);
+    if (!/Reading/.test(await p.locator('#import-status').textContent())) throw new Error('no progress shown');
+    await p.waitForTimeout(900);
     const ocr = await p.evaluate(() => window.__ocr);
-    if (ocr.calls !== 1 || !ocr.terminated) throw new Error('engine use: ' + JSON.stringify(ocr));
+    if (ocr.calls !== 1 || ocr.workers !== 1 || ocr.terminated) throw new Error('engine use: ' + JSON.stringify(ocr));
+    // a second read reuses the engine rather than starting it again
+    await p.click('#import-ocr');
+    await p.waitForTimeout(1000);
+    const again = await p.evaluate(() => window.__ocr);
+    if (again.calls !== 2 || again.workers !== 1) throw new Error('second read: ' + JSON.stringify(again));
     const got = {};
     for (const row of await rowsOf(p).all()) {
       const cells = await row.locator('td').allTextContents();
@@ -223,6 +231,26 @@ const rowsOf = p => p.locator('.import-table tbody tr');
     const hash = await p.evaluate(() => location.hash);
     if (!hash.includes('B1006*2') || !hash.includes('B13T')) throw new Error('loaded ' + hash);
     if (!(await p.inputValue('#config-name')).includes('quote.pdf')) throw new Error('name is ' + await p.inputValue('#config-name'));
+  });
+
+  await t('Stop answers at once while the reader is still loading', async () => {
+    await p.reload();                   // the engine is kept per page; a fresh page has none
+    await p.waitForTimeout(600);
+    await openImport(p);
+    await p.evaluate(() => { window.Tesseract = { createWorker: () => new Promise(() => {}) }; });   // a load that hangs
+    await p.setInputFiles('#import-file', { name: 'photo.png', mimeType: 'image/png', buffer: PNG });
+    await p.waitForTimeout(300);
+    await p.click('#import-ocr');
+    await p.waitForTimeout(150);
+    if (!(await p.locator('#import-status').textContent()).includes('Loading the reader')) throw new Error('not loading');
+    if (!(await p.locator('#import-stop').isVisible())) throw new Error('no Stop while loading');
+    await p.click('#import-stop');
+    await p.waitForTimeout(150);
+    const st = await p.locator('#import-status').textContent();
+    if (st !== 'Stopped.') throw new Error('after Stop the status says: ' + st);
+    if (await p.locator('#import-stop').isVisible()) throw new Error('Stop still shown');
+    if (await p.locator('#import-ocr').isDisabled() || await p.locator('#import-scan').isDisabled()) throw new Error('buttons still disabled');
+    await p.keyboard.press('Escape');
   });
 
   await t('Stop cancels a reading and closing the dialog does too', async () => {

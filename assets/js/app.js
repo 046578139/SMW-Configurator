@@ -11,7 +11,7 @@ import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
 import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
-import { readText, readAI, readPdf, canvasToBlob, ocrImage, AI_PROMPT } from './import.js';
+import { readText, readAI, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
 
 const STORE = 'smw200a-config-v1';
 
@@ -928,8 +928,8 @@ function openImport () {
         <textarea id="import-text" class="import-text" spellcheck="false" rows="7"
           placeholder="…or paste the text of the quotation here" aria-label="Document text"></textarea>
         <div class="import-tools">
+          <button class="btn btn-primary" data-action="import-scan" id="import-scan" hidden>${icon('sparkle', 15)} Scan with AI</button>
           <button class="btn" data-action="import-ocr" id="import-ocr" hidden>${icon('search', 15)} Read the image</button>
-          <button class="btn" data-action="import-scan" id="import-scan" hidden>${icon('sparkle', 15)} Scan with AI</button>
           <button class="btn" data-action="import-stop" id="import-stop" hidden>${icon('x', 15)} Stop</button>
           <span class="import-status" id="import-status" aria-live="polite"></span>
         </div>
@@ -1048,8 +1048,23 @@ function syncImportTools () {
   if (st && !st.textContent && scannable && !imp.result?.items.length) {
     const what = isImage ? 'the image' : 'the pages';
     st.textContent = !scan.hidden
-      ? `Read ${what} runs here in the page; Scan with AI reads ${what} with Claude on your account.`
-      : `Read ${what} runs here in the page${imp.aiWhy === 'no host' ? '' : ` – ${imp.aiWhy || 'the AI has not answered yet'}`}.`;
+      ? `Scan with AI is the quick way here – Claude reads ${what} on your account. Read ${what} runs in the page instead (a 7 MB download, once).`
+      : `Read ${what} runs here in the page (a 7 MB download, once)${imp.aiWhy === 'no host' ? '' : ` – ${imp.aiWhy || 'the AI has not answered yet'}`}.`;
+  }
+  /* where the page's own reader is the only one, start fetching it now so
+     the button does not begin with the download */
+  if (scannable && !window.claude?.use) warmOcr().catch(() => {});
+}
+
+/* What the engine reports while it starts and reads, in the status line. */
+function ocrStage (m, page = '') {
+  const pct = m.progress > 0 && m.progress < 1 ? ` ${Math.round(m.progress * 100)} %` : '';
+  switch (m.status) {
+    case 'loading tesseract core': return `Loading the reader… the engine, about 4 MB, once${pct}`;
+    case 'initializing tesseract': case 'initializing api': return 'Starting the reader…';
+    case 'loading language traineddata': return `Loading the reader… language data, about 3 MB, once${pct}`;
+    case 'recognizing text': return `Reading${page}…${pct}`;
+    default: return `Loading the reader… ${m.status || ''}`.trim();
   }
 }
 
@@ -1076,8 +1091,7 @@ async function ocrImport () {
     const texts = [];
     for (const [i, src] of sources.slice(0, MAX).entries()) {
       const page = sources.length > 1 ? ` page ${i + 1} of ${Math.min(sources.length, MAX)}` : '';
-      texts.push(await ocrImage(src, { signal: ctl.signal,
-        onProgress: p => importStatus(`Reading${page}… ${Math.round(p * 100)} %`) }));
+      texts.push(await ocrImage(src, { signal: ctl.signal, onProgress: m => importStatus(ocrStage(m, page)) }));
     }
     if (ctl.signal.aborted) return;
     const text = texts.join('\n');
@@ -1089,9 +1103,11 @@ async function ocrImport () {
       : 'Nothing recognisable was read. A sharper, larger picture reads better; or paste the text.');
   } catch (err) {
     const code = importErrorOf(err);
+    const other = imp.ai ? 'Scan with AI is the quick way here, or paste the text.' : 'Paste the text instead.';
     importStatus(code === 'cancelled' ? 'Stopped.'
-      : code === 'offline' ? 'The reader could not be fetched (it comes from the web on first use) – paste the text instead.'
-      : 'The image could not be read here – paste the text instead.');
+      : code === 'timeout' ? `The reader did not start within a minute – this viewer may not let it run. ${other}`
+      : code === 'offline' ? `The reader could not be fetched (it comes from the web on first use). ${other}`
+      : `The image could not be read here. ${other}`);
   } finally {
     if (imp.ctl === ctl) imp.ctl = null;
     ocr.disabled = false; scan.disabled = false; stop.hidden = true;

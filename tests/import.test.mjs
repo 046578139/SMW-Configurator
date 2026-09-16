@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { readLine, readText, readAI, textLines, normalizeOcr, AI_PROMPT } from '../assets/js/import.js';
+import { readLine, readText, readAI, textLines, normalizeOcr, ocrImage, warmOcr, resetOcr, AI_PROMPT } from '../assets/js/import.js';
 import { OPTIONS, BY_ID, BASE_UNIT } from '../assets/js/catalog.js';
 
 const QUOTE = `Rohde & Schwarz GmbH & Co. KG
@@ -142,6 +142,75 @@ test('what OCR gets wrong in numbers and codes is put right, and prose is left a
   // and the reader then settles the corrected line by its order number
   const r = readText(normalizeOcr('1.2 Frequency range 100 kHz to 20 GHz SMW-B1O2O 1428.51O7.O2 1 111,295.00'));
   assert.deepEqual(r.items.map(i => [i.id, i.qty, i.via]), [['B1020', 1, 'order']]);
+});
+
+/* The engine, stood in for: a worker that starts after `startMs` (never, when
+   null), reads `text`, and counts how often it was started and killed. */
+function fakeEngine ({ startMs = 0, text = 'SMW-B1003 1428.4700.02', readMs = 0, fails = false } = {}) {
+  const stats = { started: 0, killed: 0, reads: 0 };
+  globalThis.Tesseract = {
+    createWorker: (lang, oem, opts) => new Promise(resolve => {
+      stats.started++;
+      if (startMs === null) return;
+      setTimeout(() => {
+        opts.logger?.({ status: 'loading language traineddata', progress: 0.5 });
+        resolve({
+          recognize: () => new Promise((res, rej) => {
+            stats.reads++;
+            opts.logger?.({ status: 'recognizing text', progress: 0.5 });
+            setTimeout(() => (fails ? rej(new Error('bad image')) : res({ data: { text } })), readMs);
+          }),
+          terminate: async () => { stats.killed++; }
+        });
+      }, startMs);
+    })
+  };
+  return stats;
+}
+const settled = p => p.then(() => 'ok', e => e.code || e.message);
+
+test('the OCR engine: Stop answers at once while it starts, and a start that takes too long is given up on', async () => {
+  resetOcr();
+  const hung = fakeEngine({ startMs: null });
+  const ctl = new AbortController();
+  const read = settled(ocrImage({}, { signal: ctl.signal, timeoutMs: 5000 }));
+  setTimeout(() => ctl.abort(), 20);
+  assert.equal(await read, 'cancelled');
+  assert.equal(hung.started, 1);
+  // the start is still hung; a bounded wait gives up on it
+  assert.equal(await settled(warmOcr({ timeoutMs: 40 })), 'timeout');
+  // and the next call begins afresh rather than waiting on the old start
+  const quick = fakeEngine({ startMs: 5 });
+  assert.equal(await settled(warmOcr({ timeoutMs: 1000 })), 'ok');
+  assert.equal(quick.started, 1);
+});
+
+test('the OCR engine: one start serves every read, Stop kills a read, and a failed read starts afresh', async () => {
+  resetOcr();
+  const engine = fakeEngine({ startMs: 5, readMs: 5 });
+  const stages = [];
+  assert.equal(await ocrImage({}, { onProgress: m => stages.push(m.status) }), 'SMW-B1003 1428.4700.02');
+  assert.equal(await ocrImage({}), 'SMW-B1003 1428.4700.02');
+  assert.deepEqual([engine.started, engine.reads, engine.killed], [1, 2, 0]);
+  assert.ok(stages.includes('recognizing text'));
+
+  resetOcr();                       // the quick engine above would answer before the stop
+  const ctl = new AbortController();
+  const slow = fakeEngine({ startMs: 5, readMs: 5000 });
+  const read = settled(ocrImage({}, { signal: ctl.signal }));
+  setTimeout(() => ctl.abort(), 30);
+  assert.equal(await read, 'cancelled');
+  assert.equal(slow.killed, 1, 'a stopped read is killed');
+  const fresh = fakeEngine({ startMs: 5 });
+  assert.equal(await settled(ocrImage({})), 'ok');
+  assert.equal(fresh.started, 1, 'the next read starts a new engine');
+
+  resetOcr();
+  const failing = fakeEngine({ startMs: 5, fails: true });
+  assert.equal(await settled(ocrImage({})), 'bad image');
+  assert.equal(failing.killed, 1);
+  resetOcr();
+  delete globalThis.Tesseract;
 });
 
 test('a page\'s text runs are joined into lines by baseline, with columns kept apart', () => {

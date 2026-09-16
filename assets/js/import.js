@@ -304,26 +304,81 @@ async function enlarge (source, minWidth = 1800, maxWidth = 4000) {
   return canvas;
 }
 
+const fail = code => Object.assign(new Error(code), { code });
+
+/* One worker serves every read on the page: starting it is the slow part -
+   the engine and the language data, several megabytes on first use, then
+   from the browser's cache - and a second picture should not pay it again.
+   `listeners` lets whoever is waiting see the stages. */
+let workerPromise = null;
+const listeners = new Set();
+const report = m => { for (const fn of listeners) fn(m); };
+
+/** Forgets a running engine; the next read starts one. Kills it if it is up. */
+export function resetOcr () {
+  const gone = workerPromise;
+  workerPromise = null;
+  if (gone) gone.then(w => w.terminate()).catch(() => {});
+}
+
+/**
+ * Starts the OCR engine, or hands back the one already running. `onProgress`
+ * hears the engine's stages ({status, progress}); `timeoutMs` bounds the
+ * start, since a viewer that blocks a piece of it would otherwise wait for
+ * ever. Cheap to call ahead of time where the engine is the only reader.
+ */
+export function warmOcr ({ onProgress, timeoutMs = 60000 } = {}) {
+  if (onProgress) listeners.add(onProgress);
+  if (!workerPromise) {
+    workerPromise = (async () => {
+      const T = await loadTesseract();
+      const worker = await T.createWorker('eng', 1, {
+        workerPath: TESSERACT.worker, corePath: TESSERACT.core, langPath: TESSERACT.lang,
+        logger: report
+      });
+      return worker;
+    })().catch(err => { workerPromise = null; throw err; });
+  }
+  const pending = workerPromise;
+  let timer;
+  const late = new Promise((_, reject) => { timer = setTimeout(() => reject(fail('timeout')), timeoutMs); });
+  return Promise.race([pending, late])
+    .catch(err => {
+      // a start that took too long is given up on: the next call begins afresh
+      if (err?.code === 'timeout' && workerPromise === pending) workerPromise = null;
+      throw err;
+    })
+    .finally(() => { clearTimeout(timer); if (onProgress) listeners.delete(onProgress); });
+}
+
 /**
  * Reads the text off an image - a File, a Blob or a canvas - in the page.
- * `onProgress` gets 0..1 while it reads; `signal` stops it. Resolves the
- * text with the OCR slips in numbers and codes put right.
+ * `onProgress` hears the stages, `signal` stops it. Resolves the text with
+ * the OCR slips in numbers and codes put right.
  */
-export async function ocrImage (source, { onProgress, signal } = {}) {
-  const T = await loadTesseract();
-  if (signal?.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' });
-  const worker = await T.createWorker('eng', 1, {
-    workerPath: TESSERACT.worker, corePath: TESSERACT.core, langPath: TESSERACT.lang,
-    logger: m => { if (onProgress && m.status === 'recognizing text') onProgress(m.progress || 0); }
+export async function ocrImage (source, { onProgress, signal, timeoutMs } = {}) {
+  /* Stop has to answer at once in every phase, and neither the engine's
+     start nor a read in progress settles on its own when told to - so both
+     are raced against the signal. A start that is stopped goes on in the
+     background and serves the next read; a read that is stopped is killed. */
+  const cancelled = new Promise((_, reject) => {
+    if (signal?.aborted) return reject(fail('cancelled'));
+    signal?.addEventListener('abort', () => reject(fail('cancelled')), { once: true });
   });
-  const stop = () => worker.terminate();
+  cancelled.catch(() => {});
+  const worker = await Promise.race([warmOcr({ onProgress, timeoutMs }), cancelled]);
+  const stop = () => { workerPromise = null; worker.terminate().catch(() => {}); };
   signal?.addEventListener('abort', stop, { once: true });
+  if (onProgress) listeners.add(onProgress);
   try {
-    const { data } = await worker.recognize(await enlarge(source));
-    if (signal?.aborted) throw Object.assign(new Error('cancelled'), { code: 'cancelled' });
+    const { data } = await Promise.race([worker.recognize(await enlarge(source)), cancelled]);
     return normalizeOcr(data?.text || '');
+  } catch (err) {
+    if (signal?.aborted) throw fail('cancelled');
+    stop();                       // a failed read: the next one starts afresh
+    throw err;
   } finally {
     signal?.removeEventListener('abort', stop);
-    await worker.terminate().catch(() => {});
+    if (onProgress) listeners.delete(onProgress);
   }
 }

@@ -36,10 +36,10 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 115 pass, 0 fail
+node --test                        # 118 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 14 of 14 suites passed, 112 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  472 kB
+node tests/browser/run.mjs         # 14 of 14 suites passed, 113 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  476 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
@@ -149,7 +149,14 @@ code:
   wasm core from jsdelivr, English data from `@tesseract.js-data/eng`,
   fetched on first use, about 7 MB); small sources are drawn up to 1800 px
   wide first, and `normalizeOcr()` puts O/0, I/1, S/5 and comma-for-dot
-  slips right inside order numbers and code digits only. The AI is the
+  slips right inside order numbers and code digits only. Starting the engine
+  is the slow part (the 4 MB core and 3 MB language data, once per browser
+  cache), so `warmOcr()` starts it ahead of the click where it is the only
+  reader (no `window.claude`), the status line shows each stage the engine
+  reports, one worker is kept for every read on the page, and a start that
+  takes over a minute fails with `timeout` and a pointer to the other ways
+  in - a viewer that blocks blob workers or cross-origin fetches would
+  otherwise wait for ever. The AI is the
   `sample` capability: consent is per call and costs the viewer, so it runs
   only from the Scan button and can be stopped; images go as blobs, so PDF
   pages are rendered to PNG first, up to `limits().images.maxCount` per
