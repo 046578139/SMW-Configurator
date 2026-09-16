@@ -647,6 +647,8 @@ a { color: var(--accent); }
 }
 .import-unknown-line small { color: var(--text-faint); }
 
+.export-note { flex: 1; font-size: 11.5px; color: var(--text-faint); align-self: center; line-height: 1.4; }
+
 .saved-list { display: flex; flex-direction: column; gap: 8px; }
 .saved-row {
   display: flex; align-items: center; gap: 10px;

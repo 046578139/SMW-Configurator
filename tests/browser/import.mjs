@@ -34,7 +34,9 @@ const HOST = `
     ]), 450);
   });
   sample.limits = async () => ({ maxPromptBytes: 65536, images: { maxCount: 2, maxInputBytes: 20e6, mediaTypes: ['image/png', 'image/jpeg'] } });
-  window.claude = { use: name => new Promise(r => setTimeout(() => r(name === 'sample' ? sample : null), 40)) };
+  window.__saves = [];
+  const downloads = { save: async ({ filename, data }) => { window.__saves.push({ filename, head: String(data).slice(0, 8), bytes: String(data).length }); } };
+  window.claude = { use: name => new Promise(r => setTimeout(() => r(name === 'sample' ? sample : name === 'downloads' ? downloads : null), 40)) };
   window.__ocr = { calls: 0, workers: 0 };
   window.Tesseract = { createWorker: async (lang, oem, opts) => (window.__ocr.workers++, {
     async recognize () {
@@ -250,6 +252,12 @@ const rowsOf = p => p.locator('.import-table tbody tr');
     if (!(await p.locator('.modal [data-action=pdf]').count())) throw new Error('no PDF button');
     const note = await p.locator('.modal-foot').textContent();
     if (!note.includes('cannot print')) throw new Error('the footer does not say why: ' + note.replace(/\s+/g, ' ').trim());
+    await p.click('.modal [data-action=pdf]');
+    await p.waitForTimeout(400);
+    const saves = await p.evaluate(() => window.__saves);
+    if (saves.length !== 1 || !saves[0].filename.endsWith('.pdf') || saves[0].head !== '%PDF-1.4' || saves[0].bytes < 2000) {
+      throw new Error('the PDF did not go to the host: ' + JSON.stringify(saves));
+    }
     await p.keyboard.press('Escape');
   });
 

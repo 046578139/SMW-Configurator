@@ -1296,13 +1296,12 @@ function openExport () {
     </div>
     <div class="modal-foot">
       ${savingBlocked
-        ? `<span style="flex:1;font-size:11.5px;color:var(--text-faint);align-self:center">
-             Saving files is turned off in this view – ${printable() ? 'print the list or ' : ''}copy the link instead.</span>`
-        : !printable() ? `<span style="flex:1;font-size:11.5px;color:var(--text-faint);align-self:center">
-             This view cannot print; the PDF is the parts list on paper.</span>` : ''}
+        ? `<span class="export-note">Saving files is turned off in this view${printable()
+            ? ` – print the list or copy the link instead.` : ` and it cannot print – copy the link instead.`}</span>`
+        : !printable() ? '<span class="export-note">This view cannot print; the PDF is the parts list on paper.</span>' : ''}
       ${printable() ? `<button class="btn" data-action="print">${icon('print', 15)} Print</button>` : ''}
-      <button class="btn" data-action="pdf">${icon('print', 15)} PDF</button>
-      ${savingBlocked ? '' : `<button class="btn" data-action="json">${icon('copy', 15)} JSON</button>
+      ${savingBlocked ? '' : `<button class="btn" data-action="pdf">${icon('print', 15)} PDF</button>
+      <button class="btn" data-action="json">${icon('copy', 15)} JSON</button>
       <button class="btn btn-primary" data-action="csv">${icon('download', 15)} CSV</button>`}
     </div>
   </div>`);

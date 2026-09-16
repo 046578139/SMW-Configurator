@@ -50,7 +50,7 @@ function literal (text) {
     const c = ch.charCodeAt(0);
     if (ch === '(' || ch === ')' || ch === '\\') out += '\\' + ch;
     else if (c >= 32 && c < 127) out += ch;
-    else if (WINANSI[ch]) out += '\\' + WINANSI[ch][0].toString(8).padStart(3, '0');
+    else if (WINANSI[ch]) out += WINANSI[ch][0] === 0o40 ? ' ' : '\\' + WINANSI[ch][0].toString(8).padStart(3, '0');
     else out += '?';
   }
   return `(${out})`;
