@@ -17,7 +17,7 @@
  */
 
 import { execFileSync } from 'node:child_process';
-import { copyFileSync, existsSync, mkdirSync, statSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -45,6 +45,13 @@ for (const [rel, url] of Object.entries(VENDOR.files)) {
   if (!existsSync(path) || statSync(path).size === 0) {
     // curl honours the proxy variables a container may need; Node's fetch does not
     execFileSync('curl', ['-sSL', '--fail', '--retry', '3', '-o', path, url], { stdio: 'inherit' });
+  }
+  /* A host that checks a script for text refuses a raw ESC byte. In a script
+     one can only sit inside a string, a regular expression or a comment, and
+     the four characters \x1b mean the same there. */
+  if (/\.m?js$/.test(rel)) {
+    const raw = readFileSync(path);
+    if (raw.includes(0x1b)) writeFileSync(path, Buffer.from(raw.toString('latin1').replace(/\x1b/g, '\\x1b'), 'latin1'));
   }
   const size = statSync(path).size;
   total += size;
