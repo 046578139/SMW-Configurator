@@ -214,6 +214,15 @@ use it, and where saving is refused outright the dialog says so instead of
 offering a button that does nothing. On an ordinary web server neither path
 applies and downloads work normally.
 
+## Also in this repository
+
+`examples/matlab/` holds a standalone MATLAB script that drives an
+R&S®FSWP phase noise analyzer over SCPI: connect, configure a phase noise
+measurement, run it, read the results back, plot and save them, with an
+optional spectrum sweep if the R&S®FSWP-B1 option is installed. It shares no
+code with the configurator and is documented in
+[`examples/matlab/README.md`](examples/matlab/README.md).
+
 ## Scope
 
 This is a planning aid built from public documentation, not an ordering system.
