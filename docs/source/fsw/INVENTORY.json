@@ -26,5 +26,40 @@
   "sha": "c3c8a5c18b3ae7e3",
   "size": 984470,
   "head": "EMI MEASUREMENT APPLICATION FOR SIGNAL AND SPECTRUM ANALYZERS Specifications R&S\u00aeFSW-K54 R&S\u00aeFSV3-K54 R&S\u00aeFPL1-K54 R&S\u00aeFSV-K54 Data Sheet Version 01.05"
+ },
+ {
+  "file": "EUTRA-LTE-Measurement-Application_specs_en_3607-2126-22_v0700.pdf",
+  "pages": 20,
+  "sha": "9afec6e55353de31",
+  "size": 748846,
+  "head": "EUTRA/LTE MEASUREMENT APPLICATION R&S\u00aeFSW3-KM310/-KM311/R&S\u00aeFSW-K100/-K101/R&S\u00aeFSV3-K100/-K101/R&S\u00aeFPS-K100/-K101/ R&S\u00aeVSE-K100/-K104/R&S\u00aeFS-K100PC/-K101PC EUTR"
+ },
+ {
+  "file": "EUTRA-LTE-NB-IoT-Measurement-Application_specs_en_5214-7893-22_v0500.pdf",
+  "pages": 12,
+  "sha": "33b2b7ffdc9a49ad",
+  "size": 1007323,
+  "head": "EUTRA/LTE NB-IoT MEASUREMENT APPLICATION R&S\u00aeFSW3-KM313 R&S\u00aeFSW-K106 R&S\u00aeFSV3-K106 R&S\u00aeFPS-K106 R&S\u00aeVSE-K106 Specifications Version 05.00 Specifications"
+ },
+ {
+  "file": "Evolution_Carrier_aggregation_po_en_3607-1736-82_v0100.pdf",
+  "pages": 2,
+  "sha": "01fe75234c3b2d3b",
+  "size": 2657264,
+  "head": "Evolution of Carrier Aggregation (3GPP Releases 10 to 13) Carrier aggregation (CA) is by far the most demanded Intraband contiguous There are two types of CA: i"
+ },
+ {
+  "file": "Evolution_Carrier_aggregation_po_en_3607-2078-82_v0100.pdf",
+  "pages": 1,
+  "sha": "94a44687cc4c4cc9",
+  "size": 2691101,
+  "head": "Evolution of Carrier Aggregation (3GPP Releases 10 to 13) Carrier aggregation modes (Rel. 10) and Rel. 11 enhancements LTE FDD/TDD joint operation (Rel. 12) Int"
+ },
+ {
+  "file": "Fact_sheet__FSW-B24U_v1.00.pdf",
+  "pages": 1,
+  "sha": "17132abe3650d563",
+  "size": 227306,
+  "head": "R&S\u00aeFSW-B24U ENHANCED DYNAMIC FRONT END (EDFE) Market-leading EVM performance in millimeter wave range Ideal for 5G NR and IEEE WLAN Component testing Key speci"
  }
 ]
