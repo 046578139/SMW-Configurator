@@ -131,5 +131,75 @@
   "sha": "a75b8a146d48477a",
   "size": 1482514,
   "head": "V5GTF Measurement Application Specifications R&S\u00aeFSW-K118 R&S\u00aeFSW-K119 R&S\u00aeFPS-K118 0 0 . 2 0 n o i s r e V | t e e h S a t a D FSW-K118-K119_FPS-K118_dat-sw_en"
+ },
+ {
+  "file": "FSW-K192_dat-sw_en_3607-1842-22_v0200.pdf",
+  "pages": 12,
+  "sha": "ab3e71e8bf3bf6ac",
+  "size": 2467075,
+  "head": "R&S\u00aeFSW-K192/-K193 DOCSIS 3.1 OFDM/OFDMA Downstream/Upstream Measurement Application Specifications t n e m e r u s a e M & t s e T 0 0 . 2 0 | t e e h S a t a "
+ },
+ {
+  "file": "FSW-K575-and-FSV3-K575_sh_en_3673-1053-32_v0100.pdf",
+  "pages": 2,
+  "sha": "796b0aa2ca8fd4f4",
+  "size": 1224034,
+  "head": "R&S\u00aeFSW-K575 AND R&S\u00aeFSV3-K575 I/Q NOISE CANCELLATION R&S\u00aeFSW firmware 5.30 and R&S\u00aeFSVA3000/R&S\u00aeFSV3000 firmware 2.20 support Ideal for For all applications Wi"
+ },
+ {
+  "file": "FSW3-KM100_specs_en_3673-2889-22_v0100.pdf",
+  "pages": 2,
+  "sha": "f266878e8ffcc185",
+  "size": 263489,
+  "head": "I/Q SPECTRUM ANALYZER Specifications R&S\u00aeFSW3-KM100 R&S\u00aeFSW3-KM105 Introduction The specifications of the R&S\u00aeFSW3-KM100 I/Q spectrum analyzer are based on the "
+ },
+ {
+  "file": "FSW3-KM135_specs_en_3610-0695-22_v0100.pdf",
+  "pages": 2,
+  "sha": "ff5b37ef75445437",
+  "size": 256146,
+  "head": "CROSS-APPLICATION CONTROL AND TRIGGERING Specifications R&S\u00aeFSW3-KM135 Introduction The specifications of the R&S\u00aeFSW3-KM135 cross-application control and trigg"
+ },
+ {
+  "file": "FSWP-K7CAL_dat-sw_en_3607-5519-22_v0101.pdf",
+  "pages": 4,
+  "sha": "425c5795072cd2a2",
+  "size": 1004465,
+  "head": "R&S\u00aeFSWP-K7CAL Enhanced Specifications for AM/FM/\u03c6M Modulation Analysis Specifications t n e m e r u s a e M & t s e T 1 0 1 0 . | t e e h S a t a D FSWP-K7CAL_"
+ },
+ {
+  "file": "FSx-K18x_specs_en_3607-0717-22_v0800.pdf",
+  "pages": 12,
+  "sha": "77d6be8de78d11b7",
+  "size": 1179679,
+  "head": "AMPLIFIER MEASUREMENTS Specifications R&S\u00aeFSW3-KM118/FSW/FSV3/FPS/VSE-K18 Amplifier Measurements R&S\u00aeFSW3-KM119/FSW/FSV3/VSE-K18F Frequency Response Measurement"
+ },
+ {
+  "file": "Fxx-K30_specs_en_5215-0705-22_v1200.pdf",
+  "pages": 12,
+  "sha": "57a5a3a41361b811",
+  "size": 1209509,
+  "head": "NOISE FIGURE MEASUREMENT APPLICATION Specifications R&S\u00aeFSW-K30 R&S\u00aeFSWP-K30 R&S\u00aeFSMR3-K30 R&S\u00aeFSV3-K30 R&S\u00aeFPS-K30 R&S\u00aeFSV-K30 R&S\u00aeFPL1-K30 Specifications Vers"
+ },
+ {
+  "file": "HRPR-Frequency-UWB_specs_en_3609-7048-22_v0500.pdf",
+  "pages": 12,
+  "sha": "1ca66f385e6d2e01",
+  "size": 1087757,
+  "head": "HIGH RATE PULSE REPETITION FREQUENCY ULTRAWIDEBAND MEASUREMENTS Specifications R&S\u00aeFSW-K149 R&S\u00aeVSE-K149 Specifications Version 05.00"
+ },
+ {
+  "file": "K147-option-on-FSW-and-FSV3000_3609-6093-32_v0200.pdf",
+  "pages": 2,
+  "sha": "9f2c0795c6a75d9e",
+  "size": 708353,
+  "head": "5G-NR COMBINED ACLR/SEM/EVM MEASUREMENT APPLICATION WITH ROHDE & SCHWARZ SPECTRUM ANALYZERS (K147 OPTION) The challenge of 5G OTA testing 5G OTA tests require a"
+ },
+ {
+  "file": "Noise-Figure-Measurement-Application_specs_en_3610-2252-22_v0100.pdf",
+  "pages": 12,
+  "sha": "14bd6efbef79a184",
+  "size": 1132926,
+  "head": "NOISE FIGURE MEASUREMENT APPLICATION Specifications R&S\u00aeFSW3-KM125/-KM126 R&S\u00aeFSW-K30 R&S\u00aeFSWP-K30 R&S\u00aeFSMR3-K30 R&S\u00aeFSV3-K30 R&S\u00aeFPS-K30 R&S\u00aeFSV-K30 R&S\u00aeFPL1-K"
  }
 ]
