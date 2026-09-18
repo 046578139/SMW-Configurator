@@ -236,5 +236,33 @@
   "sha": "2f888f437c4a9511",
   "size": 1300397,
   "head": "VECTOR SIGNAL ANALYSIS APPLICATION R&S\u00aeFSW3-KM101/FSW/FSWP/FSWT/FSMR3/FSV3/FPS/FPL1/VSE-K70 Vector Signal Analysis Application R&S\u00aeFSW3-KM102/FSW/FSWP/FSWT/FSMR"
+ },
+ {
+  "file": "VSE-FSx-K10_dat-sw_en_3607-2726-22_v0400.pdf",
+  "pages": 24,
+  "sha": "fa828fcc0da625bc",
+  "size": 1762823,
+  "head": "GSM Measurements Specifications R&S\u00aeFSW-K10 GSM/EDGE/EDGE Evolution/VAMOS Measurements R&S\u00aeFSV3-K10 Analysis of GSM, EDGE and EDGE Evolution Signals R&S\u00aeFSV-K10"
+ },
+ {
+  "file": "VSE-K6_FSx-K6_S_P_specs_en_3607-2210-22_v1600.pdf",
+  "pages": 28,
+  "sha": "0d91c9e4d67b5609",
+  "size": 1693738,
+  "head": "PULSE MEASUREMENT APPLICATION Specifications R&S\u00aeFSW/FSWP/FSMR3-K6 Pulse Measurement Application R&S\u00aeFSV3/FSV/FPS/VSE-K6 Pulse Measurement Application R&S\u00aeFSWP-"
+ },
+ {
+  "file": "VSE-K201-FSW-K201_dat-sw_en_5215-1447-22_v0200.pdf",
+  "pages": 8,
+  "sha": "d2c553646216026d",
+  "size": 1138731,
+  "head": "OneWeb REVERSE LINK (SC-FDMA) MEASUREMENT APPLICATION R&S\u00aeFSW-K201 R&S\u00aeVSE-K201 Data Sheet Version 02.00 Specifications"
+ },
+ {
+  "file": "WLAN-Measurement-Application_specs_en_3607-3280-22_v1200.pdf",
+  "pages": 28,
+  "sha": "a6b1cbcc40e99991",
+  "size": 1339872,
+  "head": "WLAN IEEE 802.11a/b/g/j/p/n/ac/ax/be/bn MEASUREMENT APPLICATION Specifications R&S\u00aeFSW3-KM410/-KM411/-KM412/-KM413/-KM414/-KM417 R&S\u00aeFSW-K91/-K91p/-K91n/-K91ac/"
  }
 ]
