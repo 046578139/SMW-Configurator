@@ -9,7 +9,7 @@
  * is fitted, not where it sits on the panel.
  */
 
-import { esc } from './util.js';
+import { esc } from '../util.js';
 import { FRONT_PANEL, REAR_PANEL, MODULE_PANELS, CONNECTOR_NOTE } from './catalog.js';
 import { screenContent, screenDefs } from './diagram.js';
 

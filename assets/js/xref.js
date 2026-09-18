@@ -15,9 +15,9 @@
  * SMW options came from the table and which from the SMW200A's own rules.
  */
 
-import { BY_ID, typeName } from './catalog.js';
+import { BY_ID, typeName } from './smw200a/catalog.js';
 import { validate, autoResolve } from './rules.js';
-import { E8267D, KEYSIGHT_VENDOR, readKeysight } from './xref-keysight.js';
+import { E8267D, KEYSIGHT_VENDOR, readKeysight } from './smw200a/xref-keysight.js';
 
 export const XREF_MODELS = { E8267D };
 

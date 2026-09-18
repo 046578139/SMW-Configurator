@@ -5,7 +5,7 @@
  * stays in step with the configuration without any drawing library.
  */
 
-import { esc } from './util.js';
+import { esc } from '../util.js';
 
 /** Small deterministic PRNG so a given configuration always draws the same trace. */
 function rng (seed) {

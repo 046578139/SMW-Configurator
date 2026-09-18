@@ -14,7 +14,7 @@
  */
 
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, posix, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -23,18 +23,18 @@ const read = p => readFileSync(resolve(root, p), 'utf8');
 /** Dependency order: every module only imports the ones above it. */
 const MODULES = [
   'assets/js/util.js',
-  'assets/js/photos.js',
-  'assets/js/catalog.js',
+  'assets/js/smw200a/photos.js',
+  'assets/js/smw200a/catalog.js',
   'assets/js/rules.js',
-  'assets/js/derive.js',
-  'assets/js/diagram.js',
-  'assets/js/panel.js',
-  'assets/js/photo.js',
+  'assets/js/smw200a/derive.js',
+  'assets/js/smw200a/diagram.js',
+  'assets/js/smw200a/panel.js',
+  'assets/js/smw200a/photo.js',
   'assets/js/ui.js',
-  'assets/js/presets.js',
+  'assets/js/smw200a/presets.js',
   'assets/js/saved.js',
   'assets/js/import.js',
-  'assets/js/xref-keysight.js',
+  'assets/js/smw200a/xref-keysight.js',
   'assets/js/xref.js',
   'assets/js/pdf.js',
   'assets/js/app.js'
@@ -65,8 +65,8 @@ function checkModuleList () {
   const seen = new Set();
   for (const path of MODULES) {
     const source = read(path);
-    for (const m of source.matchAll(/from\s*['"]\.\/([^'"]+)['"]/g)) {
-      const dep = `assets/js/${m[1]}`;
+    for (const m of source.matchAll(/from\s*['"](\.\.?\/[^'"]+)['"]/g)) {
+      const dep = posix.normalize(posix.join(posix.dirname(path), m[1]));
       if (!MODULES.includes(dep)) throw new Error(`${path} imports ${dep}, which is missing from MODULES`);
       if (!seen.has(dep)) throw new Error(`${path} imports ${dep}, which must come before it in MODULES`);
     }

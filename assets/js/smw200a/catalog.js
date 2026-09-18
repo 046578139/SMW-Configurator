@@ -11,7 +11,7 @@
  *   (...) grouping    GEN / WGEN / BB / GNSS / RFB  named shorthands
  */
 
-import { productCode } from './util.js';
+import { productCode } from '../util.js';
 
 export const BASE_UNIT = {
   id: 'SMW200A',

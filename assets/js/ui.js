@@ -1,6 +1,6 @@
 /** Icon set and stateless render helpers. */
 
-import { BY_ID, typeName } from './catalog.js';
+import { BY_ID, typeName } from './smw200a/catalog.js';
 import { esc, productCode } from './util.js';
 import { holds, evaluate, parse, needText, qtyChoices, maxQty, ruledOutBy } from './rules.js';
 

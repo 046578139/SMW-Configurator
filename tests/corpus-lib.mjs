@@ -6,11 +6,11 @@
 
 import { createHash } from 'node:crypto';
 
-import { OPTIONS, BASE_UNIT, RF_PATH_MATRIX } from '../assets/js/catalog.js';
+import { OPTIONS, BASE_UNIT, RF_PATH_MATRIX } from '../assets/js/smw200a/catalog.js';
 import { validate, autoResolve, MAIN_MODULES } from '../assets/js/rules.js';
-import { derive, vitals } from '../assets/js/derive.js';
+import { derive, vitals } from '../assets/js/smw200a/derive.js';
 import { bomLines } from '../assets/js/ui.js';
-import { PRESETS } from '../assets/js/presets.js';
+import { PRESETS } from '../assets/js/smw200a/presets.js';
 import { summarize, packSel } from '../assets/js/saved.js';
 
 const sha = s => createHash('sha256').update(s).digest('hex').slice(0, 16);

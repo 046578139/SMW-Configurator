@@ -9,14 +9,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { OPTIONS, BY_ID, RF_PATH_MATRIX, O_VARIANTS, EXTRAS, BASE_UNIT, typeName } from '../assets/js/catalog.js';
+import { OPTIONS, BY_ID, RF_PATH_MATRIX, O_VARIANTS, EXTRAS, BASE_UNIT, typeName } from '../assets/js/smw200a/catalog.js';
 import {
   validate, autoResolve, holds, parse, evaluate, maxQty, qtyChoices, needText, ruledOutBy
 } from '../assets/js/rules.js';
 import { bomLines, freqCard } from '../assets/js/ui.js';
 import { productCode } from '../assets/js/util.js';
-import { derive } from '../assets/js/derive.js';
-import { PRESETS } from '../assets/js/presets.js';
+import { derive } from '../assets/js/smw200a/derive.js';
+import { PRESETS } from '../assets/js/smw200a/presets.js';
 
 const titles = sel => validate(sel).errors.map(e => e.id);
 const ok = sel => validate(sel).ok;
@@ -343,7 +343,8 @@ test('no native dialogs anywhere in the app', async () => {
     .replace(/\/\*[\s\S]*?\*\//g, ' ')
     .replace(/(^|[^:])\/\/.*$/gm, '$1');
 
-  for (const file of readdirSync(dir)) {
+  const files = readdirSync(dir, { recursive: true }).filter(f => f.endsWith('.js'));
+  for (const file of files) {
     const hit = code(readFileSync(new URL(file, dir), 'utf8'))
       .match(/(?:^|[^.\w])(?:window\.)?(confirm|alert|prompt)\s*\(/);
     assert.equal(hit, null, `${file} calls ${hit && hit[1]}() - ask in the page instead`);

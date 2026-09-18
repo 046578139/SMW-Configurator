@@ -18,7 +18,7 @@
  * and reads it with the OCR engine when it can fetch that.
  */
 
-import { OPTIONS, BASE_UNIT } from './catalog.js';
+import { OPTIONS, BASE_UNIT } from './smw200a/catalog.js';
 
 /* ------------------------------------------------------------- the index */
 

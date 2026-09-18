@@ -9,7 +9,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { BY_ID, EXTRAS, RF_PATH_MATRIX } from '../assets/js/catalog.js';
+import { BY_ID, EXTRAS, RF_PATH_MATRIX } from '../assets/js/smw200a/catalog.js';
 import { validate, ruledOutBy } from '../assets/js/rules.js';
 
 const titles = sel => validate(sel).errors.map(e => e.id);

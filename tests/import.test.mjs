@@ -10,7 +10,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { readLine, readText, readAI, textLines, normalizeOcr, ocrImage, warmOcr, resetOcr, AI_PROMPT } from '../assets/js/import.js';
-import { OPTIONS, BY_ID, BASE_UNIT, typeName } from '../assets/js/catalog.js';
+import { OPTIONS, BY_ID, BASE_UNIT, typeName } from '../assets/js/smw200a/catalog.js';
 
 const QUOTE = `Rohde & Schwarz GmbH & Co. KG
 Quotation No. 4711-2026 Date 16.09.2026

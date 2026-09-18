@@ -7,11 +7,11 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { derive } from '../assets/js/derive.js';
-import { RF_CONNECTOR, FRONT_PANEL, REAR_PANEL, MODULE_PANELS } from '../assets/js/catalog.js';
-import { renderFront, renderRear, faceCounts, connectorNotes } from '../assets/js/panel.js';
-import { renderRuler, renderChain } from '../assets/js/diagram.js';
-import { renderPhoto } from '../assets/js/photo.js';
+import { derive } from '../assets/js/smw200a/derive.js';
+import { RF_CONNECTOR, FRONT_PANEL, REAR_PANEL, MODULE_PANELS } from '../assets/js/smw200a/catalog.js';
+import { renderFront, renderRear, faceCounts, connectorNotes } from '../assets/js/smw200a/panel.js';
+import { renderRuler, renderChain } from '../assets/js/smw200a/diagram.js';
+import { renderPhoto } from '../assets/js/smw200a/photo.js';
 
 const base = { B13: 1, B10: 1 };
 

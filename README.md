@@ -212,21 +212,21 @@ interface.
 index.html              shell and layout
 assets/css/app.css      design system, both themes
 assets/js/
-  util.js               shared helpers
-  catalog.js            253 options and 23 accessories: order numbers, rules, quantity limits
-  rules.js              expression parser, validator, autoResolve
-  derive.js             selection -> instrument capabilities
-  diagram.js            display, signal chain, frequency scale (SVG)
-  panel.js              front and rear panel elevations (SVG)
-  photos.js             where the photographs live; rewritten by the build
-  photo.js              the photographs, with the configuration marked on them
-  ui.js                 icon set and stateless render helpers
-  presets.js            validated starting points
-  saved.js              named configurations: this browser's list and the page's
-  import.js             reading a quotation: order numbers, type codes, quantities; PDF and AI paths
-  xref-keysight.js      Keysight E8267D -> SMW200A table with citations, and the Keysight reader
-  xref.js               turns a competitor's option list into a validated SMW selection
-  app.js                state, rendering, events, export
+  util.js                   shared helpers
+  smw200a/catalog.js        253 options and 23 accessories: order numbers, rules, quantity limits
+  rules.js                  expression parser, validator, autoResolve
+  smw200a/derive.js         selection -> instrument capabilities
+  smw200a/diagram.js        display, signal chain, frequency scale (SVG)
+  smw200a/panel.js          front and rear panel elevations (SVG)
+  smw200a/photos.js         where the photographs live; rewritten by the build
+  smw200a/photo.js          the photographs, with the configuration marked on them
+  ui.js                     icon set and stateless render helpers
+  smw200a/presets.js        validated starting points
+  saved.js                  named configurations: this browser's list and the page's
+  import.js                 reading a quotation: order numbers, type codes, quantities; PDF and AI paths
+  smw200a/xref-keysight.js  Keysight E8267D -> SMW200A table with citations, and the Keysight reader
+  xref.js                   turns a competitor's option list into a validated SMW selection
+  app.js                    state, rendering, events, export
 tests/rules.test.mjs    rule regression tests
 tests/panel.test.mjs    panel, scale and photo overlay tests
 tests/browser/          browser suites and their runner

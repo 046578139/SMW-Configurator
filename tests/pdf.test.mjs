@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 
 import { partsListPdf } from '../assets/js/pdf.js';
 import { bomLines } from '../assets/js/ui.js';
-import { BASE_UNIT, typeName } from '../assets/js/catalog.js';
+import { BASE_UNIT, typeName } from '../assets/js/smw200a/catalog.js';
 
 const groupsOf = sel => {
   const groups = [];

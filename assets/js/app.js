@@ -1,15 +1,15 @@
 /** Application state, rendering and event wiring. */
 
 import { OPTIONS, BY_ID, SECTIONS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS, RF_PATH_MATRIX, typeName }
-  from './catalog.js';
+  from './smw200a/catalog.js';
 import { validate, autoResolve, qtyChoices, maxQty, freqA, freqB, mainModule, ruledOutBy }
   from './rules.js';
-import { derive, vitals } from './derive.js';
-import { renderChain, renderRuler } from './diagram.js';
-import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js';
-import { renderPhoto } from './photo.js';
+import { derive, vitals } from './smw200a/derive.js';
+import { renderChain, renderRuler } from './smw200a/diagram.js';
+import { renderFront, renderRear, connectorNotes, faceCounts } from './smw200a/panel.js';
+import { renderPhoto } from './smw200a/photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
-import { PRESETS } from './presets.js';
+import { PRESETS } from './smw200a/presets.js';
 import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
 import { readText, aiText, parseAiJson, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
 import { readCompetitor, xrefRows, xrefName, xrefTypes, xrefCode, xrefSummary, mappedFrom, XREF_STATUS } from './xref.js';

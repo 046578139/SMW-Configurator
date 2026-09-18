@@ -19,7 +19,7 @@
  * that never answers - the local list is all there is, and the page says so.
  */
 
-import { BY_ID } from './catalog.js';
+import { BY_ID } from './smw200a/catalog.js';
 import { freqA, mainModule } from './rules.js';
 
 export const SAVED_KEY = 'smw200a-saved-v1';

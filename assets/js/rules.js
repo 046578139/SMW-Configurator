@@ -15,7 +15,7 @@
 import {
   OPTIONS, BY_ID, SHORTHAND, RF_PATH_MATRIX, B94L_REQUIRED,
   O_VARIANTS, PHASE_NOISE_LEVELS, typeName
-} from './catalog.js';
+} from './smw200a/catalog.js';
 
 /* ---------------------------------------------------------------- parser */
 

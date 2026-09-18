@@ -12,7 +12,7 @@
  * the two scale together and the rings stay circular at any size.
  */
 
-import { esc } from './util.js';
+import { esc } from '../util.js';
 import { PHOTOS } from './photos.js';
 
 const PHOTO_W = 1280, PHOTO_H = 720;

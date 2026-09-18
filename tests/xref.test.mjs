@@ -8,10 +8,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { E8267D, OTHER_MODELS, readKeysight } from '../assets/js/xref-keysight.js';
+import { E8267D, OTHER_MODELS, readKeysight } from '../assets/js/smw200a/xref-keysight.js';
 import { crossReference, readCompetitor, xrefRows, xrefSummary, mappedFrom, xrefCode, xrefName, XREF_STATUS } from '../assets/js/xref.js';
 import { readText, readAI, aiText, parseAiJson } from '../assets/js/import.js';
-import { OPTIONS, BY_ID, typeName } from '../assets/js/catalog.js';
+import { OPTIONS, BY_ID, typeName } from '../assets/js/smw200a/catalog.js';
 import { validate } from '../assets/js/rules.js';
 
 const CODES = Object.keys(E8267D.options);
