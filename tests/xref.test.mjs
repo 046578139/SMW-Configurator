@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 
 import { E8267D, OTHER_MODELS, readKeysight } from '../assets/js/xref-keysight.js';
 import { crossReference, readCompetitor, xrefRows, mappedFrom, xrefCode, xrefName, XREF_STATUS } from '../assets/js/xref.js';
-import { readText, readAI, aiText } from '../assets/js/import.js';
+import { readText, readAI, aiText, parseAiJson } from '../assets/js/import.js';
 import { OPTIONS, BY_ID, typeName } from '../assets/js/catalog.js';
 import { validate } from '../assets/js/rules.js';
 
@@ -121,6 +121,32 @@ test('a product listing with bare codes at the start of each row reads completel
   assert.equal(x.qty, 1);
 });
 
+test('what the page\'s OCR made of a real listing reads too: the 8 taken for a B, a 0 for an O, a 1 for an I', () => {
+  // the text the OCR engine put in the box for the user's screenshot of a used-equipment listing
+  const ocr = `Keysight Premium Used From
+Keysight EB267D-544 USD 305,339.45 save 35%
+— Instrument Options A
+Installed Options A
+544 Frequency range from 250 kHz to 44 GHz Installed
+1EH Improved harmonics below 2 GHz Installed
+6O2 Internal baseband generator, 64 MSa memory Installed
+HI8 Wideband Modulation less than 3.2 GHz Installed
+H1G Provides 1GHz In and Out to minimize phase drift for
+frequency between 250KHz - 250MHz Installed
+HCC Provides 250MHz - 10GHz In and Out on the rear panel Installed
+UNW Narrow pulse modulation Installed
+UNY Enhanced phase noise Installed`;
+  const x = readCompetitor(ocr);
+  assert.equal(x.model, 'E8267D');
+  assert.deepEqual(x.codes, ['544', '1EH', '602', 'H18', 'H1G', 'HCC', 'UNW', 'UNY']);
+  assert.deepEqual(x.unknown, []);
+  // the kit form survives the same slip, and a code that is nothing even fixed stays unknown
+  assert.deepEqual(readKeysight('EB267DK-O16 upgrade\nEB267D-ZZ9').options.map(o => [o.code, o.kit]), [['016', true]]);
+  assert.deepEqual(readKeysight('EB267D-ZZ9').unknown, ['ZZ9']);
+  // the R&S reader still reads nothing off it
+  assert.equal(readText(ocr).items.length, 0);
+});
+
 test('a quotation reads the model, its options in every form, upgrade kits, standalone numbers and the unknowns', () => {
   const r = readKeysight(QUOTE);
   assert.equal(r.model, 'E8267D');
@@ -152,6 +178,30 @@ test('what an AI transcribes off a Keysight page reads through the same reader',
   assert.deepEqual(readText(aiText(rs)).items.map(i => i.id), ['B1003']);
   assert.equal(readCompetitor(aiText(rs)), null);
   assert.equal(aiText('not an array'), '');
+});
+
+test('a transcription that dropped the header still names the instrument when a vector-only option is on it', () => {
+  const x = readCompetitor('Qty: 1 544 Frequency range from 250 kHz to 44 GHz\nQty: 1 1EH Improved harmonics\nQty: 1 602 Internal baseband generator\nQty: 1 UNW Narrow pulse');
+  assert.equal(x.model, 'E8267D');
+  assert.equal(x.inferred, true);
+  assert.deepEqual(x.codes, ['544', '1EH', '602', 'UNW']);
+  // codes the analog PSG shares are not enough to guess a model: they are reported as codes with none
+  const c = readCompetitor('544 Frequency range\n1EH Improved harmonics\nUNW Narrow pulse\nUNY Enhanced phase noise');
+  assert.equal(c.model, null);
+  assert.deepEqual(c.candidates, ['544', '1EH', 'UNW', 'UNY']);
+  assert.deepEqual(c.rows, []);
+  // and two stray codes are nothing at all
+  assert.equal(readCompetitor('544 Frequency range\nUNW Narrow pulse'), null);
+});
+
+test('the AI\'s reply is read leniently when the host cannot parse it: fences, stray sentences, a trailing comma', () => {
+  assert.deepEqual(parseAiJson('Here you go:\n```json\n[{"type":"E8267D-544","qty":1,}]\n```'), [{ type: 'E8267D-544', qty: 1 }]);
+  assert.deepEqual(parseAiJson('The rows are [{"type":"UNW"}] as listed.'), [{ type: 'UNW' }]);
+  assert.deepEqual(parseAiJson('{"type":"UNW"}'), { type: 'UNW' });
+  assert.equal(parseAiJson('no json here'), null);
+  assert.equal(parseAiJson(''), null);
+  // prose with codes in it still reads as a document
+  assert.deepEqual(readCompetitor('I can see a Keysight E8267D-544 with options UNW and UNY installed.').codes, ['544', 'UNW', 'UNY']);
 });
 
 test('another Keysight model is recognised by name and answered with no table, never with a guess', () => {

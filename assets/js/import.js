@@ -228,6 +228,30 @@ export function readAI (items) {
   return readText(aiText(items));
 }
 
+/**
+ * The JSON value in an AI's reply, read the way the host reads it - the
+ * whole reply, else the body of one code fence, else the first array or
+ * object in the text - for a host whose sampler cannot parse for us, or a
+ * reply the host gave up on. null when nothing parses.
+ */
+export function parseAiJson (text) {
+  const s = String(text || '').trim();
+  if (!s) return null;
+  const tries = [s];
+  const fence = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  if (fence) tries.push(fence[1].trim());
+  const a = s.indexOf('['), a2 = s.lastIndexOf(']');
+  if (a >= 0 && a2 > a) tries.push(s.slice(a, a2 + 1));
+  const o = s.indexOf('{'), o2 = s.lastIndexOf('}');
+  if (o >= 0 && o2 > o) tries.push(s.slice(o, o2 + 1));
+  for (const t of tries) {
+    try { return JSON.parse(t); } catch { /* the next form */ }
+    // a trailing comma before a closing bracket is the usual slip
+    try { return JSON.parse(t.replace(/,\s*([\]}])/g, '$1')); } catch { /* the next form */ }
+  }
+  return null;
+}
+
 /* --------------------------------------------------- where the files are */
 
 /* Same-origin copies of the third-party files, when the page was published

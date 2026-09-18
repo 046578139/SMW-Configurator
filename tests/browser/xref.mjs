@@ -30,17 +30,26 @@ UNY Enhanced phase noise Installed`;
 
 /* a host whose AI transcribes a Keysight listing, and one that saves files */
 const HOST = `
-  window.__ai = { calls: 0 };
-  const sample = async () => ({ text: '[]' });
+  window.__ai = { calls: 0, mode: 'json' };
+  const ITEMS = [
+    { type: 'E8267D-520', order: null, qty: 1, designation: 'Frequency range 250 kHz to 20 GHz' },
+    { type: 'UNT', order: null, qty: 1, designation: 'AM, FM, phase modulation and LF output' },
+    { type: 'N7617EMBC', order: null, qty: 1, designation: 'WLAN' }
+  ];
+  const PROSE = 'I can see a Keysight E8267D-520 with Option UNT and the N7617EMBC WLAN software.';
+  const sample = (input, opts) => new Promise((resolve, reject) => {
+    window.__ai.calls++; window.__ai.prompt = input; window.__ai.plain = (window.__ai.plain || 0) + 1;
+    opts.onText?.({ text: 'partial', delta: 'partial' });
+    setTimeout(() => resolve({ text: 'Sure:\\n\\u0060\\u0060\\u0060json\\n' + JSON.stringify(ITEMS) + '\\n\\u0060\\u0060\\u0060', truncated: false }), 200);
+  });
   sample.json = (input, opts) => new Promise((resolve, reject) => {
     window.__ai.calls++; window.__ai.prompt = input;
     opts.signal?.addEventListener('abort', () => reject({ code: 'cancelled', message: 'aborted' }));
-    setTimeout(() => resolve([
-      { type: 'E8267D-520', order: null, qty: 1, designation: 'Frequency range 250 kHz to 20 GHz' },
-      { type: 'UNT', order: null, qty: 1, designation: 'AM, FM, phase modulation and LF output' },
-      { type: 'N7617EMBC', order: null, qty: 1, designation: 'WLAN' }
-    ]), 300);
+    if (window.__ai.mode === 'nojson') return reject({ code: 'capability_removed', message: 'json is not in this runtime' });
+    if (window.__ai.mode === 'prose') return setTimeout(() => reject({ code: 'invalid_json', message: 'no JSON', text: PROSE }), 200);
+    setTimeout(() => resolve(ITEMS), 300);
   });
+  window.__sample = sample;
   sample.limits = async () => ({ maxPromptBytes: 65536, images: { maxCount: 2, maxInputBytes: 20e6, mediaTypes: ['image/png'] } });
   window.__saves = [];
   const downloads = { save: async ({ filename, data }) => { window.__saves.push({ filename, data: String(data) }); } };
@@ -192,6 +201,28 @@ const on = async (p, id) => !!(await p.locator(`.card[data-opt="${id}"].on`).cou
     await p.click('#import-load');
     await p.waitForTimeout(600);
     for (const id of ['B1020', 'B13T', 'K720', 'K24', 'K54', 'K147']) if (!(await on(p, id))) throw new Error(id + ' not loaded');
+  });
+
+  await t('a viewer whose sampler cannot parse, or an AI that answers in prose, still reads', async () => {
+    await p.evaluate(() => { window.__ai.mode = 'nojson'; });
+    await openImport(p);
+    await p.setInputFiles('#import-file', { name: 'listing.png', mimeType: 'image/png', buffer: PNG });
+    await p.waitForTimeout(300);
+    await p.click('#import-scan');
+    await p.waitForTimeout(900);
+    if (await p.locator('.xref-table tbody tr').count() !== 3) throw new Error('rows via the plain call: ' + await p.locator('.xref-table tbody tr').count());
+    if (!(await p.evaluate(() => window.__ai.plain))) throw new Error('the plain call was not used');
+    await p.evaluate(() => { window.__ai.mode = 'prose'; });
+    await p.setInputFiles('#import-file', { name: 'listing2.png', mimeType: 'image/png', buffer: PNG });
+    await p.waitForTimeout(300);
+    await p.click('#import-scan');
+    await p.waitForTimeout(900);
+    if (await p.locator('.xref-table tbody tr').count() !== 3) throw new Error('rows from prose: ' + await p.locator('.xref-table tbody tr').count());
+    const st = await p.locator('#import-status').textContent();
+    if (!st.includes('answered in prose')) throw new Error('status: ' + st);
+    if (!(await p.inputValue('#import-text')).includes('E8267D-520')) throw new Error('the prose is not in the box');
+    await p.evaluate(() => { window.__ai.mode = 'json'; });
+    await p.keyboard.press('Escape');
   });
 
   await t('the exports carry the cross-reference', async () => {

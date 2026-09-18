@@ -107,7 +107,11 @@ the configurator. The separation is structural, and tested:
   object, the PDF a section after the parts list.
 - The AI prompt names both vendors, so a scanned Keysight page transcribes
   into the same text the readers take; the OCR path reads a listing with
-  bare codes ("544  Frequency range…") the same way. A rendered copy of a
+  bare codes ("544  Frequency range…") the same way, forgiving the usual
+  OCR slips ("EB267D" for E8267D, "6O2" for 602). A transcription that
+  dropped the header still reads as an E8267D when a vector-only option
+  (602, 016, H18, 403 …) is among its rows, and the summary says the model
+  was taken from its options. A rendered copy of a
   used-equipment listing read all eight options in 3 s through the page's
   OCR (`tests/browser/xref.mjs` covers the pasted, AI and export paths).
 

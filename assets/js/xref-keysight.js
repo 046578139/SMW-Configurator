@@ -296,7 +296,6 @@ const KS_STANDALONE_RE = new RegExp(`(?<![A-Z0-9-])(${KS_STANDALONE.map(escapeKs
    with a space only a numeric option follows ("E8267D 544"), so "E8267D PSG"
    is the model and its family, not an option */
 const KS_MODEL_OPT_RE = /\bE8267D(K)?(?:\s*[-\/]\s*([A-Z0-9]{3})|\s+(\d{3}))(?![A-Z0-9])/gi;
-const KS_HAS_MODEL_OPT = /\bE8267DK?(?:\s*[-\/]\s*[A-Z0-9]{3}|\s+\d{3})(?![A-Z0-9])/i;
 /* "Option 544", "Opt. UNX", "Opt UNY" - only counted once the model is known */
 const KS_BARE_OPT_RE = /\b(?:option|opt\.?)\s+([A-Z0-9]{3})(?![A-Z0-9])/gi;
 /* A code on its own at the start of a row, as a product listing or an
@@ -305,17 +304,29 @@ const KS_BARE_OPT_RE = /\b(?:option|opt\.?)\s+([A-Z0-9]{3})(?![A-Z0-9])/gi;
    table carries, only once the model is known, and a code that is all digits
    must not be the start of a longer number ("700.00"). */
 const KS_ROW_CODES = Object.keys(E8267D.options).filter(c => /^[A-Z0-9]{3}$/i.test(c)).sort((a, b) => b.length - a.length);
-const KS_ROW_CODE_RE = new RegExp(`^(?:qty:?\\s*\\d+\\s+)?(${KS_ROW_CODES.map(escapeKs).join('|')})(?![A-Z0-9.,])`, 'i');
+const KS_ROW_CODE_RE = /^(?:qty:?\s*\d+\s+)?([A-Z0-9|]{3})(?![A-Z0-9.,])/i;
+const KS_ROW_CODE_SET = new Set(KS_ROW_CODES.map(c => c.toUpperCase()));
 /* A code with a letter in it anywhere on a line ("Options UNW, UNY and 1EH
    installed") - digits-only codes are too much like other numbers for that. */
 const KS_ALPHA_CODES = KS_ROW_CODES.filter(c => /[A-Z]/i.test(c));
 const KS_ALPHA_CODE_RE = new RegExp(`(?<![A-Z0-9-])(${KS_ALPHA_CODES.map(escapeKs).join('|')})(?![A-Z0-9])`, 'gi');
+/* Options only the vector PSG has (the analog E8257D shares the frequency,
+   phase noise, modulation and connector codes): one of these on a document
+   that names no model is enough to take it for an E8267D. */
+const KS_VECTOR_ONLY = new Set(['602', '016', 'HBQ', 'H18', 'HBR', '403', '409', '423', 'SP1', 'SP2', '003', '004', '009']);
 const KS_MODEL_RE = /\bE8267D\b/i;
 const KS_OTHER_RE = new RegExp(`\\b(${Object.keys(OTHER_MODELS).join('|')})\\b`, 'gi');
 const KS_NAME_RE = /(?:quotation|quote|proposal)\s*(?:no\.?|number|#|id)?\s*[:#]?\s*([A-Z0-9][A-Z0-9\-\/.]{3,})/i;
 const KS_QTY_BEFORE = /(?<![\dA-Za-z.,\/-])(\d{1,3})\s*[x×]\s*$/i;
 const KS_QTY_EXPLICIT = /\b(?:qty|quantity)\.?\s*[:#]?\s*(\d{1,3})\b/i;
 const KS_QTY_COLUMNS = /^\s*(\d{1,3})\s+(\d{1,3})\s+(?=\S)/;
+
+/* What a picture reader makes of the model name: the 8 as a B, the 6 as a G,
+   the D as an O; "EB267D-544" is E8267D-544. */
+const KS_MODEL_SLIP = /\bE[8B]2[6G]7[DO](?=[K\s\-\/]|$)/gi;
+/* and of a code: an O for a 0, an I or l for a 1, an S for a 5, a B for an 8 -
+   tried only when the code as read is not one the table carries */
+const slipFix = c => c.replace(/O/g, '0').replace(/[Il|]/g, '1').replace(/S/g, '5').replace(/B/g, '8');
 
 /**
  * Reads a document's text for a Keysight configuration.
@@ -333,7 +344,7 @@ const KS_QTY_COLUMNS = /^\s*(\d{1,3})\s+(\d{1,3})\s+(?=\S)/;
  *   null when nothing Keysight is on the document.
  */
 export function readKeysight (text) {
-  const src = String(text || '');
+  const src = String(text || '').replace(KS_MODEL_SLIP, m => (m.endsWith('K') ? 'E8267DK' : 'E8267D'));
   const lines = src.split(/\r?\n/).map(l => l.replace(/\s+/g, ' ').trim()).filter(Boolean);
   const options = new Map();
   const unknown = [];
@@ -341,8 +352,9 @@ export function readKeysight (text) {
   let model = null;
   let qty = 1;
 
+  const find = code => Object.keys(E8267D.options).find(k => k.toLowerCase() === code.toLowerCase());
   const take = (code, line, kit = false) => {
-    const key = Object.keys(E8267D.options).find(k => k.toLowerCase() === code.toLowerCase());
+    const key = find(code) || find(slipFix(code));
     if (!key) { if (!unknown.includes(code.toUpperCase())) unknown.push(code.toUpperCase()); return; }
     if (!options.has(key)) options.set(key, { code: key, line, kit });
   };
@@ -373,21 +385,44 @@ export function readKeysight (text) {
      anywhere belong to the model once one is named anywhere */
   if (model) {
     for (const line of lines) {
-      if (KS_HAS_MODEL_OPT.test(line)) continue;
       for (const m of line.matchAll(KS_BARE_OPT_RE)) take(m[1], line);
       const row = line.match(KS_ROW_CODE_RE);
-      if (row) take(row[1], line);
+      if (row && (KS_ROW_CODE_SET.has(row[1].toUpperCase()) || KS_ROW_CODE_SET.has(slipFix(row[1].toUpperCase())))) take(row[1], line);
       for (const m of line.matchAll(KS_ALPHA_CODE_RE)) take(m[1], line);
     }
   }
-  if (!model && !other.size) return null;
+  /* No model named: a transcription may have dropped the header. Rows that
+     start with PSG option codes still say what the instrument is when one of
+     them exists only on the vector model; otherwise they are reported as
+     codes with no model, so the page can ask for it. */
+  let inferred = false;
+  const candidates = [];
+  if (!model) {
+    for (const line of lines) {
+      const row = line.match(KS_ROW_CODE_RE);
+      if (!row) continue;
+      const raw = row[1].toUpperCase();
+      const code = KS_ROW_CODE_SET.has(raw) ? raw : KS_ROW_CODE_SET.has(slipFix(raw)) ? slipFix(raw) : null;
+      if (code && !candidates.includes(code)) candidates.push(code);
+    }
+    if (candidates.length >= 2 && candidates.some(c => KS_VECTOR_ONLY.has(c))) {
+      model = 'E8267D'; inferred = true;
+      for (const line of lines) {
+        const row = line.match(KS_ROW_CODE_RE);
+        if (row && (KS_ROW_CODE_SET.has(row[1].toUpperCase()) || KS_ROW_CODE_SET.has(slipFix(row[1].toUpperCase())))) take(row[1], line);
+        for (const m of line.matchAll(KS_ALPHA_CODE_RE)) take(m[1], line);
+      }
+    }
+  }
+  if (!model && !other.size && candidates.length < 3) return null;
   const name = (src.match(KS_NAME_RE) || [])[1] || null;
   return {
     vendor: KEYSIGHT_VENDOR,
-    model, family: model ? E8267D.family : null, qty,
+    model, family: model ? E8267D.family : null, qty, inferred,
     options: [...options.values()],
     unknown,
     name: name ? name.replace(/[.,;:]+$/, '') : null,
-    other: [...other.values()]
+    other: [...other.values()],
+    candidates: model ? [] : candidates
   };
 }

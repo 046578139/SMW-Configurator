@@ -11,7 +11,7 @@ import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
 import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
-import { readText, aiText, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
+import { readText, aiText, parseAiJson, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
 import { readCompetitor, xrefRows, xrefName, xrefTypes, xrefCode, mappedFrom, XREF_STATUS } from './xref.js';
 import { partsListPdf } from './pdf.js';
 
@@ -1242,8 +1242,12 @@ function renderXrefResult (x, alsoRs) {
   const load = $('#import-load'), merge = $('#import-merge'), note = $('#import-note');
   if (!x.model) {
     const names = x.other.map(o => `${o.model} (${o.family})`).join(', ');
-    out.innerHTML = `<div class="import-summary">Keysight ${esc(names)} recognised</div>
-      <p class="xref-lead">Only the Keysight E8267D is cross-referenced so far – there is no table for this model yet.</p>`;
+    out.innerHTML = x.other.length
+      ? `<div class="import-summary">Keysight ${esc(names)} recognised</div>
+         <p class="xref-lead">Only the Keysight E8267D is cross-referenced so far – there is no table for this model yet.</p>`
+      : `<div class="import-summary">Keysight option codes, no model</div>
+         <p class="xref-lead">${esc(x.candidates.join(', '))} look like Keysight PSG option codes, but no model name was read.
+           If the instrument is an E8267D, add “E8267D” to the text in the box.</p>`;
     load.disabled = merge.disabled = true; note.textContent = '';
     return;
   }
@@ -1259,8 +1263,9 @@ function renderXrefResult (x, alsoRs) {
         ${r.gap ? `<div class="xref-gap">${esc(r.gap)}</div>` : r.note ? `<div class="xref-note">${esc(r.note)}</div>` : ''}</td>
     </tr>`).join('')}</tbody></table>`;
   out.innerHTML = `
-    <div class="import-summary">Keysight ${esc(x.model)} recognised · ${plural(x.rows.length, 'option')} ·
+    <div class="import-summary">Keysight ${esc(x.model)} ${x.inferred ? 'taken from its options' : 'recognised'} · ${plural(x.rows.length, 'option')} ·
       SMW200A equivalent: ${plural(n, 'option')}${x.qty > 1 ? ` · ${x.qty} instruments quoted, the equivalent is for one` : ''}</div>
+    ${x.inferred ? '<p class="xref-lead">No model name was read; Option 602 or another vector-only option says this is an E8267D.</p>' : ''}
     ${alsoRs ? `<div class="import-switch">The document also lists R&amp;S options –
       <button class="btn-link" data-action="import-view" data-importview="rs">show them</button></div>` : ''}
     ${['covered', 'partial', 'standard', 'none', 'service'].map(s => group(s).length
@@ -1317,6 +1322,9 @@ function applyXref (mode) {
 
 const importErrorText = code => ({
   cancelled: 'Stopped.',
+  upstream_error: 'The connection to the AI broke off – try again.',
+  session_expired: 'Your claude.ai session has expired – sign in again, then try again.',
+  capability_removed: 'This viewer\'s AI could not be used from the page – Read the image instead.',
   images_unavailable: 'This viewer cannot send images to the AI – Read the image instead.',
   not_granted: 'Reading with AI was not allowed for this page.',
   sampling_disabled: 'AI is not available on this account.',
@@ -1360,17 +1368,43 @@ async function scanImport () {
   } catch { importStatus('The pages could not be prepared for scanning.'); idle(); return; }
   if (!images?.length || ctl.signal.aborted) { idle(); return; }
 
-  importStatus('Reading the document… this can take up to a minute.');
-  try {
-    const items = await host.json(AI_PROMPT, { images, signal: ctl.signal, modelTier: 'default' });
+  importStatus('Reading the document… the AI looks at the page first, which can take up to a minute.');
+  const opts = {
+    images, signal: ctl.signal, modelTier: 'default',
+    // nothing arrives while the AI thinks; once it writes, say so
+    onText: ({ text }) => importStatus(`Reading the document… ${text.length} characters transcribed so far.`)
+  };
+  /* What the AI wrote, however it came: parsed by the host, parsed here
+     when the host's sampler cannot, or as the raw reply when neither
+     parses - the readers take text, so even prose with codes in it reads. */
+  const settle = (items, raw) => {
     if (ctl.signal.aborted) return;
-    const text = aiText(items);
+    const text = Array.isArray(items) ? aiText(items) : String(raw || '');
     const box = $('#import-text');
     if (box && text) box.value = text;             // so a misread code can be corrected and read again
     readImportText(text, 'AI');
     importStatus(importRead()
-      ? 'Check the quantities before loading – a column can be misread.'
-      : 'The AI found no line item it could name.');
+      ? (Array.isArray(items) ? 'Check the quantities before loading – a column can be misread.'
+                              : 'The AI answered in prose; what could be read of it is in the box.')
+      : 'The AI found no line item it could name. Its answer is in the box.');
+  };
+  try {
+    let items;
+    if (typeof host.json === 'function') {
+      try {
+        items = await host.json(AI_PROMPT, opts);
+      } catch (err) {
+        if (err?.code === 'invalid_json' && err.text) { settle(parseAiJson(err.text), err.text); return; }
+        if (err?.code !== 'capability_removed') throw err;
+      }
+    }
+    if (items === undefined) {                    // an older viewer: the plain call, parsed here
+      const { text } = await host(AI_PROMPT, opts);
+      items = parseAiJson(text);
+      settle(items, text);
+      return;
+    }
+    settle(items);
   } catch (err) {
     importStatus(importErrorText(err?.code));
     if (['not_granted', 'sampling_disabled', 'not_declared', 'capability_disabled', 'images_unavailable'].includes(err?.code)) {

@@ -36,10 +36,10 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 138 pass, 0 fail
+node --test                        # 141 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 15 of 15 suites passed, 123 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  543 kB
+node tests/browser/run.mjs         # 15 of 15 suites passed, 124 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  548 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
@@ -233,7 +233,18 @@ code:
   R&S reader changed for it, and `tests/xref.test.mjs` runs every Keysight
   row through the R&S reader and every R&S option through the Keysight one.
   A rendered copy of a used-equipment listing (eight bare-coded rows) read
-  all eight options through the page's OCR in 3 s. The Keysight PDFs used
+  all eight options through the page's OCR in 3 s; the user's own
+  screenshot of that listing came out of the OCR as "EB267D-544", so the
+  reader forgives the usual slips (8/B, 6/G, D/O in the model name; O/0,
+  I/1, S/5, B/8 in a code that is otherwise unknown) and, when no model
+  name was read at all, takes a document for an E8267D when a vector-only
+  option (602, 016, H18, 403 …) sits among its row codes, saying so in
+  the summary; shared PSG codes alone are reported as codes with no model.
+  Scan with AI streams progress through `onText`, falls back to the plain
+  `sample()` call parsed in the page (`parseAiJson`) where the viewer's
+  runtime has no `sample.json`, and reads the raw reply as text when it
+  holds no JSON at all, so an AI that answers in prose still yields the
+  codes it names. The Keysight PDFs used
   (the E8267D guide 5989-1326EN and data sheet 5989-0697EN, plus twenty
   others collected while choosing the target: E8257D/E8663D PSG guides,
   MXG/EXG data sheets and guides, the AP500x G3 generators, catalogs and

@@ -81,7 +81,7 @@ export function crossReference (read) {
   const v = validate(settled);
 
   return {
-    vendor: read.vendor, model: read.model, family: table.family,
+    vendor: read.vendor, model: read.model, family: table.family, inferred: !!read.inferred,
     qty: read.qty || 1, name: read.name || null,
     other: read.other || [], unknown: read.unknown || [],
     platform, mainModule, freq,
@@ -105,7 +105,9 @@ export function crossReference (read) {
 export function readCompetitor (text) {
   const read = readKeysight(text);
   if (!read) return null;
-  if (!read.model) return { vendor: read.vendor, model: null, other: read.other, rows: [], codes: [], sel: {}, unknown: read.unknown };
+  if (!read.model) {
+    return { vendor: read.vendor, model: null, other: read.other, candidates: read.candidates || [], rows: [], codes: [], sel: {}, unknown: read.unknown };
+  }
   return crossReference(read);
 }
 
