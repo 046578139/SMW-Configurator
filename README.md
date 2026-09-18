@@ -208,26 +208,45 @@ interface.
 
 ## How it is put together
 
+The page is a shell plus one instrument profile. The core - the rules engine,
+the interface helpers, saved configurations, Import, the PDF writer, the
+cross-reference resolver and the shell itself - never imports an instrument;
+it reaches the active profile through `instrument.js` at call time. The
+profile (`assets/js/smw200a/index.js`) is one object carrying the catalog,
+the instrument's own rules as hooks the engine calls at fixed points, the
+derived capabilities, the sections it draws itself, the drawings and
+photographs, the starting points, the storage keys and the words the
+document reader needs. A second instrument is another profile of the same
+shape, booted by its own page. `docs/HANDOVER.md` describes the shape and
+how to add one.
+
 ```
-index.html              shell and layout
+index.html              shell and layout; boots the SMW200A profile
 assets/css/app.css      design system, both themes
-assets/js/
+assets/js/              the core: knows no instrument, reaches the active profile through instrument.js
   util.js                   shared helpers
-  smw200a/catalog.js        253 options and 23 accessories: order numbers, rules, quantity limits
-  rules.js                  expression parser, validator, autoResolve
-  smw200a/derive.js         selection -> instrument capabilities
-  smw200a/diagram.js        display, signal chain, frequency scale (SVG)
-  smw200a/panel.js          front and rear panel elevations (SVG)
-  smw200a/photos.js         where the photographs live; rewritten by the build
-  smw200a/photo.js          the photographs, with the configuration marked on them
-  ui.js                     icon set and stateless render helpers
-  smw200a/presets.js        validated starting points
+  instrument.js             the active instrument profile (useInstrument / inst)
+  rules.js                  expression parser, validator, autoResolve; calls the profile's rule hooks
+  ui.js                     icon set and stateless render helpers, grouped cards, parts list
   saved.js                  named configurations: this browser's list and the page's
   import.js                 reading a quotation: order numbers, type codes, quantities; PDF and AI paths
-  smw200a/xref-keysight.js  Keysight E8267D -> SMW200A table with citations, and the Keysight reader
-  xref.js                   turns a competitor's option list into a validated SMW selection
+  xref.js                   turns a competitor's option list into a validated selection
+  pdf.js                    the parts list as a PDF, written by the page
   app.js                    state, rendering, events, export
+assets/js/smw200a/      the R&S SMW200A profile: everything about this instrument
+  index.js                  the profile object the page activates
+  catalog.js                253 options and 23 accessories: order numbers, rules, quantity limits
+  rules.js                  the instrument's own rules (mandatory choices, RF path matrix, chassis, phase noise, baseband sections)
+  sections.js               the sections it draws itself, single-select groups, what follows a choice
+  derive.js                 selection -> instrument capabilities
+  diagram.js                display, signal chain, frequency scale (SVG)
+  panel.js                  front and rear panel elevations (SVG)
+  photos.js                 where the photographs live; rewritten by the build
+  photo.js                  the photographs, with the configuration marked on them
+  presets.js                validated starting points
+  xref-keysight.js          Keysight E8267D -> SMW200A table with citations, and the Keysight reader
 tests/rules.test.mjs    rule regression tests
+tests/corpus.test.mjs   the engine against its recorded behaviour (tests/fixtures/corpus.json.gz)
 tests/panel.test.mjs    panel, scale and photo overlay tests
 tests/browser/          browser suites and their runner
 tools/build-standalone.mjs  single-file build

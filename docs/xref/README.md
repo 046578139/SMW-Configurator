@@ -8,7 +8,7 @@ how to add a model.
 
 ## Where the rows come from
 
-Every row in `assets/js/xref-keysight.js` cites its sources:
+Every row in `assets/js/smw200a/xref-keysight.js` cites its sources:
 
 | Tag | Document | Publication |
 | --- | --- | --- |
@@ -69,11 +69,12 @@ Decisions worth knowing:
 The user asked for certainty that the cross-reference cannot contaminate
 the configurator. The separation is structural, and tested:
 
-- **One-way dependency.** `xref-keysight.js` imports nothing from the
-  catalog; `xref.js` imports `catalog.js` and `rules.js` and nothing imports
-  either `xref` module except `app.js`. `catalog.js`, `rules.js`, `derive.js`
-  and the R&S reader in `import.js` are unchanged by the feature (`git log`
-  shows it).
+- **One-way dependency.** `smw200a/xref-keysight.js` imports nothing from
+  the catalog; the resolver `xref.js` reaches the catalog, the rules and the
+  table through the active instrument profile, and nothing imports either
+  module except the profile and `app.js`. `catalog.js`, `rules.js`,
+  `derive.js` and the R&S reader in `import.js` are unchanged by the feature
+  (`git log` shows it).
 - **The SMW ids in the table are looked up, never trusted.** A test checks
   that every id the table names exists in the catalog, and that every option
   on its own, every option with each frequency option, and the whole guide's
@@ -124,14 +125,14 @@ the configurator. The separation is structural, and tested:
 
 1. Put its configuration guide and data sheet in `docs/source/keysight/`
    (ignored by git) and note their publication numbers.
-2. Add a table like `E8267D` to `xref-keysight.js` with a row per option:
+2. Add a table like `E8267D` to `smw200a/xref-keysight.js` with a row per option:
    `status`, `ids` (a list, `{standard, wideband}` by baseband section, or
    `byFreq` by frequency option), `needs` for a platform the row forces,
    `needsFreq`/`freqGap` for an answer that only works with some frequency
    options, `note` or `gap`, and `page`.
-3. Register it in `XREF_MODELS` in `xref.js` and remove it from
-   `OTHER_MODELS`; extend the reader if the model's documents print codes in
-   a form the current patterns do not read.
+3. Register it in the profile's `xref.models` (`smw200a/index.js`) and
+   remove it from `OTHER_MODELS`; extend the reader if the model's documents
+   print codes in a form the current patterns do not read.
 4. Run `node --test tests/xref.test.mjs`: the integrity and validation tests
-   sweep every model in `XREF_MODELS` once the code loops over them, and
+   sweep every model in the profile's `xref.models` once the code loops over them, and
    the mirror sweep must stay clean.

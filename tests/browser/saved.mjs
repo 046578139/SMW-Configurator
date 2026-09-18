@@ -168,6 +168,28 @@ const rows = p => p.locator('.saved-row');
     await p.click('[data-close]');
   });
 
+  await t('a configuration and a saved list stored before the profile split still load', async () => {
+    // the keys and record shapes the page wrote before instrument profiles existed
+    await p.evaluate(() => {
+      localStorage.clear();
+      localStorage.setItem('smw200a-config-v1', JSON.stringify({ sel: { B1020: 1, B13T: 1, K62: 2 }, name: 'Old bench' }));
+      localStorage.setItem('smw200a-saved-v1', JSON.stringify([
+        { id: 'k1abc', name: 'Kept from before', c: 'B1044.B13XT.B9*2', sum: 'B1044 · B13XT · 4 options', savedAt: '2026-09-01T10:00:00.000Z' }
+      ]));
+    });
+    await p.goto(`${BASE}/index.html`);
+    await p.reload();
+    await p.waitForTimeout(700);
+    if (!(await p.locator('.card[data-opt="B1020"].on').count()) || !(await p.locator('.card[data-opt="K62"].on').count())) throw new Error('the stored configuration did not load');
+    if (await p.inputValue('#config-name') !== 'Old bench') throw new Error('name is ' + await p.inputValue('#config-name'));
+    if (await count(p) !== '1') throw new Error('saved count is ' + await count(p));
+    await p.click('[data-action="saved"]');
+    await p.waitForTimeout(300);
+    if (!(await rows(p).first().textContent()).includes('Kept from before')) throw new Error('the old entry is not listed');
+    await p.click('[data-close]');
+    await p.evaluate(() => localStorage.clear());
+  });
+
   if (errs.length) { console.log('FAIL JS errors: ' + [...new Set(errs)].join(' | ')); fail++; }
   await ctx.close();
 }

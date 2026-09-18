@@ -36,18 +36,24 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 141 pass, 0 fail
+node --test                        # 143 pass, 0 fail (includes the behaviour corpus)
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 15 of 15 suites passed, 124 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  552 kB
+node tests/browser/run.mjs         # 15 of 15 suites passed, 125 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  564 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
 the photo overlay geometry, the rules adopted from the vendor comparison, the
 saved-configurations store against a stand-in for the artifact's document
-store, the document reader behind Import, and the Keysight cross-reference
+store, the document reader behind Import, the Keysight cross-reference
 (table integrity, every resolvable configuration validated, the two readers
-kept apart). The browser suites cover what a
+kept apart), and the **behaviour corpus**: 6209 configurations with what the
+engine said about each when `tests/fixtures/corpus.json.gz` was written -
+validation issues in order with their fixes, the auto-resolved result, the
+derived capabilities, the key figures, the parts list and the summary line.
+A difference there is a regression or a deliberate change; for the latter,
+`node tools/corpus.mjs` regenerates the fixture, and its diff is the record
+of what the change did. Commit the fixture with the change that caused it. The browser suites cover what a
 unit test cannot see: labels overlapping in a drawing, a sandboxed frame still
 being able to clear a configuration, the standalone build running from
 `file://` with no network at all, and the Save / Saved / Import dialogs with
@@ -204,7 +210,39 @@ code:
   back what someone else removed. Declaring `db` makes the artifact
   organization-internal, and a non-empty `capabilities` on republish must
   restate `downloads` (it is a full-set declaration).
-- **The Keysight E8267D cross-reference** (`assets/js/xref-keysight.js`,
+- **The page is a shell plus an instrument profile** (done for a second
+  instrument, the R&S FSW, which is the next request). The core -
+  `rules.js`, `ui.js`, `saved.js`, `import.js`, `xref.js`, `pdf.js`,
+  `app.js` - never imports an instrument; it reaches the active profile
+  through `instrument.js` (`useInstrument()` once at boot, `inst()` at call
+  time, never at module load). The SMW200A profile is
+  `assets/js/smw200a/index.js`: the catalog and its constants; `rules`, the
+  hooks the engine calls at fixed points (`context`, `before` the per-option
+  loop, `after` it, and `unreachable`, `blockedBy`, `pickFix`, `swapFor`
+  for settling a requirement - the SMW code moved verbatim into
+  `smw200a/rules.js`, and the engine has plain defaults for each);
+  `derive`, `vitals`, `summarize`, `PRESETS`; `ui` (`smw200a/sections.js`:
+  `sectionOptions`, `required`, `renderSection`, `exclusive`, `sync`,
+  `afterChange`, `setLevel`, `renderChainPane` - the frequency ladders, the
+  phase noise levels, the baseband hardware section, the accessories'
+  order, the single-select groups, the deeper chassis and the phase
+  pairing); `diagram`, `panel`, `photo`; `storage` (the keys are the ones
+  the page always used, so nothing anyone saved is lost); `reader` (the
+  type prefix codes carry, the Import intro, the AI prompt); `xref` (the
+  vendor reader and its tables). The build lists core first, then the
+  profile, then the shell, and boots the profile. The split was done in
+  three commits, each verified the same way: the corpus byte-identical, all
+  suites green, and 54 screenshots (both themes, three widths, every
+  dialog and tab) pixel-identical to a baseline taken before the first
+  move - the screenshot script and the pixel comparison are in the
+  transcript, not the repository, because they are a one-off. **To add an
+  instrument:** a directory beside `smw200a/` with the same modules, a
+  profile object of the same shape, its own page (or a switch) that boots
+  it, and the build's module list extended; the core needs nothing. A
+  profile may omit any hook: without `rules` the engine checks requirements,
+  conflicts and quantities alone; without `ui` every section is grouped
+  cards.
+- **The Keysight E8267D cross-reference** (`assets/js/smw200a/xref-keysight.js`,
   `assets/js/xref.js`, `docs/xref/README.md`). Import runs a second reader
   on every document: "E8267D" names the model, "E8267D-544", "E8267DK-016",
   "Option 602", a bare code at the start of a row ("1EH  Improved
@@ -260,7 +298,7 @@ code:
 
 Roughly in the order worth doing.
 
-1. **Review the photo overlay.** `assets/js/photo.js` is the least-reviewed
+1. **Review the photo overlay.** `assets/js/smw200a/photo.js` is the least-reviewed
    file — it came last and did not go through the review pass the rest did. Its
    overlay coordinates were measured against a grid drawn over the photographs
    at 1280×720; if the images in `assets/img/` are ever replaced, every
