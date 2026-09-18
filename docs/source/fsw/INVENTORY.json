@@ -61,5 +61,40 @@
   "sha": "17132abe3650d563",
   "size": 227306,
   "head": "R&S\u00aeFSW-B24U ENHANCED DYNAMIC FRONT END (EDFE) Market-leading EVM performance in millimeter wave range Ideal for 5G NR and IEEE WLAN Component testing Key speci"
+ },
+ {
+  "file": "FSW_bro_en_5215-6749-12_v1700.pdf",
+  "pages": 34,
+  "sha": "de2ebde363dd1b40",
+  "size": 7118078,
+  "head": "FSW SIGNAL AND SPECTRUM ANALYZER Continuing innovation in RF performance and usability Product Brochure Version 17.00"
+ },
+ {
+  "file": "FSW_specs_en_5215-6749-22_v1701.pdf",
+  "pages": 56,
+  "sha": "54311d621aea8212",
+  "size": 2562336,
+  "head": "FSW SIGNAL AND SPECTRUM ANALYZER Specifications Specifications Version 17.01"
+ },
+ {
+  "file": "FSW-B512R-B800R-K161R-K512RE-K800RE_dat-sw_en_5215-7445-22_v0100.pdf",
+  "pages": 16,
+  "sha": "6d2dd5e01e5c6d98",
+  "size": 1267320,
+  "head": "Real-Time Spectrum Analyzer and Measurement Application Specifications R&S\u00aeFSW-B512R real-time spectrum analyzer 512 MHz R&S\u00aeFSW-B800R real-time spectrum analyz"
+ },
+ {
+  "file": "FSW-K15_dat-sw_en_3607-3880-22_v0200.pdf",
+  "pages": 8,
+  "sha": "c985d5370f1d0bfa",
+  "size": 1185014,
+  "head": "R&S\u00aeFSW-K15 VOR/ILS Measurement Application Specifications 0 0 . 2 0 n o i s r e V | t e e h S a t a D FSW-K15_dat-sw_en_3607-3880-22_v0200_cover.indd 1 02.02.2"
+ },
+ {
+  "file": "FSW-K17_dat-sw_en_3606-7101-22_v0500.pdf",
+  "pages": 8,
+  "sha": "9a8cb6a29f9c8644",
+  "size": 907705,
+  "head": "R&S\u00aeFSW-K17 MULTICARRIER GROUP DELAY MEASUREMENTS Specifications Data Sheet Version 05.00"
  }
 ]
