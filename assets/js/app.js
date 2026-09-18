@@ -1,20 +1,17 @@
 /** Application state, rendering and event wiring. */
 
-import { OPTIONS, BY_ID, SECTIONS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS, RF_PATH_MATRIX, typeName }
-  from './smw200a/catalog.js';
 import { useInstrument, inst } from './instrument.js';
 import { validate, autoResolve, qtyChoices, maxQty, ruledOutBy } from './rules.js';
-import { freqA, freqB, mainModule } from './smw200a/rules.js';
-import { derive, vitals } from './smw200a/derive.js';
-import { renderChain, renderRuler } from './smw200a/diagram.js';
-import { renderFront, renderRear, connectorNotes, faceCounts } from './smw200a/panel.js';
-import { renderPhoto } from './smw200a/photo.js';
-import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
-import { PRESETS } from './smw200a/presets.js';
+import { icon, esc, optionCard, issueItem, bomPane, bomLines, groupedCards } from './ui.js';
 import { SavedStore, packSel, unpackSel, summarize, savedKey } from './saved.js';
 import { readText, aiText, parseAiJson, readPdf, canvasToBlob, ocrImage, warmOcr, aiPrompt } from './import.js';
 import { readCompetitor, xrefRows, xrefName, xrefTypes, xrefCode, xrefSummary, mappedFrom, XREF_STATUS } from './xref.js';
 import { partsListPdf } from './pdf.js';
+
+/* The active instrument profile (instrument.js), set at boot. Everything the
+   shell knows about the instrument - catalog, rules, drawings, its own
+   sections and single-select groups - comes from here. */
+let PROF = null;
 
 /* this instrument's own key for the configuration on screen */
 const STORE = () => inst().storage.config;
@@ -95,24 +92,18 @@ function load () {
 /* ============================== mutations =============================== */
 
 function setQty (id, qty) {
-  const opt = BY_ID[id];
+  const opt = PROF.BY_ID[id];
   if (!opt) return;
   if (qty <= 0) delete state.sel[id];
   else state.sel[id] = qty;
 
-  // single-select groups: one frequency option per path, one main module
-  if (qty > 0) {
-    if (opt.step === 1) OPTIONS.filter(o => o.step === 1 && o.id !== id).forEach(o => delete state.sel[o.id]);
-    if (opt.step === 2) ['B13', 'B13T', 'B13XT'].filter(x => x !== id).forEach(x => delete state.sel[x]);
-    if (opt.step === 5 && opt.meta?.path === 'B') {
-      OPTIONS.filter(o => o.step === 5 && o.meta?.path === 'B' && o.id !== id).forEach(o => delete state.sel[o.id]);
-    }
-  }
+  // single-select groups: the instrument says which others a choice clears
+  if (qty > 0) for (const other of PROF.ui?.exclusive?.(id) || []) delete state.sel[other];
   afterChange();
 }
 
 function toggle (id) {
-  const opt = BY_ID[id];
+  const opt = PROF.BY_ID[id];
   if (!opt) return;
   if (state.sel[id]) {
     delete state.sel[id];
@@ -128,36 +119,10 @@ function toggle (id) {
   afterChange();
 }
 
-/** Keeps the deeper chassis in step with the RF path B choice. */
-function syncAuto () {
-  const b = freqB(state.sel);
-  const needs = b && ['B2012', 'B2031', 'B2044', 'B2044N', 'B2044O'].includes(b.id);
-  if (needs) state.sel.B94L = 1;
-  else delete state.sel.B94L;
-}
-
-/** Phase noise is one level for the whole instrument. */
-function setPhaseLevel (levelId) {
-  for (const lvl of PHASE_NOISE_LEVELS) {
-    if (lvl.a) { delete state.sel[lvl.a]; delete state.sel[lvl.b]; }
-  }
-  const lvl = PHASE_NOISE_LEVELS.find(l => l.id === levelId);
-  if (lvl?.a) {
-    state.sel[lvl.a] = 1;
-    if (freqB(state.sel)) state.sel[lvl.b] = 1;
-  }
-  afterChange();
-}
-
 function afterChange () {
-  syncAuto();
-  // keep the path B phase noise option paired with path A
-  const b = freqB(state.sel);
-  for (const lvl of PHASE_NOISE_LEVELS) {
-    if (!lvl.a) continue;
-    if (state.sel[lvl.a] && b) state.sel[lvl.b] = 1;
-    if (!b) delete state.sel[lvl.b];
-  }
+  // what follows automatically from a choice, in the instrument's own terms
+  PROF.ui?.sync?.(state.sel);
+  PROF.ui?.afterChange?.(state.sel);
   save();
   render();
 }
@@ -165,8 +130,8 @@ function afterChange () {
 /* ============================== rendering =============================== */
 
 function sectionOptions (id) {
-  if (id === 'phase') return [];
-  return OPTIONS.filter(o => o.section === id && !o.auto);
+  if (PROF.ui?.sectionOptions) return PROF.ui.sectionOptions(id);
+  return PROF.OPTIONS.filter(o => o.section === id && !o.auto);
 }
 
 function sectionStatus (sec) {
@@ -177,8 +142,7 @@ function sectionStatus (sec) {
   const hasError = errors.some(e => e.section === sec.id && !e.todo);
   let dot = null;
   if (hasError) dot = 'err';
-  else if (sec.id === 'rf-a' && !freqA(state.sel)) dot = 'req';
-  else if (sec.id === 'baseband' && !mainModule(state.sel)) dot = 'req';
+  else if (PROF.ui?.required?.(sec.id, state.sel)) dot = 'req';
   else if (chosen) dot = 'done';
   return { chosen, dot };
 }
@@ -186,7 +150,7 @@ function sectionStatus (sec) {
 let cached = { validation: { errors: [], warnings: [], info: [], ok: false }, derived: null };
 
 function renderRail () {
-  return SECTIONS.map(sec => {
+  return PROF.SECTIONS.map(sec => {
     const { chosen, dot } = sectionStatus(sec);
     return `
     <button class="nav-item ${state.section === sec.id ? 'active' : ''}" data-goto="${sec.id}">
@@ -202,15 +166,9 @@ function renderSection (sec) {
   const stepBadge = sec.steps.length
     ? `<span class="step-badge">Guide step ${sec.steps.join(' + ')}</span>` : '';
 
-  let body = '';
-  if (sec.id === 'rf-a') body = renderFreqA();
-  else if (sec.id === 'rf-b') body = renderFreqB();
-  else if (sec.id === 'phase') body = renderPhase();
-  else if (sec.id === 'bb-hw') body = renderBasebandHw();
-  /* the accessories keep the ordering information's own sequence: half of them
-     have no type designation to sort by */
-  else if (sec.id === 'extras') body = renderGrouped(sectionOptions('extras'), { sort: false });
-  else body = renderGrouped(sectionOptions(sec.id));
+  /* a section the instrument draws itself, else its options as grouped cards */
+  let body = PROF.ui?.renderSection ? PROF.ui.renderSection(sec, state.sel) : null;
+  if (body == null) body = groupedCards(sectionOptions(sec.id), state.sel);
 
   return `
 <section class="section" id="sec-${sec.id}" data-section="${sec.id}">
@@ -223,119 +181,9 @@ function renderSection (sec) {
 </section>`;
 }
 
-const byCode = (x, y) => x.id.localeCompare(y.id, undefined, { numeric: true });
-
-function renderGrouped (opts, { sort = true } = {}) {
-  if (!opts.length) return '<div class="empty">Nothing to configure here yet.</div>';
-  const groups = [];
-  for (const o of opts) {
-    const last = groups[groups.length - 1];
-    if (last && last.name === o.group) last.items.push(o);
-    else groups.push({ name: o.group, items: [o] });
-  }
-  /* Options added after the guide (since: 'specs' / 'vendor') are appended to
-     the catalog; sorting by code keeps every group in the ordering-information
-     order the guide and the vendor both use. */
-  if (sort) for (const g of groups) g.items.sort(byCode);
-  return groups.map(g => `
-    ${groups.length > 1 ? `<div class="group-head">${esc(g.name)}</div>` : ''}
-    <div class="cards">${g.items.map(o => optionCard(o, state.sel)).join('')}</div>`).join('');
-}
-
-function renderFreqA () {
-  const opts = OPTIONS.filter(o => o.step === 1);
-  return `<div class="cards grid-2">${opts.map(o => freqCard(o, state.sel)).join('')}</div>`;
-}
-
-function renderFreqB () {
-  const a = freqA(state.sel);
-  const opts = OPTIONS.filter(o => o.step === 5 && o.meta?.path === 'B');
-  if (!a) {
-    return `<div class="empty">Choose the RF path A frequency option first – it decides which
-      path B options are available.</div>`;
-  }
-  const allowed = RF_PATH_MATRIX[a.id] || [];
-  if (!allowed.length) {
-    return `<div class="issue info">
-      <div class="issue-title">${icon('info', 14)}<span>Single path instrument</span></div>
-      <div class="issue-detail">R&amp;S®SMW-${esc(a.id)} in RF path A cannot be combined with a second
-        RF path. Choose a different path A frequency option if you need two paths.</div>
-    </div>`;
-  }
-  const cards = opts.filter(o => allowed.includes(o.id)).map(o => freqCard(o, state.sel)).join('');
-  const blocked = opts.filter(o => !allowed.includes(o.id));
-  /* the one-path main module rules every path B option out; the way through is
-     the main module, so it is offered here rather than left to the cards */
-  const onePath = mainModule(state.sel) === 'B13'
-    ? `<div class="issue info">
-        <div class="issue-title">${icon('info', 14)}<span>A second RF path needs a two-path main module</span></div>
-        <div class="issue-detail">R&amp;S®SMW-B13 carries one I/Q path to the RF section. RF path B needs
-          R&amp;S®SMW-B13T (two paths, standard baseband) or R&amp;S®SMW-B13XT (two paths, wideband).</div>
-        <div class="issue-actions">
-          <button class="mini mini-go" data-swap="B13,B13T">Use B13T instead of B13</button>
-          <button class="mini" data-swap="B13,B13XT">Use B13XT instead of B13</button>
-        </div>
-      </div>` : '';
-  const chassis = state.sel.B94L
-    ? `<div class="issue info"><div class="issue-title">${icon('info', 14)}<span>Deeper chassis added automatically</span></div>
-       <div class="issue-detail">This RF path combination requires R&amp;S®SMW-B94L (1438.8150.02); it is
-       included in the parts list.</div></div>` : '';
-  return `
-    ${onePath}
-    <div class="cards grid-2">${cards}</div>
-    ${chassis}
-    ${blocked.length ? `<div class="group-head">Not available with R&amp;S®SMW-${esc(a.id)}</div>
-      <div class="cards grid-2" style="opacity:.42;pointer-events:none">
-        ${blocked.map(o => freqCard(o, state.sel)).join('')}</div>` : ''}`;
-}
-
-function renderPhase () {
-  const b = freqB(state.sel);
-  const current = PHASE_NOISE_LEVELS.find(l => l.a && state.sel[l.a])?.id || 'std';
-  return `<div class="levels">${PHASE_NOISE_LEVELS.map(lvl => {
-    const on = current === lvl.id;
-    const codes = lvl.a ? (b ? `${lvl.a} + ${lvl.b}` : lvl.a) : 'included';
-    const orders = lvl.a
-      ? [BY_ID[lvl.a]?.order, b ? BY_ID[lvl.b]?.order : null].filter(Boolean).join(' · ')
-      : 'no extra option';
-    return `
-    <div class="card ${on ? 'on' : 'off'}" data-level="${lvl.id}">
-      <button class="tick round" data-level="${lvl.id}" aria-pressed="${on}"
-        aria-label="Select ${esc(lvl.label)} phase noise">${icon('check', 13)}</button>
-      <div class="card-body" data-level="${lvl.id}">
-        <div class="card-top"><span class="opt-id">${esc(codes)}</span></div>
-        <p class="opt-name">${esc(lvl.label)}</p>
-        <p class="opt-note">${esc(lvl.blurb)}</p>
-        <div class="opt-meta"><span class="opt-order">${esc(orders)}</span></div>
-      </div>
-    </div>`;
-  }).join('')}</div>`;
-}
-
-function renderBasebandHw () {
-  const mm = mainModule(state.sel);
-  if (!mm) {
-    return `<div class="empty">Choose a baseband main module first – it decides whether the standard
-      or the wideband baseband hardware applies.</div>`;
-  }
-  const wideband = mm === 'B13XT';
-  const group = wideband ? 'Wideband baseband' : 'Standard baseband';
-  const opts = OPTIONS.filter(o => o.section === 'bb-hw' && o.group === group).sort(byCode);
-  const other = OPTIONS.filter(o => o.section === 'bb-hw' && o.group !== group && state.sel[o.id]);
-  return `
-    <div class="issue info">
-      <div class="issue-title">${icon('info', 14)}<span>${wideband ? 'Wideband' : 'Standard'} baseband section (guide step ${wideband ? 9 : 8})</span></div>
-      <div class="issue-detail">R&amp;S®SMW-${esc(mm)} is installed, so the ${wideband ? 'wideband' : 'standard'}
-        baseband options apply – up to ${wideband ? '2 GHz' : '160 MHz'} RF bandwidth. The two sections cannot be mixed.</div>
-    </div>
-    <div class="cards">${opts.map(o => optionCard(o, state.sel)).join('')}</div>
-    ${other.length ? `<div class="group-head">Selected but not compatible</div>
-      <div class="cards">${other.map(o => optionCard(o, state.sel)).join('')}</div>` : ''}`;
-}
-
 function renderSearch () {
   const q = state.search.toLowerCase();
-  const hits = OPTIONS.filter(o =>
+  const hits = PROF.OPTIONS.filter(o =>
     o.id.toLowerCase().includes(q) ||
     o.name.toLowerCase().includes(q) ||
     o.order.includes(q) ||
@@ -357,7 +205,7 @@ function colophon () {
   return `
   <div class="colophon">
     <strong>Unofficial planning aid.</strong> Built from published Rohde &amp; Schwarz
-    documentation — ${esc(GUIDE.title)}, ${esc(GUIDE.version)} (${esc(GUIDE.pd)}) — and
+    documentation — ${esc(PROF.GUIDE.title)}, ${esc(PROF.GUIDE.version)} (${esc(PROF.GUIDE.pd)}) — and
     the matching specifications documents. Not affiliated with or endorsed by
     Rohde &amp; Schwarz, and no substitute for a quotation: it carries no prices or
     availability, and R&amp;S states that data without tolerance limits is not binding.
@@ -384,37 +232,23 @@ function renderPanel () {
     ['chain', 'Chain', 0],
     ['checks', 'Checks', issues],
     ...(state.xref ? [['xref', 'Cross-ref', xrefRows(state.xref, state.sel).length]] : []),
-    ['order', 'Parts list', bomLines(state.sel, BASE_UNIT).length]
+    ['order', 'Parts list', bomLines(state.sel, PROF.BASE_UNIT).length]
   ];
 
   let body = '';
   if (state.tab === 'overview') {
     body = `
       <div class="pane-title">Frequency coverage</div>
-      <div class="viz">${renderRuler(d)}</div>
+      <div class="viz">${PROF.diagram.renderRuler(d)}</div>
       <div class="pane-title">Key figures</div>
-      <div class="vitals">${vitals(d).map(v2 => `
+      <div class="vitals">${PROF.vitals(d).map(v2 => `
         <div class="vital">
           <div class="vital-label">${esc(v2.label)}</div>
           <div class="vital-value">${esc(v2.value)}</div>
           <div class="vital-sub">${esc(v2.sub)}</div>
         </div>`).join('')}</div>`;
   } else if (state.tab === 'chain') {
-    body = `
-      <div class="viz">${renderChain(d, state.sel)}</div>
-      <div class="pane-title">Configuration</div>
-      <div class="vitals">
-        <div class="vital"><div class="vital-label">Hardware options</div>
-          <div class="vital-value">${d.hwCount}</div><div class="vital-sub">B-options</div></div>
-        <div class="vital"><div class="vital-label">Software options</div>
-          <div class="vital-value">${d.swCount}</div><div class="vital-sub">K-options, keycode</div></div>
-        <div class="vital"><div class="vital-label">Baseband</div>
-          <div class="vital-value">${d.section ? (d.section === 'wideband' ? 'Wideband' : 'Standard') : '—'}</div>
-          <div class="vital-sub">${esc(d.mainModule || 'no main module')}</div></div>
-        <div class="vital"><div class="vital-label">Chassis</div>
-          <div class="vital-value">${d.chassis === 'deep' ? 'Deep' : 'Standard'}</div>
-          <div class="vital-sub">${d.chassis === 'deep' ? 'R&amp;S®SMW-B94L' : 'included in base unit'}</div></div>
-      </div>`;
+    body = PROF.ui?.renderChainPane ? PROF.ui.renderChainPane(d, state.sel) : `<div class="viz">${PROF.diagram.renderChain(d, state.sel)}</div>`;
   } else if (state.tab === 'checks') {
     body = issues
       ? [...todo.map(e => issueItem(e, 'todo')),
@@ -428,7 +262,7 @@ function renderPanel () {
   } else if (state.tab === 'xref' && state.xref) {
     body = xrefPane();
   } else {
-    body = bomPane(state.sel, BASE_UNIT);
+    body = bomPane(state.sel, PROF.BASE_UNIT);
   }
 
   return `
@@ -466,7 +300,7 @@ function xrefPane () {
         <div class="xref-code">${esc(xrefCode(x.model, r.code))}</div>
         <div class="xref-what">${esc(r.name)}</div>
         <div class="xref-to">${r.ids.length ? esc(xrefTypes(r.ids)) : esc(XREF_STATUS[r.status])}${r.present === false
-          ? ` <span class="chip unmet"><span>${esc(r.missing.map(typeName).join(', '))} removed</span></span>` : ''}</div>
+          ? ` <span class="chip unmet"><span>${esc(r.missing.map(PROF.typeName).join(', '))} removed</span></span>` : ''}</div>
         ${r.gap ? `<div class="xref-gap">${esc(r.gap)}</div>` : ''}
       </div>`).join('')}</div>
     <button class="btn btn-sm" data-action="xref-forget">${icon('x', 14)} Forget the cross-reference</button>`;
@@ -498,8 +332,8 @@ function panelWidth () {
 
 function renderHero () {
   const d = cached.derived;
-  const counts = faceCounts(d);
-  const notes = connectorNotes(d);
+  const counts = PROF.panel.faceCounts(d);
+  const notes = PROF.panel.connectorNotes(d);
   const rear = state.face === 'rear';
   const w = panelWidth();
 
@@ -523,8 +357,8 @@ function renderHero () {
     </div>
     <div class="viz viz-panel">
       ${state.view === 'photo'
-        ? renderPhoto(d, rear ? 'rear' : 'front')
-        : (rear ? renderRear(d, w, 'hero') : renderFront(d, state.sel, 'hero'))}
+        ? PROF.photo.renderPhoto(d, rear ? 'rear' : 'front')
+        : (rear ? PROF.panel.renderRear(d, w, 'hero') : PROF.panel.renderFront(d, state.sel, 'hero'))}
     </div>
     ${notes.length ? `<div class="conn-notes">${notes.map(n => `
       <div class="conn-note">
@@ -542,13 +376,13 @@ function renderHero () {
 
 function render () {
   cached.validation = validate(state.sel);
-  cached.derived = derive(state.sel);
+  cached.derived = PROF.derive(state.sel);
 
   $('#rail').innerHTML = renderRail();
   const wide = WIDE.matches;
   $('#main-inner').innerHTML = (wide ? '' : renderHero()) + (state.search
     ? renderSearch()
-    : SECTIONS.map(renderSection).join('')) + colophon();
+    : PROF.SECTIONS.map(renderSection).join('')) + colophon();
   $('#panel').innerHTML = (wide ? renderHero() : '') + renderPanel();
   $('#config-name').value = state.name;
 
@@ -611,11 +445,11 @@ document.addEventListener('click', ev => {
   }
 
   if (t.dataset.toggle) { toggle(t.dataset.toggle); return; }
-  if (t.dataset.level) { setPhaseLevel(t.dataset.level); return; }
+  if (t.dataset.level) { PROF.ui?.setLevel?.(t.dataset.level, state.sel); afterChange(); return; }
 
   if (t.dataset.step) {
     const [id, dir] = t.dataset.step.split(':');
-    const opt = BY_ID[id];
+    const opt = PROF.BY_ID[id];
     const choices = qtyChoices(opt, state.sel);
     const now = state.sel[id] || 0;
     const idx = choices.indexOf(now);
@@ -634,7 +468,7 @@ document.addEventListener('click', ev => {
   if (t.dataset.fix) {
     const qtys = JSON.parse(t.dataset.fixqty || '{}');
     for (const id of t.dataset.fix.split(',')) {
-      const opt = BY_ID[id];
+      const opt = PROF.BY_ID[id];
       let want = qtys[id] || 1;
       if (opt?.qtySteps) want = opt.qtySteps.find(q => q >= want) ?? opt.qtySteps[0];
       state.sel[id] = Math.max(state.sel[id] || 0, want);
@@ -662,7 +496,7 @@ document.addEventListener('click', ev => {
     return;
   }
   if (t.dataset.preset) {
-    const p = PRESETS.find(x => x.id === t.dataset.preset);
+    const p = PROF.PRESETS.find(x => x.id === t.dataset.preset);
     if (p) {
       state.sel = { ...p.sel };
       state.name = p.name;
@@ -739,7 +573,7 @@ document.addEventListener('click', ev => {
   if (action === 'enlarge') {
     const d2 = cached.derived;
     const rear = state.face === 'rear';
-    const counts = faceCounts(d2);
+    const counts = PROF.panel.faceCounts(d2);
     openModal(`
     <div class="modal modal-wide" role="dialog" aria-label="${rear ? 'Rear' : 'Front'} panel">
       <div class="modal-head">
@@ -751,8 +585,8 @@ document.addEventListener('click', ev => {
       </div>
       <div class="modal-body">
         <div class="viz viz-wide">${state.view === 'photo'
-          ? renderPhoto(d2, rear ? 'rear' : 'front')
-          : (rear ? renderRear(d2, 980, 'zoom') : renderFront(d2, state.sel, 'zoom'))}</div>
+          ? PROF.photo.renderPhoto(d2, rear ? 'rear' : 'front')
+          : (rear ? PROF.panel.renderRear(d2, 980, 'zoom') : PROF.panel.renderFront(d2, state.sel, 'zoom'))}</div>
         <p class="viz-caption">Schematic elevation. The connectors fitted and their types
           follow the specifications; positions on the panel are indicative.</p>
       </div>
@@ -834,7 +668,7 @@ document.addEventListener('change', ev => {
   const field = ev.target.closest('[data-qty]');
   if (!field) return;
   const id = field.dataset.qty;
-  const opt = BY_ID[id];
+  const opt = PROF.BY_ID[id];
   if (!opt) return;
   const typed = parseInt(field.value, 10);
   setQty(id, Number.isFinite(typed) ? Math.max(0, Math.min(maxQty(opt, state.sel), typed)) : 0);
@@ -907,7 +741,7 @@ function openPresets () {
     </div>
     <div class="modal-body">
       <div class="preset-grid">
-        ${PRESETS.map(p => `
+        ${PROF.PRESETS.map(p => `
           <button class="preset" data-preset="${p.id}">
             <div class="preset-icon">${icon(p.icon, 17)}</div>
             <div class="preset-name">${esc(p.name)}</div>
@@ -984,9 +818,7 @@ function openImport () {
     <div class="modal-head">
       <div style="flex:1">
         <h2>Import a configuration</h2>
-        <p>Drop a Rohde &amp; Schwarz quotation or configuration list – a PDF or a photograph – or paste its
-          text. Order numbers and type designations are matched against the catalog. A Keysight E8267D
-          configuration is cross-referenced to its SMW200A equivalent instead.</p>
+        <p>${esc(PROF.reader?.intro || 'Drop a Rohde & Schwarz quotation or configuration list – a PDF or a photograph – or paste its text. Order numbers and type designations are matched against the catalog.')}</p>
       </div>
       <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
     </div>
@@ -1216,9 +1048,9 @@ function renderImportResult () {
     ${n ? `<table class="table import-table">
       <thead><tr><th>Type</th><th>Designation</th><th>Order No.</th><th style="text-align:right">Qty</th></tr></thead>
       <tbody>${r.items.map(it => {
-        const o = BY_ID[it.id];
+        const o = PROF.BY_ID[it.id];
         return `<tr>
-          <td class="c-id">${esc(typeName(it.id))}</td>
+          <td class="c-id">${esc(PROF.typeName(it.id))}</td>
           <td>${esc(o.name)}</td>
           <td class="c-order">${esc(o.order)}</td>
           <td class="c-qty"><input class="qty-input" type="number" min="1" max="999" value="${it.qty}"
@@ -1446,7 +1278,7 @@ function renderSavedCount () {
 const printable = () => !window.claude?.use;
 
 function openExport () {
-  const lines = bomLines(state.sel, BASE_UNIT);
+  const lines = bomLines(state.sel, PROF.BASE_UNIT);
   const v = cached.validation;
   const groups = [];
   for (const l of lines) {
@@ -1457,7 +1289,7 @@ function openExport () {
   /* a configuration built from a competitor's: every SMW line says which
      of their options it answers, and their options are listed in full
      under the parts list with what the SMW200A makes of each */
-  const x = state.xref ? xrefSummary(state.xref, state.sel, BASE_UNIT.id) : null;
+  const x = state.xref ? xrefSummary(state.xref, state.sel, PROF.BASE_UNIT.id) : null;
   const cols = x ? 5 : 4;
   openModal(`
   <div class="modal ${x ? 'modal-wide' : ''}" role="dialog" aria-label="Parts list">
@@ -1497,7 +1329,7 @@ function openExport () {
               <td>${esc(r.name)}<div class="xref-page">${esc(r.step)} · ${esc(r.page)}</div></td>
               <td>${r.ids.length ? `<span class="c-id">${esc(xrefTypes(r.ids))}</span>` : `<span class="xref-st ${esc(r.status)}">${esc(XREF_STATUS[r.status])}</span>`}${
                 r.status === 'partial' && r.ids.length ? ` <span class="xref-st partial">– in part</span>` : ''}${
-                r.present === false ? `<div class="xref-gap">${esc(r.missing.map(typeName).join(', '))} no longer in this configuration</div>` : ''}${
+                r.present === false ? `<div class="xref-gap">${esc(r.missing.map(PROF.typeName).join(', '))} no longer in this configuration</div>` : ''}${
                 r.gap ? `<div class="xref-gap">${esc(r.gap)}</div>` : r.note ? `<div class="xref-note">${esc(r.note)}</div>` : ''}</td>
             </tr>`).join('')}
         </tbody>
@@ -1554,13 +1386,13 @@ async function download (filename, mime, text) {
 /* The tables carry the order number in a column of their own, so an accessory
    R&S lists by order number alone gets an empty Type cell there rather than
    the number twice - which is how the vendor's own parts list reads. */
-const typeCol = id => (BY_ID[id]?.code === null ? '' : typeName(id));
+const typeCol = id => (PROF.BY_ID[id]?.code === null ? '' : PROF.typeName(id));
 
-const slug = () => state.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'smw200a';
+const slug = () => state.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || PROF.id;
 
 function downloadCsv () {
   const rows = [['Type', 'Designation', 'Order No.', 'Quantity', ...(state.xref ? ['Mapped from'] : [])]];
-  for (const l of bomLines(state.sel, BASE_UNIT)) {
+  for (const l of bomLines(state.sel, PROF.BASE_UNIT)) {
     rows.push([typeCol(l.id), l.name, l.order, l.qty, ...(state.xref ? [mappedFrom(state.xref, l.id).join('; ')] : [])]);
   }
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
@@ -1568,9 +1400,9 @@ function downloadCsv () {
 }
 
 function downloadPdf () {
-  const lines = bomLines(state.sel, BASE_UNIT);
+  const lines = bomLines(state.sel, PROF.BASE_UNIT);
   const v = validate(state.sel);
-  const x = state.xref ? xrefSummary(state.xref, state.sel, BASE_UNIT.id) : null;
+  const x = state.xref ? xrefSummary(state.xref, state.sel, PROF.BASE_UNIT.id) : null;
   const groups = [];
   for (const l of lines) {
     const last = groups[groups.length - 1];
@@ -1586,7 +1418,7 @@ function downloadPdf () {
       : 'validated against the configuration guide'} · ${new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`,
     groups,
     sections: xrefSections(),
-    footer: `Unofficial planning aid built from ${GUIDE.title}, ${GUIDE.version}. Not a quotation – confirm any configuration with Rohde & Schwarz before ordering.`
+    footer: `Unofficial planning aid built from ${PROF.GUIDE.title}, ${PROF.GUIDE.version}. Not a quotation – confirm any configuration with Rohde & Schwarz before ordering.`
   });
   download(`${slug()}.pdf`, 'application/pdf', pdf);
 }
@@ -1608,18 +1440,18 @@ function downloadJson () {
   const payload = {
     name: state.name,
     generatedAt: new Date().toISOString(),
-    source: `${GUIDE.title}, ${GUIDE.version} (${GUIDE.pd})`,
+    source: `${PROF.GUIDE.title}, ${PROF.GUIDE.version} (${PROF.GUIDE.pd})`,
     valid: v.ok,
     issues: v.errors.map(e => ({ title: e.title, detail: e.detail })),
-    items: bomLines(state.sel, BASE_UNIT).map(l => ({
+    items: bomLines(state.sel, PROF.BASE_UNIT).map(l => ({
       type: typeCol(l.id), designation: l.name, orderNo: l.order, quantity: l.qty, group: l.group
     })),
-    capabilities: derive(state.sel),
+    capabilities: PROF.derive(state.sel),
     crossref: state.xref ? {
       vendor: state.xref.vendor, model: state.xref.model, quote: state.xref.name,
       options: xrefRows(state.xref, state.sel).map(r => ({
         code: xrefCode(state.xref.model, r.code), name: r.name, status: r.status,
-        smw: r.ids.map(typeName), inConfiguration: r.present
+        smw: r.ids.map(PROF.typeName), inConfiguration: r.present
       }))
     } : null,
     link: location.origin + location.pathname + encode()
@@ -1650,6 +1482,7 @@ function closePanel () {
 
 export function boot (profile) {
   useInstrument(profile);
+  PROF = profile;
   state.view = store.get(inst().storage.view) === 'schematic' ? 'schematic' : 'photo';
   // a host that sandboxes the frame is the only case where this matters
   if (window.claude?.use) {
@@ -1672,10 +1505,10 @@ export function boot (profile) {
 
   // the count belongs to the catalog, not to a number typed into the markup
   const search = $('#search');
-  if (search) search.placeholder = `Search ${OPTIONS.length} options — press /`;
+  if (search) search.placeholder = `Search ${PROF.OPTIONS.length} options — press /`;
 
   load();
-  syncAuto();
+  PROF.ui?.sync?.(state.sel);
   applyTheme();
   render();
   watchScroll();

@@ -57,6 +57,9 @@ const fullId = id =>
   // mistaken for a digit when someone copies an order code.
   esc(inst().typeName(id)).replace(/(-B\d+)([A-Z]+)$/, '$1<span class="opt-suffix">$2</span>');
 
+/** Options sorted by code, numerically: B10 before B13, K55 before K144. */
+export const byCode = (x, y) => x.id.localeCompare(y.id, undefined, { numeric: true });
+
 /* ------------------------------------------------------------------ cards */
 
 export function optionCard (opt, sel, opts = {}) {
@@ -206,6 +209,23 @@ export function issueItem (issue, kind) {
   <div class="issue-detail">${issue.detail}</div>
   ${actions.length ? `<div class="issue-actions">${actions.join('')}</div>` : ''}
 </div>`;
+}
+
+export function groupedCards (opts, sel, { sort = true } = {}) {
+  if (!opts.length) return '<div class="empty">Nothing to configure here yet.</div>';
+  const groups = [];
+  for (const o of opts) {
+    const last = groups[groups.length - 1];
+    if (last && last.name === o.group) last.items.push(o);
+    else groups.push({ name: o.group, items: [o] });
+  }
+  /* Options added after the guide (since: 'specs' / 'vendor') are appended to
+     the catalog; sorting by code keeps every group in the ordering-information
+     order the guide and the vendor both use. */
+  if (sort) for (const g of groups) g.items.sort(byCode);
+  return groups.map(g => `
+    ${groups.length > 1 ? `<div class="group-head">${esc(g.name)}</div>` : ''}
+    <div class="cards">${g.items.map(o => optionCard(o, sel)).join('')}</div>`).join('');
 }
 
 /* -------------------------------------------------------------------- BOM */

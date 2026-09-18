@@ -20,6 +20,7 @@ import { renderChain, renderRuler } from './diagram.js';
 import { renderFront, renderRear, connectorNotes, faceCounts } from './panel.js';
 import { renderPhoto } from './photo.js';
 import { E8267D, OTHER_MODELS, KEYSIGHT_VENDOR, readKeysight } from './xref-keysight.js';
+import { smwUi } from './sections.js';
 
 /** "B1020 · B13T · 7 options" - enough to tell saved entries apart. */
 function smwSummarize (sel) {
@@ -51,6 +52,9 @@ export const SMW200A = {
   derive, vitals, summarize: smwSummarize,
   PRESETS,
 
+  /* the sections this instrument draws itself, its single-select groups and what follows a choice */
+  ui: smwUi,
+
   /* drawings and photographs */
   diagram: { renderChain, renderRuler },
   panel: { renderFront, renderRear, connectorNotes, faceCounts },
@@ -67,6 +71,9 @@ export const SMW200A = {
   /* the document reader: the type prefix its codes carry, and what the AI is asked */
   reader: {
     prefix: 'SMW',
+    intro: 'Drop a Rohde & Schwarz quotation or configuration list – a PDF or a photograph – or paste its ' +
+      'text. Order numbers and type designations are matched against the catalog. A Keysight E8267D ' +
+      'configuration is cross-referenced to its SMW200A equivalent instead.',
     prompt:
       'The attached image(s) show a signal generator document - a quotation, order confirmation, ' +
       'configuration list or product listing - for a Rohde & Schwarz R&S SMW200A or for a Keysight PSG ' +

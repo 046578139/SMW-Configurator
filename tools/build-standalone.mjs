@@ -41,6 +41,7 @@ const MODULES = [
   'assets/js/smw200a/photo.js',
   'assets/js/smw200a/presets.js',
   'assets/js/smw200a/xref-keysight.js',
+  'assets/js/smw200a/sections.js',
   'assets/js/smw200a/index.js',
   // the shell
   'assets/js/app.js'
