@@ -6,10 +6,11 @@
  * layer and what an AI transcribes off an image.
  */
 
+import '../assets/js/smw200a/index.js';   // activates the SMW200A profile the core modules work on
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { readLine, readText, readAI, textLines, normalizeOcr, ocrImage, warmOcr, resetOcr, AI_PROMPT } from '../assets/js/import.js';
+import { readLine, readText, readAI, textLines, normalizeOcr, ocrImage, warmOcr, resetOcr, aiPrompt } from '../assets/js/import.js';
 import { OPTIONS, BY_ID, BASE_UNIT, typeName } from '../assets/js/smw200a/catalog.js';
 
 const QUOTE = `Rohde & Schwarz GmbH & Co. KG
@@ -179,8 +180,8 @@ test('what an AI transcribes is read by the same rules', () => {
   assert.equal(r.unknown.length, 1);
   assert.deepEqual(readAI('nonsense').items, []);
   assert.deepEqual(readAI(null).items, []);
-  assert.match(AI_PROMPT, /JSON array/);
-  assert.match(AI_PROMPT, /dddd\.dddd\.dd/);
+  assert.match(aiPrompt(), /JSON array/);
+  assert.match(aiPrompt(), /dddd\.dddd\.dd/);
 });
 
 test('what OCR gets wrong in numbers and codes is put right, and prose is left alone', () => {

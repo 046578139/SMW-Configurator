@@ -8,10 +8,11 @@
  * subscription that dies.
  */
 
+import '../assets/js/smw200a/index.js';   // activates the SMW200A profile the core modules work on
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from '../assets/js/saved.js';
+import { SavedStore, packSel, unpackSel, summarize, savedKey } from '../assets/js/saved.js';
 
 const memory = () => {
   const m = new Map();
@@ -60,7 +61,7 @@ function fakeDb (seed = [], { firstFromCache = false } = {}) {
 }
 
 const settle = (ms = 5) => new Promise(r => setTimeout(r, ms));
-const stored = storage => JSON.parse(storage.get(SAVED_KEY) || '[]');
+const stored = storage => JSON.parse(storage.get(savedKey()) || '[]');
 
 test('the link token format round-trips a selection and drops what the catalog lacks', () => {
   const sel = { B1003: 1, B13: 1, 'K200-1': 30, K62: 2 };
@@ -105,12 +106,12 @@ test('saving keeps the list in this browser and saving under a name again update
 test('a broken, foreign or unusable storage value never reaches the list', () => {
   for (const raw of ['{', '"x"', '[1, {"id": 3}, {"id": "a"}]', null]) {
     const storage = memory();
-    if (raw !== null) storage.set(SAVED_KEY, raw);
+    if (raw !== null) storage.set(savedKey(), raw);
     assert.deepEqual(new SavedStore(storage).load(), []);
   }
   // an id is also a document path segment, so one that could not be a path is not a record
   const storage = memory();
-  storage.set(SAVED_KEY, JSON.stringify([
+  storage.set(savedKey(), JSON.stringify([
     { id: 'a/b', name: 'x', c: 'B1003' }, { id: '', name: 'x', c: 'B1003' }, { id: 'ok-1', name: 'x', c: 'B1003' }]));
   assert.deepEqual(new SavedStore(storage).load().map(r => r.id), ['ok-1']);
 });
@@ -167,7 +168,7 @@ test('a cached copy of a hosted entry is never sent back up', async () => {
   // the entry was deleted from the page by someone else while this browser
   // still held it in its cache: connecting must not resurrect it
   const storage = memory();
-  storage.set(SAVED_KEY, JSON.stringify([
+  storage.set(savedKey(), JSON.stringify([
     { id: 'gone', name: 'Deleted elsewhere', c: 'B1003.B13', sum: '', savedAt: '2026-09-01T00:00:00.000Z', origin: 'hosted' },
     { id: 'mine', name: 'Never uploaded', c: 'B1006.B13', sum: '', savedAt: '2026-09-02T00:00:00.000Z', origin: 'local' }
   ]));

@@ -2,20 +2,22 @@
 
 import { OPTIONS, BY_ID, SECTIONS, BASE_UNIT, GUIDE, PHASE_NOISE_LEVELS, RF_PATH_MATRIX, typeName }
   from './smw200a/catalog.js';
-import { validate, autoResolve, qtyChoices, maxQty, freqA, freqB, mainModule, ruledOutBy }
-  from './rules.js';
+import { useInstrument, inst } from './instrument.js';
+import { validate, autoResolve, qtyChoices, maxQty, ruledOutBy } from './rules.js';
+import { freqA, freqB, mainModule } from './smw200a/rules.js';
 import { derive, vitals } from './smw200a/derive.js';
 import { renderChain, renderRuler } from './smw200a/diagram.js';
 import { renderFront, renderRear, connectorNotes, faceCounts } from './smw200a/panel.js';
 import { renderPhoto } from './smw200a/photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './smw200a/presets.js';
-import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
-import { readText, aiText, parseAiJson, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
+import { SavedStore, packSel, unpackSel, summarize, savedKey } from './saved.js';
+import { readText, aiText, parseAiJson, readPdf, canvasToBlob, ocrImage, warmOcr, aiPrompt } from './import.js';
 import { readCompetitor, xrefRows, xrefName, xrefTypes, xrefCode, xrefSummary, mappedFrom, XREF_STATUS } from './xref.js';
 import { partsListPdf } from './pdf.js';
 
-const STORE = 'smw200a-config-v1';
+/* this instrument's own key for the configuration on screen */
+const STORE = () => inst().storage.config;
 
 /* Storage is a convenience, never a requirement: private windows, sandboxed
    frames and browsers with site data blocked all make these calls throw. */
@@ -45,7 +47,7 @@ const state = {
   search: '',
   theme: initialTheme(),
   face: 'front',
-  view: store.get('smw-view') === 'schematic' ? 'schematic' : 'photo',
+  view: 'photo',          // read from storage at boot, once the profile is known
   panelOpen: false,
   /* where the configuration came from when it is the equivalent of a
      competitor's: { vendor, model, codes, name, when }, or null */
@@ -66,13 +68,13 @@ function decode (hash) {
 }
 
 function save () {
-  store.set(STORE, JSON.stringify({ sel: state.sel, name: state.name, xref: state.xref }));
+  store.set(STORE(), JSON.stringify({ sel: state.sel, name: state.name, xref: state.xref }));
   try { history.replaceState(null, '', encode()); } catch { /* sandboxed frame */ }
 }
 
 function load () {
   let stored = null;
-  try { stored = JSON.parse(store.get(STORE) || 'null'); } catch { /* ignore malformed storage */ }
+  try { stored = JSON.parse(store.get(STORE()) || 'null'); } catch { /* ignore malformed storage */ }
   if (location.hash.includes('c=')) {
     const { sel, name } = decode(location.hash);
     if (Object.keys(sel).length) {
@@ -597,7 +599,7 @@ document.addEventListener('click', ev => {
 
   if (t.dataset.view) {
     state.view = t.dataset.view;
-    store.set('smw-view', state.view);
+    store.set(inst().storage.view, state.view);
     $('.hero')?.replaceWith(document.createRange().createContextualFragment(renderHero()));
     return;
   }
@@ -1392,14 +1394,14 @@ async function scanImport () {
     let items;
     if (typeof host.json === 'function') {
       try {
-        items = await host.json(AI_PROMPT, opts);
+        items = await host.json(aiPrompt(), opts);
       } catch (err) {
         if (err?.code === 'invalid_json' && err.text) { settle(parseAiJson(err.text), err.text); return; }
         if (err?.code !== 'capability_removed') throw err;
       }
     }
     if (items === undefined) {                    // an older viewer: the plain call, parsed here
-      const { text } = await host(AI_PROMPT, opts);
+      const { text } = await host(aiPrompt(), opts);
       items = parseAiJson(text);
       settle(items, text);
       return;
@@ -1646,7 +1648,9 @@ function closePanel () {
   document.body.classList.remove('panel-open');
 }
 
-export function boot () {
+export function boot (profile) {
+  useInstrument(profile);
+  state.view = store.get(inst().storage.view) === 'schematic' ? 'schematic' : 'photo';
   // a host that sandboxes the frame is the only case where this matters
   if (window.claude?.use) {
     saveHost().then(host => { savingBlocked = !host; }).catch(() => { savingBlocked = true; });
@@ -1684,7 +1688,7 @@ export function boot () {
   saved.connect(window.claude?.use?.('db') ?? Promise.resolve(null));
   // a save or removal in another tab of this browser
   window.addEventListener('storage', e => {
-    if (e.key === SAVED_KEY) { saved.load(); renderSavedCount(); if ($('.saved-list, .saved-empty')) openSaved(); }
+    if (e.key === savedKey()) { saved.load(); renderSavedCount(); if ($('.saved-list, .saved-empty')) openSaved(); }
   });
   window.addEventListener('hashchange', () => {
     const { sel, name } = decode(location.hash);

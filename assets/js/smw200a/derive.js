@@ -7,7 +7,7 @@
  */
 
 import { OPTIONS, BY_ID } from './catalog.js';
-import { freqA, freqB, mainModule, rfPathCount } from '../rules.js';
+import { freqA, freqB, mainModule, rfPathCount } from './rules.js';
 
 const q = (sel, id) => sel[id] || 0;
 

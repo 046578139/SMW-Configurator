@@ -18,29 +18,37 @@
  * and reads it with the OCR engine when it can fetch that.
  */
 
-import { OPTIONS, BASE_UNIT } from './smw200a/catalog.js';
+import { inst } from './instrument.js';
 
 /* ------------------------------------------------------------- the index */
 
-const BY_ORDER = new Map();
-for (const o of OPTIONS) if (!BY_ORDER.has(o.order)) BY_ORDER.set(o.order, o.id);
-
-/* code -> ids; more than one id means the code alone does not settle it */
-const BY_CODE = new Map();
-for (const o of OPTIONS) {
-  if (!o.code) continue;
-  if (!BY_CODE.has(o.code)) BY_CODE.set(o.code, []);
-  BY_CODE.get(o.code).push(o.id);
-}
-
 const escapeRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-/* Longest first, so "B1044O" is not read as "B1044" followed by an O. */
-const CODE_ALT = [...BY_CODE.keys()].sort((a, b) => b.length - a.length).map(escapeRe).join('|');
-
-/* "R&S SMW-K144", "R&S®SMW-K144", "SMW-K144", "SMW - K144", "K144", "ZZA-KN4B" */
-const CODE_RE = new RegExp(
-  `(?<![A-Z0-9-])(?:R\\s*&\\s*S\\s*\\u00ae?\\s*)?(?:SMW\\s*-?\\s*)?(${CODE_ALT})(?![A-Z0-9])`, 'gi');
+/* The catalog indexed for reading, built once per instrument profile on first
+   use: order number -> id, code -> ids (more than one id means the code alone
+   does not settle it), and the pattern that finds a code in a line. */
+let readerIndex = null;
+function index () {
+  const p = inst();
+  if (readerIndex && readerIndex.profile === p) return readerIndex;
+  const BY_ORDER = new Map();
+  for (const o of p.OPTIONS) if (!BY_ORDER.has(o.order)) BY_ORDER.set(o.order, o.id);
+  const BY_CODE = new Map();
+  for (const o of p.OPTIONS) {
+    if (!o.code) continue;
+    if (!BY_CODE.has(o.code)) BY_CODE.set(o.code, []);
+    BY_CODE.get(o.code).push(o.id);
+  }
+  /* Longest first, so "B1044O" is not read as "B1044" followed by an O. */
+  const CODE_ALT = [...BY_CODE.keys()].sort((a, b) => b.length - a.length).map(escapeRe).join('|');
+  const prefix = escapeRe(p.reader?.prefix || 'SMW');
+  /* "R&S SMW-K144", "R&S®SMW-K144", "SMW-K144", "SMW - K144", "K144", "ZZA-KN4B" */
+  const CODE_RE = new RegExp(
+    `(?<![A-Z0-9-])(?:R\\s*&\\s*S\\s*\\u00ae?\\s*)?(?:${prefix}\\s*-?\\s*)?(${CODE_ALT})(?![A-Z0-9])`, 'gi');
+  const PREFIXED_RE = new RegExp(`^(?:R\\s*&|${prefix})`, 'i');
+  readerIndex = { profile: p, BY_ORDER, BY_CODE, CODE_RE, PREFIXED_RE, base: p.BASE_UNIT };
+  return readerIndex;
+}
 
 /* 1428.4700.02 - also with the dots spaced out or replaced, as a PDF's text
    layer or a reader's transcription may print them */
@@ -79,6 +87,7 @@ export function readLine (raw) {
   const line = String(raw || '').replace(/\s+/g, ' ').trim();
   if (!line) return null;
 
+  const { BY_CODE, CODE_RE, PREFIXED_RE } = index();
   const spans = [];
   for (const m of line.matchAll(ORDER_RE)) {
     spans.push({ kind: 'order', value: `${m[1]}.${m[2]}.${m[3]}`, start: m.index, end: m.index + m[0].length });
@@ -88,7 +97,7 @@ export function readLine (raw) {
     if (spans.some(x => start < x.end && end > x.start)) continue;
     const exact = [...BY_CODE.keys()].find(k => k.toLowerCase() === m[1].toLowerCase());
     if (!exact) continue;
-    const prefixed = /^(?:R\s*&|SMW)/i.test(m[0]);
+    const prefixed = PREFIXED_RE.test(m[0]);
     if (!prefixed && exact.length < 4) continue;
     spans.push({ kind: 'code', value: exact, start, end });
   }
@@ -154,6 +163,7 @@ export function readLine (raw) {
  * describing it again, not ordering it again.
  */
 export function readText (text) {
+  const { BY_ORDER, BY_CODE, base: BASE_UNIT } = index();
   const items = new Map();
   const unknown = [];
   let base = false;
@@ -192,18 +202,19 @@ export function readText (text) {
 
 /* ---------------------------------------------------------- from an AI */
 
-/** What the host's AI is asked when it looks at the pages. */
+/** What the host's AI is asked when it looks at the pages, unless the instrument words it. */
 export const AI_PROMPT =
-  'The attached image(s) show a signal generator document - a quotation, order confirmation, ' +
-  'configuration list or product listing - for a Rohde & Schwarz R&S SMW200A or for a Keysight PSG ' +
-  '(E8267D). Read every line item or option row on them. ' +
-  'Reply with only a JSON array of objects, one per line, in document order: ' +
-  '{"type": the type designation or option code as printed (for example "R&S SMW-K144", "E8267D-544" or "UNW") or null, ' +
+  'The attached image(s) show a Rohde & Schwarz document - a quotation, order confirmation or ' +
+  'configuration list - for a test instrument. Read every line item on them. ' +
+  'Reply with only a JSON array of objects, one per line item, in document order: ' +
+  '{"type": the type designation as printed or null, ' +
   '"order": the order number as printed, ten digits in the form dddd.dddd.dd, copied digit for digit, or null, ' +
   '"qty": the quantity as a number (1 if none is printed), ' +
   '"designation": the description text or null}. ' +
-  'Include the instrument model if it is printed. Do not add items that are not printed. ' +
-  'Example: [{"type":"R&S SMW-B1003","order":"1428.4700.02","qty":1,"designation":"100 kHz to 3 GHz"}]';
+  'Include the base unit if it is listed. Do not add items that are not printed.';
+
+/** The prompt for the active instrument. */
+export const aiPrompt = () => inst().reader?.prompt || AI_PROMPT;
 
 /**
  * What the AI returned as text, one line per item in the form the readers

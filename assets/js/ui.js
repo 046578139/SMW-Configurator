@@ -1,6 +1,6 @@
 /** Icon set and stateless render helpers. */
 
-import { BY_ID, typeName } from './smw200a/catalog.js';
+import { inst } from './instrument.js';
 import { esc, productCode } from './util.js';
 import { holds, evaluate, parse, needText, qtyChoices, maxQty, ruledOutBy } from './rules.js';
 
@@ -55,7 +55,7 @@ export { esc };
 const fullId = id =>
   // B1044O / B1056N and friends: highlight the trailing letter so it cannot be
   // mistaken for a digit when someone copies an order code.
-  esc(typeName(id)).replace(/(SMW-B\d+)([A-Z]+)$/, '$1<span class="opt-suffix">$2</span>');
+  esc(inst().typeName(id)).replace(/(-B\d+)([A-Z]+)$/, '$1<span class="opt-suffix">$2</span>');
 
 /* ------------------------------------------------------------------ cards */
 
@@ -213,8 +213,8 @@ export function issueItem (issue, kind) {
 /** Groups the selection into ordering-information style blocks. */
 export function bomLines (sel, base) {
   const lines = [{ id: base.id, name: base.name, order: base.order, qty: 1, group: 'Base unit' }];
-  const order = ['rf-a', 'baseband', 'rf-b', 'phase', 'rf-enh', 'bb-hw', 'bb-enh',
-    'fading', 'std-int', 'std-wiq', 'pulse', 'other', 'extras'];
+  const { BY_ID } = inst();
+  const order = inst().bomOrder || inst().SECTIONS.map(x => x.id);
   const seen = Object.keys(sel).filter(id => sel[id] > 0 && BY_ID[id]);
   seen.sort((a, b) => {
     const oa = order.indexOf(BY_ID[a].section), ob = order.indexOf(BY_ID[b].section);
@@ -246,7 +246,7 @@ export function bomPane (sel, base) {
           <div>
             <div class="bom-id">${fullId(r.id)}</div>
             <div class="bom-name">${esc(r.name)}</div>
-            ${BY_ID[r.id]?.code === null ? '' : `<div class="bom-order">${esc(r.order)}</div>`}
+            ${inst().BY_ID[r.id]?.code === null ? '' : `<div class="bom-order">${esc(r.order)}</div>`}
           </div>
           <div class="bom-qty">×${r.qty}</div>
         </div>`).join('')}

@@ -3,6 +3,7 @@
  * that carries every line and pages when the list is long.
  */
 
+import '../assets/js/smw200a/index.js';   // activates the SMW200A profile the core modules work on
 import test from 'node:test';
 import assert from 'node:assert/strict';
 

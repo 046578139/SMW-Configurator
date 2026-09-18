@@ -19,10 +19,10 @@
  * that never answers - the local list is all there is, and the page says so.
  */
 
-import { BY_ID } from './smw200a/catalog.js';
-import { freqA, mainModule } from './rules.js';
+import { inst } from './instrument.js';
 
-export const SAVED_KEY = 'smw200a-saved-v1';
+/** The browser storage key this instrument's saved list lives under. */
+export const savedKey = () => inst().storage.saved;
 
 /** The selection as the link carries it. */
 export const packSel = sel => Object.entries(sel).filter(([, q]) => q > 0)
@@ -34,22 +34,13 @@ export function unpackSel (str) {
   for (const token of String(str || '').split('.')) {
     if (!token) continue;
     const [id, qty] = token.split('*');
-    if (BY_ID[id]) sel[id] = Math.max(1, parseInt(qty || '1', 10) || 1);
+    if (inst().BY_ID[id]) sel[id] = Math.max(1, parseInt(qty || '1', 10) || 1);
   }
   return sel;
 }
 
-/** "B1020 · B13T · 7 options" - enough to tell saved entries apart. */
-export function summarize (sel) {
-  const parts = [];
-  const a = freqA(sel);
-  const mm = mainModule(sel);
-  if (a) parts.push(a.id);
-  if (mm) parts.push(mm);
-  const n = Object.values(sel).reduce((s, q) => s + (q > 0 ? q : 0), 0);
-  parts.push(`${n} option${n === 1 ? '' : 's'}`);
-  return parts.join(' · ');
-}
+/** "B1020 · B13T · 7 options" - enough to tell saved entries apart; the instrument words it. */
+export const summarize = sel => inst().summarize(sel);
 
 const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 const byDate = (x, y) => (y.savedAt || '').localeCompare(x.savedAt || '');
@@ -84,7 +75,7 @@ export class SavedStore {
   /** Reads the local layer. Safe to call before the DOM exists. */
   load () {
     try {
-      const raw = JSON.parse(this.storage.get(SAVED_KEY) || '[]');
+      const raw = JSON.parse(this.storage.get(savedKey()) || '[]');
       this.list = Array.isArray(raw) ? raw.filter(valid) : [];
     } catch { this.list = []; }
     this.list.sort(byDate);
@@ -92,7 +83,7 @@ export class SavedStore {
   }
 
   persist () {
-    this.storage.set(SAVED_KEY, JSON.stringify(this.list));
+    this.storage.set(savedKey(), JSON.stringify(this.list));
     this.emit();
   }
 
@@ -133,7 +124,7 @@ export class SavedStore {
   push (rec, retried = false) {
     if (!this.db) return Promise.resolve();
     const body = { name: rec.name, c: rec.c, sum: rec.sum, savedAt: rec.savedAt };
-    return this.db.collection('configs').doc(rec.id).set(body)
+    return this.db.collection(inst().storage.collection).doc(rec.id).set(body)
       .then(() => { rec.origin = 'hosted'; })
       .catch(err => {
         if (err?.code === 'unavailable' && !retried) return pause(300 + Math.random() * 400).then(() => this.push(rec, true));
@@ -143,7 +134,7 @@ export class SavedStore {
 
   drop (id, retried = false) {
     if (!this.db) return Promise.resolve();
-    return this.db.collection('configs').doc(id).delete().catch(err => {
+    return this.db.collection(inst().storage.collection).doc(id).delete().catch(err => {
       if (err?.code === 'unavailable' && !retried) return pause(300 + Math.random() * 400).then(() => this.drop(id, true));
       this.fail(err, 'remove');
     });
@@ -164,7 +155,7 @@ export class SavedStore {
     if (!db) return false;
     this.db = db;
     let settled = false;      // a definitive snapshot - not one served from a cache - has arrived
-    db.collection('configs').orderBy('savedAt', 'desc').limit(500).onSnapshot(snap => {
+    db.collection(inst().storage.collection).orderBy('savedAt', 'desc').limit(500).onSnapshot(snap => {
       const hosted = (snap.docs || []).filter(d => d.exists).map(d => {
         const b = d.data() || {};
         return { id: d.id, name: String(b.name || ''), c: String(b.c || ''),

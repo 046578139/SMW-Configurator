@@ -15,11 +15,12 @@
  * SMW options came from the table and which from the SMW200A's own rules.
  */
 
-import { BY_ID, typeName } from './smw200a/catalog.js';
+import { inst } from './instrument.js';
 import { validate, autoResolve } from './rules.js';
-import { E8267D, KEYSIGHT_VENDOR, readKeysight } from './smw200a/xref-keysight.js';
 
-export const XREF_MODELS = { E8267D };
+/* the tables the active instrument can answer from, by competitor model */
+const models = () => inst().xref?.models || {};
+const vendorName = () => inst().xref?.vendor || 'Keysight';
 
 export const XREF_STATUS = {
   covered: 'Covered by an SMW option',
@@ -40,8 +41,9 @@ export const xrefName = x => `Equivalent of ${x.vendor} ${x.model}`;
  * @returns {object|null}  null when the model has no table
  */
 export function crossReference (read) {
-  if (!read?.model || !XREF_MODELS[read.model]) return null;
-  const table = XREF_MODELS[read.model];
+  if (!read?.model || !models()[read.model]) return null;
+  const table = models()[read.model];
+  const { BY_ID } = inst();
 
   const rows0 = read.options.map(o => ({ ...(table.options[o.code] || {}), code: o.code, line: o.line || '', kit: !!o.kit }));
   const platform = rows0.some(r => r.needs === 'wideband') ? 'wideband' : 'standard';
@@ -103,7 +105,8 @@ export function crossReference (read) {
  * table for.
  */
 export function readCompetitor (text) {
-  const read = readKeysight(text);
+  const reader = inst().xref?.read;
+  const read = reader ? reader(text) : null;
   if (!read) return null;
   if (!read.model) {
     return { vendor: read.vendor, model: null, other: read.other, candidates: read.candidates || [], rows: [], codes: [], sel: {}, unknown: read.unknown };
@@ -117,8 +120,8 @@ export function readCompetitor (text) {
  * is still selected.
  */
 export function xrefRows (stored, sel) {
-  if (!stored?.model || !XREF_MODELS[stored.model]) return [];
-  const x = crossReference({ vendor: stored.vendor || KEYSIGHT_VENDOR, model: stored.model,
+  if (!stored?.model || !models()[stored.model]) return [];
+  const x = crossReference({ vendor: stored.vendor || vendorName(), model: stored.model,
     options: (stored.codes || []).map(code => ({ code })) });
   if (!x) return [];
   return x.rows.map(r => ({
@@ -129,7 +132,7 @@ export function xrefRows (stored, sel) {
 }
 
 /** "R&S®SMW-B1044, R&S®SMW-K22" - the type designations a row maps to. */
-export const xrefTypes = ids => ids.map(typeName).join(', ');
+export const xrefTypes = ids => ids.map(id => inst().typeName(id)).join(', ');
 
 /** "E8267D-544" for an instrument option, "N7617EMBC" for something ordered on its own. */
 export const xrefCode = (model, code) => (/^(N\d|U\d|1C|R-50C|PS-)/.test(code) ? code : `${model}-${code}`);
@@ -148,8 +151,8 @@ export function mappedFrom (stored, id) {
  * own rules added, or nothing (chosen by hand since).
  */
 export function xrefSummary (stored, sel, baseId) {
-  if (!stored?.model || !XREF_MODELS[stored.model]) return null;
-  const x = crossReference({ vendor: stored.vendor || KEYSIGHT_VENDOR, model: stored.model,
+  if (!stored?.model || !models()[stored.model]) return null;
+  const x = crossReference({ vendor: stored.vendor || vendorName(), model: stored.model,
     options: (stored.codes || []).map(code => ({ code })) });
   if (!x) return null;
   const rows = x.rows.map(r => ({

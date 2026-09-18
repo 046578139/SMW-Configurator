@@ -22,21 +22,27 @@ const read = p => readFileSync(resolve(root, p), 'utf8');
 
 /** Dependency order: every module only imports the ones above it. */
 const MODULES = [
+  // the core: knows no instrument, reaches the active profile through instrument.js
   'assets/js/util.js',
+  'assets/js/instrument.js',
+  'assets/js/rules.js',
+  'assets/js/ui.js',
+  'assets/js/saved.js',
+  'assets/js/import.js',
+  'assets/js/xref.js',
+  'assets/js/pdf.js',
+  // the R&S SMW200A profile
   'assets/js/smw200a/photos.js',
   'assets/js/smw200a/catalog.js',
-  'assets/js/rules.js',
+  'assets/js/smw200a/rules.js',
   'assets/js/smw200a/derive.js',
   'assets/js/smw200a/diagram.js',
   'assets/js/smw200a/panel.js',
   'assets/js/smw200a/photo.js',
-  'assets/js/ui.js',
   'assets/js/smw200a/presets.js',
-  'assets/js/saved.js',
-  'assets/js/import.js',
   'assets/js/smw200a/xref-keysight.js',
-  'assets/js/xref.js',
-  'assets/js/pdf.js',
+  'assets/js/smw200a/index.js',
+  // the shell
   'assets/js/app.js'
 ];
 
@@ -138,7 +144,7 @@ ${css}
 ${body}
 <script>
 ${script}
-boot();
+boot(SMW200A);
 </script>
 </body>
 </html>

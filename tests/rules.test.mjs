@@ -6,6 +6,7 @@
  * straight at the paragraph in the configuration guide that it came from.
  */
 
+import '../assets/js/smw200a/index.js';   // activates the SMW200A profile the core modules work on
 import test from 'node:test';
 import assert from 'node:assert/strict';
 

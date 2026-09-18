@@ -6,6 +6,7 @@
  * incomplete, and the specifications where they settle a disagreement.
  */
 
+import '../assets/js/smw200a/index.js';   // activates the SMW200A profile the core modules work on
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
