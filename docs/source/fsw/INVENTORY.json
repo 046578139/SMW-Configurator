@@ -201,5 +201,40 @@
   "sha": "14bd6efbef79a184",
   "size": 1132926,
   "head": "NOISE FIGURE MEASUREMENT APPLICATION Specifications R&S\u00aeFSW3-KM125/-KM126 R&S\u00aeFSW-K30 R&S\u00aeFSWP-K30 R&S\u00aeFSMR3-K30 R&S\u00aeFSV3-K30 R&S\u00aeFPS-K30 R&S\u00aeFSV-K30 R&S\u00aeFPL1-K"
+ },
+ {
+  "file": "OFDM-Vector-Signal-Analysis-Application_specs_en_5215-3991-22_v0800.pdf",
+  "pages": 12,
+  "sha": "fb0771c474431d5e",
+  "size": 944890,
+  "head": "OFDM VECTOR SIGNAL ANALYSIS APPLICATION R&S\u00aeFSW3-KM112 R&S\u00aeFSW3-KM113 R&S\u00aeFSW-K96 R&S\u00aeFSWT-K96 R&S\u00aeFSV3-K96 R&S\u00aeVSE-K96 Specifications Version 08.00 Specificati"
+ },
+ {
+  "file": "Option_sheet_-_Amplifier_Measurements_K18_v1.01.pdf",
+  "pages": 2,
+  "sha": "21e2ec03e7819252",
+  "size": 482416,
+  "head": "AMPLIFIER MEASUREMENTS WITH ROHDE & SCHWARZ SPECTRUM ANALYZERS (K18 OPTION) Solution overview Your benefit Features Amplifier characterization (K18) Assessment "
+ },
+ {
+  "file": "Phase-Noise-Measurement-Application_specs_en_3607-2510-22_v0900.pdf",
+  "pages": 16,
+  "sha": "cc2cad242db4ebf6",
+  "size": 1661623,
+  "head": "PHASE NOISE MEASUREMENT APPLICATION Specifications R&S\u00aeFSW3-KM129/-KM130 R&S\u00aeFSW-K40 R&S\u00aeFSMR3-K40 R&S\u00aeFSV3-K40 R&S\u00aeFPS-K40 R&S\u00aeFSV-K40 R&S\u00aeFPL1-K40 Specificati"
+ },
+ {
+  "file": "Signal-and-spectrum-analyzer-portfolio-US-version_fly_en_3608-6425-32_v0100.pdf",
+  "pages": 4,
+  "sha": "fd32789253a734e4",
+  "size": 1726105,
+  "head": "SIGNAL AND SPECTRUM ANALYZER PORTFOLIO Version for US Product Flyer | Version 01.00"
+ },
+ {
+  "file": "Vector-Signal-Analysis-Application_specs_en_3607-1365-22_v1900.pdf",
+  "pages": 24,
+  "sha": "2f888f437c4a9511",
+  "size": 1300397,
+  "head": "VECTOR SIGNAL ANALYSIS APPLICATION R&S\u00aeFSW3-KM101/FSW/FSWP/FSWT/FSMR3/FSV3/FPS/FPL1/VSE-K70 Vector Signal Analysis Application R&S\u00aeFSW3-KM102/FSW/FSWP/FSWT/FSMR"
  }
 ]
