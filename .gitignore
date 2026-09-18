@@ -11,3 +11,6 @@ tests/browser/out/
 # python bytecode from tools/vendor
 __pycache__/
 vendor/
+
+# competitor literature used to build the cross-reference: copyrighted, cited by document number, never committed
+docs/source/keysight/
