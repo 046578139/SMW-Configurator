@@ -139,3 +139,31 @@ export function mappedFrom (stored, id) {
   if (!stored?.model) return [];
   return xrefRows(stored, {}).filter(r => r.ids.includes(id)).map(r => xrefCode(stored.model, r.code));
 }
+
+/**
+ * A stored cross-reference resolved once for a parts list: its rows against
+ * the selection, and `origin(id)` - where an SMW line came from, in words:
+ * the competitor options it answers, the base unit standing in for the
+ * instrument, the main module every SMW200A needs, an option the SMW200A's
+ * own rules added, or nothing (chosen by hand since).
+ */
+export function xrefSummary (stored, sel, baseId) {
+  if (!stored?.model || !XREF_MODELS[stored.model]) return null;
+  const x = crossReference({ vendor: stored.vendor || KEYSIGHT_VENDOR, model: stored.model,
+    options: (stored.codes || []).map(code => ({ code })) });
+  if (!x) return null;
+  const rows = x.rows.map(r => ({
+    ...r,
+    present: r.ids.length ? r.ids.every(id => sel[id] > 0) : null,
+    missing: r.ids.filter(id => !(sel[id] > 0))
+  }));
+  const origin = id => {
+    const codes = rows.filter(r => r.ids.includes(id)).map(r => xrefCode(x.model, r.code));
+    if (codes.length) return codes.join(', ');
+    if (id === baseId) return `stands in for the ${x.model}`;
+    if (id === x.mainModule) return 'main module – every SMW200A needs one';
+    if (x.added.includes(id)) return 'added by the SMW200A\'s rules';
+    return '';
+  };
+  return { vendor: x.vendor, model: x.model, name: stored.name || null, rows, added: x.added, mainModule: x.mainModule, origin };
+}

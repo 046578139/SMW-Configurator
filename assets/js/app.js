@@ -12,7 +12,7 @@ import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from '.
 import { PRESETS } from './presets.js';
 import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
 import { readText, aiText, parseAiJson, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
-import { readCompetitor, xrefRows, xrefName, xrefTypes, xrefCode, mappedFrom, XREF_STATUS } from './xref.js';
+import { readCompetitor, xrefRows, xrefName, xrefTypes, xrefCode, xrefSummary, mappedFrom, XREF_STATUS } from './xref.js';
 import { partsListPdf } from './pdf.js';
 
 const STORE = 'smw200a-config-v1';
@@ -1452,12 +1452,17 @@ function openExport () {
     if (last && last.name === l.group) last.rows.push(l);
     else groups.push({ name: l.group, rows: [l] });
   }
+  /* a configuration built from a competitor's: every SMW line says which
+     of their options it answers, and their options are listed in full
+     under the parts list with what the SMW200A makes of each */
+  const x = state.xref ? xrefSummary(state.xref, state.sel, BASE_UNIT.id) : null;
+  const cols = x ? 5 : 4;
   openModal(`
-  <div class="modal" role="dialog" aria-label="Parts list">
+  <div class="modal ${x ? 'modal-wide' : ''}" role="dialog" aria-label="Parts list">
     <div class="modal-head">
       <div style="flex:1">
         <h2>${esc(state.name)}</h2>
-        <p>${lines.length} line items ·${state.xref ? ` mapped from ${esc(state.xref.vendor)} ${esc(state.xref.model)} ·` : ''}
+        <p>${lines.length} line items ·${x ? ` the SMW200A equivalent of a ${esc(x.vendor)} ${esc(x.model)} with ${x.rows.length} option${x.rows.length === 1 ? '' : 's'}${x.name ? ` (quote ${esc(x.name)})` : ''} ·` : ''}
           ${v.errors.length ? `<span style="color:var(--error)">${v.errors.length} open issue${v.errors.length === 1 ? '' : 's'}</span>`
                             : '<span style="color:var(--ok)">validated against the configuration guide</span>'}</p>
       </div>
@@ -1465,19 +1470,36 @@ function openExport () {
     </div>
     <div class="modal-body" style="padding:0">
       <table class="table">
-        <thead><tr><th>Type</th><th>Designation</th><th>Order No.</th><th style="text-align:right">Qty</th></tr></thead>
+        <thead><tr><th>Type</th><th>Designation</th>${x ? `<th>Answers ${esc(x.model)}</th>` : ''}<th>Order No.</th><th style="text-align:right">Qty</th></tr></thead>
         <tbody>
           ${groups.map(g => `
-            <tr class="head-row"><td colspan="4">${esc(g.name)}</td></tr>
+            <tr class="head-row"><td colspan="${cols}">${esc(g.name)}</td></tr>
             ${g.rows.map(r => `
               <tr>
                 <td class="c-id">${esc(typeCol(r.id))}</td>
                 <td>${esc(r.name)}</td>
+                ${x ? `<td class="c-from">${esc(x.origin(r.id) || '—')}</td>` : ''}
                 <td class="c-order">${esc(r.order)}</td>
                 <td class="c-qty">${r.qty}</td>
               </tr>`).join('')}`).join('')}
         </tbody>
       </table>
+      ${x ? `
+      <table class="table export-xref">
+        <thead><tr><th>${esc(x.model)} option requested</th><th>What it is</th><th>SMW200A answer</th></tr></thead>
+        <tbody>
+          <tr class="head-row"><td colspan="3">The ${esc(x.vendor)} ${esc(x.model)} as configured${x.name ? ` – quote ${esc(x.name)}` : ''}</td></tr>
+          ${x.rows.map(r => `
+            <tr class="${r.present === false ? 'gone' : ''}">
+              <td class="c-id">${esc(xrefCode(x.model, r.code))}</td>
+              <td>${esc(r.name)}<div class="xref-page">${esc(r.step)} · ${esc(r.page)}</div></td>
+              <td>${r.ids.length ? `<span class="c-id">${esc(xrefTypes(r.ids))}</span>` : `<span class="xref-st ${esc(r.status)}">${esc(XREF_STATUS[r.status])}</span>`}${
+                r.status === 'partial' && r.ids.length ? ` <span class="xref-st partial">– in part</span>` : ''}${
+                r.present === false ? `<div class="xref-gap">${esc(r.missing.map(typeName).join(', '))} no longer in this configuration</div>` : ''}${
+                r.gap ? `<div class="xref-gap">${esc(r.gap)}</div>` : r.note ? `<div class="xref-note">${esc(r.note)}</div>` : ''}</td>
+            </tr>`).join('')}
+        </tbody>
+      </table>` : ''}
     </div>
     <div class="modal-foot">
       ${savingBlocked
@@ -1546,10 +1568,12 @@ function downloadCsv () {
 function downloadPdf () {
   const lines = bomLines(state.sel, BASE_UNIT);
   const v = validate(state.sel);
+  const x = state.xref ? xrefSummary(state.xref, state.sel, BASE_UNIT.id) : null;
   const groups = [];
   for (const l of lines) {
     const last = groups[groups.length - 1];
-    const row = { type: typeCol(l.id) || l.order, name: l.name, order: l.order, qty: l.qty };
+    const from = x ? x.origin(l.id) : '';
+    const row = { type: typeCol(l.id) || l.order, name: from ? `${l.name} – ${/^[A-Z0-9]/.test(from) ? 'answers ' : ''}${from}` : l.name, order: l.order, qty: l.qty };
     if (last && last.name === l.group) last.rows.push(row);
     else groups.push({ name: l.group, rows: [row] });
   }
@@ -1565,14 +1589,15 @@ function downloadPdf () {
   download(`${slug()}.pdf`, 'application/pdf', pdf);
 }
 
-/** The cross-reference as text lines for the PDF, after the parts list. */
+/** The competitor's options as text lines for the PDF, after the parts list. */
 function xrefSections () {
   if (!state.xref) return [];
   const rows = xrefRows(state.xref, state.sel);
   return [{
-    title: `Cross-reference: ${state.xref.vendor} ${state.xref.model}${state.xref.name ? ` (quote ${state.xref.name})` : ''}`,
+    title: `${state.xref.vendor} ${state.xref.model} options requested${state.xref.name ? ` (quote ${state.xref.name})` : ''} and the SMW200A answer`,
     lines: rows.map(r => `${xrefCode(state.xref.model, r.code)}  ${r.name} -> ${r.ids.length ? xrefTypes(r.ids) : XREF_STATUS[r.status]}${
-      r.present === false ? ' (not in this configuration)' : ''}`)
+      r.status === 'partial' && r.ids.length ? ' (in part)' : ''}${r.present === false ? ' (no longer in this configuration)' : ''}${
+      r.gap ? `. ${r.gap}` : ''}`)
   }];
 }
 

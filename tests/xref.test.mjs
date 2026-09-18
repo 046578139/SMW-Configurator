@@ -9,7 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { E8267D, OTHER_MODELS, readKeysight } from '../assets/js/xref-keysight.js';
-import { crossReference, readCompetitor, xrefRows, mappedFrom, xrefCode, xrefName, XREF_STATUS } from '../assets/js/xref.js';
+import { crossReference, readCompetitor, xrefRows, xrefSummary, mappedFrom, xrefCode, xrefName, XREF_STATUS } from '../assets/js/xref.js';
 import { readText, readAI, aiText, parseAiJson } from '../assets/js/import.js';
 import { OPTIONS, BY_ID, typeName } from '../assets/js/catalog.js';
 import { validate } from '../assets/js/rules.js';
@@ -241,6 +241,15 @@ test('a stored cross-reference is checked against the configuration as it is now
   assert.deepEqual(mappedFrom(stored, 'K54'), ['N7617EMBC']);
   assert.deepEqual(mappedFrom(stored, 'B13'), []);
   assert.deepEqual(mappedFrom(null, 'B13'), []);
+  // a parts list can say where each of its lines came from
+  const sum = xrefSummary({ vendor: 'Keysight', model: 'E8267D', codes: ['544', 'UNT', 'N7620B'] }, { B1044: 1, B13T: 1, K720: 1, K24: 1, K300: 1, K301: 1, B10: 1 }, 'SMW200A');
+  assert.equal(sum.origin('K720'), 'E8267D-UNT');
+  assert.equal(sum.origin('K300'), 'N7620B');
+  assert.equal(sum.origin('B13T'), 'main module – every SMW200A needs one');
+  assert.equal(sum.origin('B10'), 'added by the SMW200A\'s rules');
+  assert.equal(sum.origin('SMW200A'), 'stands in for the E8267D');
+  assert.equal(sum.origin('K62'), '');
+  assert.equal(xrefSummary(null, {}, 'SMW200A'), null);
   assert.deepEqual(xrefRows({ model: 'E8257D', codes: ['520'] }, {}), [], 'no table, no rows');
   assert.equal(xrefName({ vendor: 'Keysight', model: 'E8267D' }), 'Equivalent of Keysight E8267D');
   assert.equal(xrefCode('E8267D', 'UNW'), 'E8267D-UNW');

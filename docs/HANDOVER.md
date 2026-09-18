@@ -39,7 +39,7 @@ is a regression, not a fresh-container quirk.
 node --test                        # 141 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
 node tests/browser/run.mjs         # 15 of 15 suites passed, 124 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  548 kB
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  552 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,

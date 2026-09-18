@@ -229,7 +229,16 @@ const on = async (p, id) => !!(await p.locator(`.card[data-opt="${id}"].on`).cou
     await p.click('.panel-foot [data-action=export]');
     await p.waitForTimeout(300);
     const head = await p.locator('.modal-head p').textContent();
-    if (!head.includes('mapped from Keysight E8267D')) throw new Error('header: ' + head.replace(/\s+/g, ' '));
+    if (!head.includes('equivalent of a Keysight E8267D with 3 options')) throw new Error('header: ' + head.replace(/\s+/g, ' '));
+    // every SMW line says what it answers, and the Keysight options are listed in full underneath
+    const from = await p.locator('.modal .c-from').allTextContents();
+    if (from.length < 8 || !from.includes('E8267D-UNT') || !from.includes('N7617EMBC') || !from.some(f => /stands in for the E8267D/.test(f)) ||
+        !from.some(f => /added by the SMW200A/.test(f))) throw new Error('mapped-from column: ' + JSON.stringify(from));
+    const k720 = p.locator('.modal table:not(.export-xref) tr', { hasText: 'R&S®SMW-K720' });
+    if (!(await k720.locator('.c-from').textContent()).includes('E8267D-UNT')) throw new Error('K720 does not name UNT');
+    if (await p.locator('.export-xref tbody tr:not(.head-row)').count() !== 3) throw new Error('Keysight rows under the list: ' + await p.locator('.export-xref tbody tr:not(.head-row)').count());
+    const unt = p.locator('.export-xref tr', { hasText: 'E8267D-UNT' });
+    if (!(await unt.textContent()).includes('AM, FM, phase modulation') || !(await unt.textContent()).includes('R&S®SMW-K720, R&S®SMW-K24')) throw new Error('UNT row: ' + await unt.textContent());
     await p.click('.modal [data-action=csv]');
     await p.click('.modal [data-action=json]');
     await p.click('.modal [data-action=pdf]');
@@ -241,7 +250,8 @@ const on = async (p, id) => !!(await p.locator(`.card[data-opt="${id}"].on`).cou
     if (json.crossref?.model !== 'E8267D' || json.crossref.options.length !== 3) throw new Error('json: ' + JSON.stringify(json.crossref).slice(0, 200));
     if (json.crossref.options[0].smw[0] !== 'R&S®SMW-B1020' || json.crossref.options[0].inConfiguration !== true) throw new Error('json row: ' + JSON.stringify(json.crossref.options[0]));
     const pdf = saves.find(s => s.filename.endsWith('.pdf'))?.data || '';
-    if (!pdf.includes('(Cross-reference: Keysight E8267D) Tj') || !pdf.includes('E8267D-UNT')) throw new Error('the PDF has no cross-reference section');
+    if (!pdf.includes('(Keysight E8267D options requested and the SMW200A answer) Tj') || !pdf.includes('E8267D-UNT')) throw new Error('the PDF has no cross-reference section');
+    if (!/answers E8267D-UNT/.test(pdf)) throw new Error('the PDF lines do not say what they answer');
     await p.keyboard.press('Escape');
   });
 

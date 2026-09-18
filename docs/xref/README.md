@@ -103,8 +103,13 @@ the configurator. The separation is structural, and tested:
 - The cross-reference is kept with the configuration in this browser (it
   survives a reload) but not in a shared link or a saved entry: a link
   carries the selection alone.
-- Exports carry it: CSV gets a *Mapped from* column, JSON a `crossref`
-  object, the PDF a section after the parts list.
+- Exports carry it. The export view gains an *Answers E8267D* column on
+  every SMW line (the Keysight options it answers, or "stands in for the
+  E8267D", "main module – every SMW200A needs one", "added by the SMW200A's
+  rules") and a second table under the parts list with every Keysight
+  option requested, what it is, and the SMW200A answer. The CSV gets a
+  *Mapped from* column, the JSON a `crossref` object, the PDF the same
+  suffix on each line and a section after the parts list.
 - The AI prompt names both vendors, so a scanned Keysight page transcribes
   into the same text the readers take; the OCR path reads a listing with
   bare codes ("544  Frequency range…") the same way, forgiving the usual

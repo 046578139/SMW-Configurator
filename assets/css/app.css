@@ -686,6 +686,11 @@ a { color: var(--accent); }
 .xref-row.standard .xref-to { color: var(--ok); font-family: var(--sans); }
 .xref-row.service .xref-to { color: var(--text-faint); font-family: var(--sans); }
 .xref-row .xref-gap { grid-column: 2; }
+.table .c-from { font-family: var(--mono); font-size: 11px; color: var(--text-dim); max-width: 220px; }
+.export-xref { margin-top: 18px; border-top: 2px solid var(--line); }
+.export-xref td:first-child { white-space: nowrap; }
+.export-xref td:last-child .c-id { white-space: normal; }
+.export-xref tr.gone td { color: var(--warn); }
 
 .saved-list { display: flex; flex-direction: column; gap: 8px; }
 .saved-row {
