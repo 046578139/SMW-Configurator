@@ -82,9 +82,10 @@ const LEAD = 12;
  * @param {string} doc.subtitle     the line under it (line count, validation)
  * @param {Array<{name:string, rows:Array<{type:string, name:string, order:string, qty:number}>}>} doc.groups
  * @param {string} doc.footer       the colophon line printed on every page
+ * @param {Array<{title:string, lines:string[]}>} [doc.sections]  text after the table, wrapped to the page
  * @returns {string}                the PDF, ASCII only
  */
-export function partsListPdf ({ title, subtitle, groups, footer }) {
+export function partsListPdf ({ title, subtitle, groups, footer, sections = [] }) {
   const pages = [];
   let ops = [];
   let y = 0;
@@ -140,6 +141,20 @@ export function partsListPdf ({ title, subtitle, groups, footer }) {
       textRight(COL.qty, y, String(r.qty));
       y -= height;
       rule(y + 6, true);
+    }
+  }
+  /* free text after the table: a cross-reference, a note - wrapped to the full width */
+  const TEXT_W = PAGE.w - 2 * PAGE.margin;
+  for (const s of sections) {
+    if (y - 40 < bottom) newPage();
+    y -= 10;
+    text(PAGE.margin, y, s.title, 10, 'F2');
+    y -= LEAD + 4;
+    for (const line of s.lines) {
+      const wrapped = wrap(line, SIZE, TEXT_W);
+      if (y - wrapped.length * LEAD < bottom) newPage();
+      wrapped.forEach((l, i) => text(PAGE.margin, y - i * LEAD, l));
+      y -= wrapped.length * LEAD + 3;
     }
   }
   pages.push(ops);

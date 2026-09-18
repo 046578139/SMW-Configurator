@@ -52,6 +52,18 @@ tools/fetch-vendor.mjs vendor` puts the engine and the renderer next to
 `index.html` (about 13 MB, not committed), the page uses them when they are
 there and the CDN when not.
 
+**Cross-references a competitor's configuration.** The same *Import* reads a
+Keysight E8267D PSG configuration – a quotation, a used-equipment listing, a
+photograph of either – and shows, option by option, which R&S®SMW200A
+options give the same capability, which capabilities the SMW200A has as
+standard, and which it does not offer, each row citing the Keysight page and
+the R&S specifications it was decided on. *Load the SMW equivalent* turns it
+into an ordinary configuration, validated by the same rules as any other,
+named "Equivalent of Keysight E8267D", with a **Cross-ref** tab that keeps
+the mapping beside the configuration and exports that carry it. The mapping
+lives in its own module with a one-way dependency on the catalog;
+`docs/xref/README.md` has the sources and the separation.
+
 **Shows the instrument, not a list of checkboxes.** Two views of it, switched
 with *Photo* / *Schematic*, either face, either one enlarged.
 
@@ -212,6 +224,8 @@ assets/js/
   presets.js            validated starting points
   saved.js              named configurations: this browser's list and the page's
   import.js             reading a quotation: order numbers, type codes, quantities; PDF and AI paths
+  xref-keysight.js      Keysight E8267D -> SMW200A table with citations, and the Keysight reader
+  xref.js               turns a competitor's option list into a validated SMW selection
   app.js                state, rendering, events, export
 tests/rules.test.mjs    rule regression tests
 tests/panel.test.mjs    panel, scale and photo overlay tests

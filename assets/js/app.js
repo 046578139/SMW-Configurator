@@ -11,7 +11,8 @@ import { renderPhoto } from './photo.js';
 import { icon, esc, optionCard, freqCard, issueItem, bomPane, bomLines } from './ui.js';
 import { PRESETS } from './presets.js';
 import { SavedStore, packSel, unpackSel, summarize, SAVED_KEY } from './saved.js';
-import { readText, readAI, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
+import { readText, aiText, readPdf, canvasToBlob, ocrImage, warmOcr, AI_PROMPT } from './import.js';
+import { readCompetitor, xrefRows, xrefName, xrefTypes, xrefCode, mappedFrom, XREF_STATUS } from './xref.js';
 import { partsListPdf } from './pdf.js';
 
 const STORE = 'smw200a-config-v1';
@@ -45,7 +46,10 @@ const state = {
   theme: initialTheme(),
   face: 'front',
   view: store.get('smw-view') === 'schematic' ? 'schematic' : 'photo',
-  panelOpen: false
+  panelOpen: false,
+  /* where the configuration came from when it is the equivalent of a
+     competitor's: { vendor, model, codes, name, when }, or null */
+  xref: null
 };
 
 const $ = s => document.querySelector(s);
@@ -62,19 +66,28 @@ function decode (hash) {
 }
 
 function save () {
-  store.set(STORE, JSON.stringify({ sel: state.sel, name: state.name }));
+  store.set(STORE, JSON.stringify({ sel: state.sel, name: state.name, xref: state.xref }));
   try { history.replaceState(null, '', encode()); } catch { /* sandboxed frame */ }
 }
 
 function load () {
+  let stored = null;
+  try { stored = JSON.parse(store.get(STORE) || 'null'); } catch { /* ignore malformed storage */ }
   if (location.hash.includes('c=')) {
     const { sel, name } = decode(location.hash);
-    if (Object.keys(sel).length) { state.sel = sel; state.name = name; return; }
+    if (Object.keys(sel).length) {
+      state.sel = sel; state.name = name;
+      /* the page writes its own link into the address bar, so a hash that
+         matches what was stored is this browser's own configuration and its
+         cross-reference comes back with it; a pasted link carries none */
+      if (stored?.xref?.model && packSel(stored.sel || {}) === packSel(sel)) state.xref = stored.xref;
+      return;
+    }
   }
-  try {
-    const saved = JSON.parse(store.get(STORE) || 'null');
-    if (saved?.sel) { state.sel = saved.sel; state.name = saved.name || state.name; }
-  } catch { /* ignore malformed storage */ }
+  if (stored?.sel) {
+    state.sel = stored.sel; state.name = stored.name || state.name;
+    state.xref = stored.xref?.model ? stored.xref : null;
+  }
 }
 
 /* ============================== mutations =============================== */
@@ -363,10 +376,12 @@ function renderPanel () {
   const todo = v.errors.filter(e => e.todo);
   const broken = v.errors.filter(e => !e.todo);
 
+  if (state.tab === 'xref' && !state.xref) state.tab = 'overview';
   const tabs = [
     ['overview', 'Overview', 0],
     ['chain', 'Chain', 0],
     ['checks', 'Checks', issues],
+    ...(state.xref ? [['xref', 'Cross-ref', xrefRows(state.xref, state.sel).length]] : []),
     ['order', 'Parts list', bomLines(state.sel, BASE_UNIT).length]
   ];
 
@@ -408,6 +423,8 @@ function renderPanel () {
           <strong>Configuration is valid</strong>
           Every option's prerequisites are satisfied and no rule from the configuration guide is broken.
         </div>`;
+  } else if (state.tab === 'xref' && state.xref) {
+    body = xrefPane();
   } else {
     body = bomPane(state.sel, BASE_UNIT);
   }
@@ -425,6 +442,32 @@ function renderPanel () {
       ${icon('wand', 15)} Fix issues</button>
     <button class="btn btn-primary" data-action="export">${icon('download', 15)} Export</button>
   </div>`;
+}
+
+/**
+ * The Cross-ref pane: the competitor's options the configuration was built
+ * from, each with the SMW options that answer it, and a flag where one of
+ * those has since been taken out of the configuration.
+ */
+function xrefPane () {
+  const x = state.xref;
+  const rows = xrefRows(x, state.sel);
+  const gone = rows.filter(r => r.present === false);
+  return `
+    <div class="pane-title">Mapped from ${esc(x.vendor)} ${esc(x.model)}</div>
+    <p class="xref-lead">${rows.length} ${esc(x.vendor)} option${rows.length === 1 ? '' : 's'} read from
+      ${x.name ? `quote ${esc(x.name)}` : 'the document'}${gone.length
+        ? ` · <span class="xref-warn">${gone.length} no longer fully in this configuration</span>`
+        : ' · every mapped option is still selected'}.</p>
+    <div class="xref-list">${rows.map(r => `
+      <div class="xref-row ${esc(r.status)}${r.present === false ? ' gone' : ''}">
+        <div class="xref-code">${esc(xrefCode(x.model, r.code))}</div>
+        <div class="xref-what">${esc(r.name)}</div>
+        <div class="xref-to">${r.ids.length ? esc(xrefTypes(r.ids)) : esc(XREF_STATUS[r.status])}${r.present === false
+          ? ` <span class="chip unmet"><span>${esc(r.missing.map(typeName).join(', '))} removed</span></span>` : ''}</div>
+        ${r.gap ? `<div class="xref-gap">${esc(r.gap)}</div>` : ''}
+      </div>`).join('')}</div>
+    <button class="btn btn-sm" data-action="xref-forget">${icon('x', 14)} Forget the cross-reference</button>`;
 }
 
 /**
@@ -621,6 +664,7 @@ document.addEventListener('click', ev => {
     if (p) {
       state.sel = { ...p.sel };
       state.name = p.name;
+      state.xref = null;
       closeModal();
       afterChange();
       toast(`Loaded “${p.name}”`);
@@ -632,6 +676,7 @@ document.addEventListener('click', ev => {
     if (rec) {
       state.sel = unpackSel(rec.c);
       state.name = rec.name;
+      state.xref = null;
       // an entry may name options a later catalog no longer carries
       const gone = rec.c.split('.').filter(Boolean).length - Object.keys(state.sel).length;
       closeModal();
@@ -664,6 +709,14 @@ document.addEventListener('click', ev => {
   if (action === 'import-stop') { imp.ctl?.abort(); return; }
   if (action === 'import-load') { applyImport('replace'); return; }
   if (action === 'import-merge') { applyImport('merge'); return; }
+  if (action === 'import-view') { imp.view = t.dataset.importview; renderImportResult(); return; }
+  if (action === 'xref-forget') {
+    state.xref = null;
+    if (state.tab === 'xref') state.tab = 'overview';
+    afterChange();
+    toast('Cross-reference forgotten – the configuration stays');
+    return;
+  }
   if (action === 'resolve') {
     const before = validate(state.sel).errors.length;
     state.sel = autoResolve(state.sel);
@@ -752,6 +805,7 @@ document.addEventListener('click', ev => {
     closeModal();
     state.sel = {};
     state.name = 'Untitled configuration';
+    state.xref = null;
     afterChange();
     toast('Configuration cleared');
     return;
@@ -907,7 +961,7 @@ function openSaved () {
 
 /* The import dialog's working state: what was dropped in, what was read from
    it, and the AI reading in flight, if any. */
-const imp = { file: null, urls: [], pages: [], text: '', result: null, ctl: null, ai: null, limits: null };
+const imp = { file: null, urls: [], pages: [], text: '', result: null, xref: null, view: 'rs', ctl: null, ai: null, limits: null };
 
 /* The host's AI, where there is one (the sample capability on claude.ai).
    Resolved once; null everywhere else, and the dialog says so. */
@@ -922,14 +976,15 @@ function revokeImportUrls () {
 function openImport () {
   imp.ctl?.abort();
   revokeImportUrls();
-  Object.assign(imp, { file: null, pages: [], text: '', result: null, ctl: null });
+  Object.assign(imp, { file: null, pages: [], text: '', result: null, xref: null, view: 'rs', ctl: null });
   openModal(`
   <div class="modal modal-wide" role="dialog" aria-label="Import a configuration">
     <div class="modal-head">
       <div style="flex:1">
         <h2>Import a configuration</h2>
         <p>Drop a Rohde &amp; Schwarz quotation or configuration list – a PDF or a photograph – or paste its
-          text. Order numbers and type designations are matched against the catalog.</p>
+          text. Order numbers and type designations are matched against the catalog. A Keysight E8267D
+          configuration is cross-referenced to its SMW200A equivalent instead.</p>
       </div>
       <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
     </div>
@@ -990,7 +1045,7 @@ const importStatus = text => { const el = $('#import-status'); if (el) el.textCo
 
 async function takeImportFile (f) {
   revokeImportUrls();
-  Object.assign(imp, { file: f, pages: [], text: '', result: null });
+  Object.assign(imp, { file: f, pages: [], text: '', result: null, xref: null, view: 'rs' });
   const preview = $('#import-preview');
   if (!preview) return;
   const isPdf = f.type === 'application/pdf' || /\.pdf$/i.test(f.name);
@@ -1046,8 +1101,15 @@ function readImportText (text, source) {
   imp.text = text;
   imp.source = source;
   imp.result = text.trim() ? readText(text) : null;
+  imp.xref = text.trim() ? readCompetitor(text) : null;
+  /* the R&S reading has the say when both readers found something; the
+     cross-reference when only it did */
+  imp.view = imp.result?.items.length ? 'rs' : imp.xref ? 'xref' : 'rs';
   renderImportResult();
 }
+
+/** Whether any reader made something of the document. */
+const importRead = () => !!(imp.result?.items.length || imp.xref?.rows?.length || imp.xref?.other?.length);
 
 /* Where there is a picture and no text, two readers are offered: the OCR
    engine, which runs in the page wherever it can be fetched, and the host's
@@ -1058,11 +1120,11 @@ function syncImportTools () {
   if (!scan || !ocr) return;
   const isImage = !!imp.file?.type.startsWith('image/');
   // a picture, or rendered pages whose text layer gave nothing to read
-  const scannable = isImage || (imp.pages.some(p => p.canvas) && !imp.result?.items.length);
+  const scannable = isImage || (imp.pages.some(p => p.canvas) && !importRead());
   ocr.hidden = !scannable;
   scan.hidden = !(imp.ai && scannable);
   const st = $('#import-status');
-  if (st && !st.textContent && scannable && !imp.result?.items.length) {
+  if (st && !st.textContent && scannable && !importRead()) {
     const what = isImage ? 'the image' : 'the pages';
     st.textContent = !scan.hidden
       ? `Scan with AI is the quick way here – Claude reads ${what} on your account. Read ${what} runs in the page instead (a 7 MB download, once).`
@@ -1115,7 +1177,7 @@ async function ocrImport () {
     const box = $('#import-text');
     if (box) box.value = text;                    // so a misread digit can be corrected and read again
     readImportText(text, isImage ? 'the image' : 'the pages');
-    importStatus(imp.result?.items.length
+    importStatus(importRead()
       ? 'Read in the page – check the quantities and the codes, a picture is never read perfectly. The text is in the box to correct.'
       : 'Nothing recognisable was read. A sharper, larger picture reads better; or paste the text.');
   } catch (err) {
@@ -1136,11 +1198,17 @@ function renderImportResult () {
   const out = $('#import-result');
   if (!out) return;
   const r = imp.result;
+  const x = imp.xref;
   const load = $('#import-load'), merge = $('#import-merge'), note = $('#import-note');
+  load.innerHTML = `${icon('download', 15)} Replace configuration`;
+  merge.textContent = 'Add to current';
+  if (imp.view === 'xref' && x) { renderXrefResult(x, !!r?.items.length); return; }
   if (!r) { out.innerHTML = ''; load.disabled = merge.disabled = true; note.textContent = ''; return; }
   const n = r.items.length;
   const u = r.unknown.length;
   out.innerHTML = `
+    ${x?.model && x.rows.length ? `<div class="import-switch">The document also names a ${esc(x.vendor)} ${esc(x.model)} –
+      <button class="btn-link" data-action="import-view" data-importview="xref">show the SMW200A equivalent</button></div>` : ''}
     <div class="import-summary">${n ? `${n} option${n === 1 ? '' : 's'} recognised` : 'Nothing recognised'}${
       r.base ? ' · base unit' : ''}${u ? ` · ${u} line${u === 1 ? '' : 's'} not in the catalog` : ''}</div>
     ${n ? `<table class="table import-table">
@@ -1163,7 +1231,57 @@ function renderImportResult () {
     : '';
 }
 
+/**
+ * The cross-reference view: the competitor's options in five groups by what
+ * the SMW200A makes of them, each with the SMW options, the page it was read
+ * from and the figures that decided it; then what the SMW200A's own rules
+ * added, and anything the table has no row for.
+ */
+function renderXrefResult (x, alsoRs) {
+  const out = $('#import-result');
+  const load = $('#import-load'), merge = $('#import-merge'), note = $('#import-note');
+  if (!x.model) {
+    const names = x.other.map(o => `${o.model} (${o.family})`).join(', ');
+    out.innerHTML = `<div class="import-summary">Keysight ${esc(names)} recognised</div>
+      <p class="xref-lead">Only the Keysight E8267D is cross-referenced so far – there is no table for this model yet.</p>`;
+    load.disabled = merge.disabled = true; note.textContent = '';
+    return;
+  }
+  const n = Object.keys(x.sel).length;
+  const plural = (k, w) => `${k} ${w}${k === 1 ? '' : 's'}`;
+  const group = status => x.rows.filter(r => r.status === status);
+  const table = rows => `<table class="table xref-table">
+    <thead><tr><th>${esc(x.model)} option</th><th>SMW200A</th></tr></thead>
+    <tbody>${rows.map(r => `<tr>
+      <td><div class="c-id">${esc(xrefCode(x.model, r.code))}${r.kit ? ' <small>kit</small>' : ''}</div>
+        <div class="xref-what">${esc(r.name)}</div><div class="xref-page">${esc(r.page)}</div></td>
+      <td>${r.ids.length ? `<span class="c-id">${esc(xrefTypes(r.ids))}</span>` : `<span class="xref-st ${esc(r.status)}">${esc(XREF_STATUS[r.status])}</span>`}
+        ${r.gap ? `<div class="xref-gap">${esc(r.gap)}</div>` : r.note ? `<div class="xref-note">${esc(r.note)}</div>` : ''}</td>
+    </tr>`).join('')}</tbody></table>`;
+  out.innerHTML = `
+    <div class="import-summary">Keysight ${esc(x.model)} recognised · ${plural(x.rows.length, 'option')} ·
+      SMW200A equivalent: ${plural(n, 'option')}${x.qty > 1 ? ` · ${x.qty} instruments quoted, the equivalent is for one` : ''}</div>
+    ${alsoRs ? `<div class="import-switch">The document also lists R&amp;S options –
+      <button class="btn-link" data-action="import-view" data-importview="rs">show them</button></div>` : ''}
+    ${['covered', 'partial', 'standard', 'none', 'service'].map(s => group(s).length
+      ? `<div class="group-head">${esc(XREF_STATUS[s])}</div>${table(group(s))}` : '').join('')}
+    ${x.todo.length ? `<div class="xref-added">${esc(x.todo.map(e => e.title).join(' · '))} – the document names none.</div>` : ''}
+    ${x.added.length ? `<div class="xref-added">Added by the SMW200A's own rules: ${esc(xrefTypes(x.added))}</div>` : ''}
+    ${x.issues.length ? `<div class="import-unknown"><div class="group-head">Open issues in the equivalent</div>${
+      x.issues.map(e => `<div class="import-unknown-line"><span>${esc(e.title)}</span><small>${esc(e.detail)}</small></div>`).join('')}</div>` : ''}
+    ${x.unknown.length ? `<div class="import-unknown"><div class="group-head">Not in the cross-reference table</div>${
+      x.unknown.map(c => `<div class="import-unknown-line"><span>${esc(c)}</span><small>no row for this code yet</small></div>`).join('')}</div>` : ''}
+    <div class="xref-basis">${esc(x.base)}</div>`;
+  load.disabled = merge.disabled = !n;
+  load.innerHTML = `${icon('download', 15)} Load the SMW equivalent`;
+  merge.textContent = 'Add the equivalent';
+  note.textContent = n
+    ? 'Load starts from the equivalent alone; Add keeps what is configured. Rows cite the Keysight page (CG configuration guide, DS data sheet) and the R&S specifications (SP).'
+    : '';
+}
+
 function applyImport (mode) {
+  if (imp.view === 'xref' && imp.xref?.model) { applyXref(mode); return; }
   const r = imp.result;
   if (!r?.items.length) return;
   const sel = mode === 'merge' ? { ...state.sel } : {};
@@ -1171,11 +1289,30 @@ function applyImport (mode) {
   state.sel = sel;
   if (mode !== 'merge') {
     state.name = r.name ? `Quotation ${r.name}` : imp.file ? `Imported from ${imp.file.name}` : 'Imported configuration';
+    state.xref = null;
   }
   const n = r.items.length;
   closeModal();
   afterChange();
   toast(`${mode === 'merge' ? 'Added' : 'Loaded'} ${n} option${n === 1 ? '' : 's'} from the document`);
+}
+
+/* Loads the SMW200A equivalent of a competitor's configuration, and keeps
+   the cross-reference with it so the panel can show where each option came
+   from. */
+function applyXref (mode) {
+  const x = imp.xref;
+  const n = Object.keys(x.sel).length;
+  if (!n) return;
+  const sel = mode === 'merge' ? { ...state.sel } : {};
+  for (const [id, q] of Object.entries(x.sel)) sel[id] = Math.max(sel[id] || 0, q);
+  state.sel = sel;
+  state.xref = { vendor: x.vendor, model: x.model, codes: x.codes, name: x.name, when: new Date().toISOString() };
+  if (mode !== 'merge') state.name = xrefName(x);
+  state.tab = 'xref';
+  closeModal();
+  afterChange();
+  toast(`${mode === 'merge' ? 'Added' : 'Loaded'} the SMW200A equivalent of a ${x.vendor} ${x.model}: ${n} option${n === 1 ? '' : 's'}`);
 }
 
 const importErrorText = code => ({
@@ -1227,10 +1364,11 @@ async function scanImport () {
   try {
     const items = await host.json(AI_PROMPT, { images, signal: ctl.signal, modelTier: 'default' });
     if (ctl.signal.aborted) return;
-    imp.result = readAI(items);
-    imp.source = 'AI';
-    renderImportResult();
-    importStatus(imp.result.items.length
+    const text = aiText(items);
+    const box = $('#import-text');
+    if (box && text) box.value = text;             // so a misread code can be corrected and read again
+    readImportText(text, 'AI');
+    importStatus(importRead()
       ? 'Check the quantities before loading – a column can be misread.'
       : 'The AI found no line item it could name.');
   } catch (err) {
@@ -1285,7 +1423,7 @@ function openExport () {
     <div class="modal-head">
       <div style="flex:1">
         <h2>${esc(state.name)}</h2>
-        <p>${lines.length} line items ·
+        <p>${lines.length} line items ·${state.xref ? ` mapped from ${esc(state.xref.vendor)} ${esc(state.xref.model)} ·` : ''}
           ${v.errors.length ? `<span style="color:var(--error)">${v.errors.length} open issue${v.errors.length === 1 ? '' : 's'}</span>`
                             : '<span style="color:var(--ok)">validated against the configuration guide</span>'}</p>
       </div>
@@ -1363,9 +1501,9 @@ const typeCol = id => (BY_ID[id]?.code === null ? '' : typeName(id));
 const slug = () => state.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'smw200a';
 
 function downloadCsv () {
-  const rows = [['Type', 'Designation', 'Order No.', 'Quantity']];
+  const rows = [['Type', 'Designation', 'Order No.', 'Quantity', ...(state.xref ? ['Mapped from'] : [])]];
   for (const l of bomLines(state.sel, BASE_UNIT)) {
-    rows.push([typeCol(l.id), l.name, l.order, l.qty]);
+    rows.push([typeCol(l.id), l.name, l.order, l.qty, ...(state.xref ? [mappedFrom(state.xref, l.id).join('; ')] : [])]);
   }
   const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\r\n');
   download(`${slug()}.csv`, 'text/csv;charset=utf-8', '﻿' + csv);
@@ -1387,9 +1525,21 @@ function downloadPdf () {
       ? `${v.errors.length} open issue${v.errors.length === 1 ? '' : 's'}`
       : 'validated against the configuration guide'} · ${new Date().toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`,
     groups,
+    sections: xrefSections(),
     footer: `Unofficial planning aid built from ${GUIDE.title}, ${GUIDE.version}. Not a quotation – confirm any configuration with Rohde & Schwarz before ordering.`
   });
   download(`${slug()}.pdf`, 'application/pdf', pdf);
+}
+
+/** The cross-reference as text lines for the PDF, after the parts list. */
+function xrefSections () {
+  if (!state.xref) return [];
+  const rows = xrefRows(state.xref, state.sel);
+  return [{
+    title: `Cross-reference: ${state.xref.vendor} ${state.xref.model}${state.xref.name ? ` (quote ${state.xref.name})` : ''}`,
+    lines: rows.map(r => `${xrefCode(state.xref.model, r.code)}  ${r.name} -> ${r.ids.length ? xrefTypes(r.ids) : XREF_STATUS[r.status]}${
+      r.present === false ? ' (not in this configuration)' : ''}`)
+  }];
 }
 
 function downloadJson () {
@@ -1404,6 +1554,13 @@ function downloadJson () {
       type: typeCol(l.id), designation: l.name, orderNo: l.order, quantity: l.qty, group: l.group
     })),
     capabilities: derive(state.sel),
+    crossref: state.xref ? {
+      vendor: state.xref.vendor, model: state.xref.model, quote: state.xref.name,
+      options: xrefRows(state.xref, state.sel).map(r => ({
+        code: xrefCode(state.xref.model, r.code), name: r.name, status: r.status,
+        smw: r.ids.map(typeName), inConfiguration: r.present
+      }))
+    } : null,
     link: location.origin + location.pathname + encode()
   };
   download(`${slug()}.json`, 'application/json', JSON.stringify(payload, (k, val) =>
@@ -1472,6 +1629,6 @@ export function boot () {
   });
   window.addEventListener('hashchange', () => {
     const { sel, name } = decode(location.hash);
-    if (Object.keys(sel).length) { state.sel = sel; state.name = name; render(); }
+    if (Object.keys(sel).length) { state.sel = sel; state.name = name; state.xref = null; render(); }
   });
 }

@@ -36,16 +36,18 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 127 pass, 0 fail
+node --test                        # 138 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 14 of 14 suites passed, 116 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  491 kB
+node tests/browser/run.mjs         # 15 of 15 suites passed, 123 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  543 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
 the photo overlay geometry, the rules adopted from the vendor comparison, the
 saved-configurations store against a stand-in for the artifact's document
-store, and the document reader behind Import. The browser suites cover what a
+store, the document reader behind Import, and the Keysight cross-reference
+(table integrity, every resolvable configuration validated, the two readers
+kept apart). The browser suites cover what a
 unit test cannot see: labels overlapping in a drawing, a sandboxed frame still
 being able to clear a configuration, the standalone build running from
 `file://` with no network at all, and the Save / Saved / Import dialogs with
@@ -202,6 +204,42 @@ code:
   back what someone else removed. Declaring `db` makes the artifact
   organization-internal, and a non-empty `capabilities` on republish must
   restate `downloads` (it is a full-set declaration).
+- **The Keysight E8267D cross-reference** (`assets/js/xref-keysight.js`,
+  `assets/js/xref.js`, `docs/xref/README.md`). Import runs a second reader
+  on every document: "E8267D" names the model, "E8267D-544", "E8267DK-016",
+  "Option 602", a bare code at the start of a row ("1EH  Improved
+  harmonics…", as used-equipment listings print them) and lettered codes
+  anywhere name its options, and the software, accessory, extender and
+  service numbers stand on their own. Each of the 92 codes in the guide has
+  a row: covered (SMW ids), partial (with the gap), standard, none or
+  service, citing the configuration guide page (CG), the data sheet page
+  (DS) and the R&S specifications page (SP) that decided it. Phase noise is
+  mapped by the figures (UNX → B710, UNY → B711; B709 falls 2 dB short of
+  UNX at 10 Hz), Option UNT forces B13T because FM/PM need a two-path main
+  module, Option 016's 2 GHz external I/Q is standard on the SMW200A and
+  only its differential inputs need K739, and rows that depend on the
+  frequency option (1EM → B83 only for 20/31.8 GHz; extenders → K554 only
+  with 20 GHz and up) say so rather than produce a configuration the rules
+  reject. `crossReference()` builds the selection from the rows alone,
+  hands it to `autoResolve()` and `validate()` like any other, and reports
+  what the rules added apart from what the table named. The R&S reading has
+  the say when it finds anything, the cross-reference when only it did, and
+  a mixed document offers a switch. Loading names the configuration
+  "Equivalent of Keysight E8267D", keeps `state.xref` (vendor, model, codes)
+  in this browser's storage – restored on reload when the address bar's own
+  link matches the stored selection, never from a pasted link – and opens a
+  Cross-ref tab that flags a mapped option later removed; CSV, JSON and PDF
+  carry the mapping. Nothing in `catalog.js`, `rules.js`, `derive.js` or the
+  R&S reader changed for it, and `tests/xref.test.mjs` runs every Keysight
+  row through the R&S reader and every R&S option through the Keysight one.
+  A rendered copy of a used-equipment listing (eight bare-coded rows) read
+  all eight options through the page's OCR in 3 s. The Keysight PDFs used
+  (the E8267D guide 5989-1326EN and data sheet 5989-0697EN, plus twenty
+  others collected while choosing the target: E8257D/E8663D PSG guides,
+  MXG/EXG data sheets and guides, the AP500x G3 generators, catalogs and
+  selection guides) are in `docs/source/keysight/`, which git ignores –
+  they are copyrighted and have to be fetched from keysight.com by hand,
+  since the site refuses this container.
 - **`humanReq()` in `catalog.js` mangled every generated requirement text**
   ("R and S®SMW-R and S®SMW-B9") because it inserted "R&S®" before turning the
   "&" operator into a word. Nothing displayed it, so nobody noticed; it is
@@ -244,6 +282,14 @@ Roughly in the order worth doing.
    month) licences for every software option and pre-selects a 3-month trial
    licence (T0). Only permanent licences are modelled; T0 is listed as an
    accessory.
+7. **More competitor models.** Only the Keysight E8267D is cross-referenced.
+   The reader already names the E8257D, E8663D, MXG/EXG and AP500x models so
+   a document gets a plain "no table yet" answer; their guides and data
+   sheets are in `docs/source/keysight/` (in the container, not the
+   repository). `docs/xref/README.md` says how to add one. Two rows are
+   judgement calls a sales contact could sharpen: Option 009 (removable
+   flash) → R&S SMW-B93, and the calibration options → the 12.75–44 GHz
+   accredited calibration.
 
 ## Container notes
 

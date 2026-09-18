@@ -34,6 +34,8 @@ const MODULES = [
   'assets/js/presets.js',
   'assets/js/saved.js',
   'assets/js/import.js',
+  'assets/js/xref-keysight.js',
+  'assets/js/xref.js',
   'assets/js/pdf.js',
   'assets/js/app.js'
 ];

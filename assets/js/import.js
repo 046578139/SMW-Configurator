@@ -194,15 +194,30 @@ export function readText (text) {
 
 /** What the host's AI is asked when it looks at the pages. */
 export const AI_PROMPT =
-  'The attached image(s) show a Rohde & Schwarz document - a quotation, order confirmation or ' +
-  'configuration list - for an R&S SMW200A vector signal generator. Read every line item on them. ' +
-  'Reply with only a JSON array of objects, one per line item, in document order: ' +
-  '{"type": the type designation as printed (for example "R&S SMW-K144") or null, ' +
+  'The attached image(s) show a signal generator document - a quotation, order confirmation, ' +
+  'configuration list or product listing - for a Rohde & Schwarz R&S SMW200A or for a Keysight PSG ' +
+  '(E8267D). Read every line item or option row on them. ' +
+  'Reply with only a JSON array of objects, one per line, in document order: ' +
+  '{"type": the type designation or option code as printed (for example "R&S SMW-K144", "E8267D-544" or "UNW") or null, ' +
   '"order": the order number as printed, ten digits in the form dddd.dddd.dd, copied digit for digit, or null, ' +
   '"qty": the quantity as a number (1 if none is printed), ' +
   '"designation": the description text or null}. ' +
-  'Include the base unit if it is listed. Do not add items that are not printed. ' +
+  'Include the instrument model if it is printed. Do not add items that are not printed. ' +
   'Example: [{"type":"R&S SMW-B1003","order":"1428.4700.02","qty":1,"designation":"100 kHz to 3 GHz"}]';
+
+/**
+ * What the AI returned as text, one line per item in the form the readers
+ * take ("Qty: 2 R&S SMW-B10 1413.1200.02 Baseband generator"), so it is read
+ * by exactly the same rules as a pasted document. Anything that is not an
+ * array of objects becomes an empty text.
+ */
+export function aiText (items) {
+  if (!Array.isArray(items)) return '';
+  return items.filter(x => x && typeof x === 'object').map(x => {
+    const qty = Number(x.qty);
+    return `Qty: ${qty >= 1 ? Math.round(qty) : 1} ${x.type || ''} ${x.order || ''} ${x.designation || ''}`;
+  }).join('\n');
+}
 
 /**
  * Turns what the AI returned into text and reads it like any other document,
@@ -210,12 +225,7 @@ export const AI_PROMPT =
  * objects reads as an empty document.
  */
 export function readAI (items) {
-  if (!Array.isArray(items)) return readText('');
-  const lines = items.filter(x => x && typeof x === 'object').map(x => {
-    const qty = Number(x.qty);
-    return `Qty: ${qty >= 1 ? Math.round(qty) : 1} ${x.type || ''} ${x.order || ''} ${x.designation || ''}`;
-  });
-  return readText(lines.join('\n'));
+  return readText(aiText(items));
 }
 
 /* --------------------------------------------------- where the files are */
