@@ -51,6 +51,11 @@ export const icon = (name, size = 16) =>
 
 export { esc };
 
+/* "R&S®SMW-K144" reads as "K144" inside a chip: the instrument's own prefix
+   is what every option carries, so it says nothing there. */
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const bare = s => s.replace(new RegExp(`R&amp;S®(?:${reEsc(inst().reader?.prefix || 'SMW')}-)?`, 'g'), '');
+
 /** "R&S®SMW-K144"; for an accessory without a type designation, its order number. */
 const fullId = id =>
   // B1044O / B1056N and friends: highlight the trailing letter so it cannot be
@@ -77,7 +82,7 @@ export function optionCard (opt, sel, opts = {}) {
   const blocker = on ? null : ruledOutBy(opt, sel);
   /* The accessories are neither instrument hardware nor a licence; the cables
      among them start with a B, so the badge cannot be read off the id. */
-  const kind = opt.accessory ? 'acc' : opt.id.startsWith('B') ? 'hw' : 'sw';
+  const kind = opt.kind || (opt.accessory ? 'acc' : /^[BU]/.test(opt.id) ? 'hw' : 'sw');
 
   const chips = [];
   if (blocker) {
@@ -86,7 +91,7 @@ export function optionCard (opt, sel, opts = {}) {
     const res = evaluate(parse(opt.requires), sel);
     chips.push(res.ok
       ? `<span class="chip met">${icon('check', 11)} prerequisites met</span>`
-      : `<span class="chip unmet">${icon('alert', 11)} needs ${esc(res.need.map(needText).join(' + ')).replace(/R&amp;S®SMW-/g, '')}</span>`);
+      : `<span class="chip unmet">${icon('alert', 11)} needs ${bare(esc(res.need.map(needText).join(' + ')))}</span>`);
   }
   if (opt.hintIf && holds(opt.hintIf, sel)) {
     chips.push(`<span class="chip met">${icon('check', 11)} suggested for this configuration</span>`);
@@ -152,7 +157,7 @@ export function freqCard (opt, sel, maxGhz = 67) {
   const pct = Math.max(4, (Math.log10(opt.meta.fMax) + 1) / (Math.log10(maxGhz) + 1) * 100);
   const blocker = on ? null : ruledOutBy(opt, sel);
   const need = !on && !blocker && opt.requires ? evaluate(parse(opt.requires), sel) : null;
-  const plain = s => esc(s).replace(/R&amp;S®SMW-/g, '');
+  const plain = s => bare(esc(s));
   const chip = blocker
     ? `<span class="chip">${icon('minus', 11)} not available with ${esc(productCode(blocker))}${
         opt.reqText ? ` – needs ${plain(opt.reqText)}` : ''}</span>`
@@ -232,10 +237,14 @@ export function groupedCards (opts, sel, { sort = true } = {}) {
 
 /** Groups the selection into ordering-information style blocks. */
 export function bomLines (sel, base) {
-  const lines = [{ id: base.id, name: base.name, order: base.order, qty: 1, group: 'Base unit' }];
+  /* an instrument whose base unit is a choice - the FSW's model - names it
+     through the profile; the option that stands for it is the base line, not
+     an option line */
+  const head = inst().bomBase?.(sel) || base;
+  const lines = [{ id: head.id, name: head.name, order: head.order, qty: 1, group: 'Base unit' }];
   const { BY_ID } = inst();
   const order = inst().bomOrder || inst().SECTIONS.map(x => x.id);
-  const seen = Object.keys(sel).filter(id => sel[id] > 0 && BY_ID[id]);
+  const seen = Object.keys(sel).filter(id => sel[id] > 0 && BY_ID[id] && !BY_ID[id].baseModel);
   seen.sort((a, b) => {
     const oa = order.indexOf(BY_ID[a].section), ob = order.indexOf(BY_ID[b].section);
     if (oa !== ob) return oa - ob;

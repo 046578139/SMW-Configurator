@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>R&amp;S SMW200A Configurator</title>
-<meta name="description" content="Interactive configurator for the Rohde &amp; Schwarz SMW200A vector signal generator: pick options, see the rules checked live, and export the parts list.">
+<title>R&amp;S FSW Configurator</title>
+<meta name="description" content="Interactive configurator for the Rohde &amp; Schwarz FSW signal and spectrum analyzer: choose the model and options, see the rules checked live, and export the parts list.">
 <meta name="color-scheme" content="dark light">
 <link rel="stylesheet" href="assets/css/app.css">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2321d4c2'/><path d='M5 16c2.7 0 2.7-9 5.3-9s2.7 18 5.4 18 2.7-9 5.3-9 2.7 9 5.4 9' stroke='%23062028' stroke-width='2.6' fill='none' stroke-linecap='round'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%2321d4c2'/><path d='M5 24l5-2 3-12 3 16 3-9 3 4 5-1' stroke='%23062028' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
 </head>
 <body>
 
@@ -17,12 +17,12 @@
     <div class="brand">
       <div class="brand-mark">
         <svg viewBox="0 0 24 24" fill="none" stroke="#062028" stroke-width="2.2" stroke-linecap="round">
-          <path d="M2 12c2.4 0 2.4-7 4.8-7s2.4 14 4.8 14 2.4-7 4.8-7 2.4 7 4.8 7"/>
+          <path d="M2 18l4-2 2.5-9 2.5 12 2.5-7 2.5 3 4-1"/>
         </svg>
       </div>
       <div class="brand-text">
-        <div class="brand-title">SMW200A Configurator</div>
-        <div class="brand-sub">Vector signal generator · option builder · <a class="brand-switch" href="fsw.html" title="The R&amp;S FSW signal and spectrum analyzer configurator">FSW ›</a></div>
+        <div class="brand-title">FSW Configurator</div>
+        <div class="brand-sub">Signal and spectrum analyzer · option builder · <a class="brand-switch" href="index.html" title="The R&amp;S SMW200A vector signal generator configurator">SMW200A ›</a></div>
       </div>
     </div>
 
@@ -35,7 +35,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
       </svg>
-      <input id="search" class="search" placeholder="Search 239 options — press /" aria-label="Search options">
+      <input id="search" class="search" placeholder="Search 235 options — press /" aria-label="Search options">
     </div>
 
     <button class="btn" data-action="save" title="Save this configuration under its name">
@@ -51,7 +51,7 @@
       <span class="hide-sm">Saved</span>
       <span id="saved-count" class="count">0</span>
     </button>
-    <button class="btn" data-action="import" title="Import a configuration from a quotation or image, or cross-reference a Keysight E8267D">
+    <button class="btn" data-action="import" title="Import a configuration from a quotation or image">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
         <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
       </svg>
@@ -100,15 +100,15 @@
 <noscript>
   <p style="padding:40px;max-width:60ch;margin:0 auto">
     This configurator needs JavaScript. The underlying data comes from the
-    R&amp;S<sup>®</sup>SMW200A configuration guide, which is included in this repository
-    under <code>docs/source/</code>.
+    ordering information of the R&amp;S<sup>®</sup>FSW specifications, which are included
+    in this repository under <code>docs/source/fsw/</code>.
   </p>
 </noscript>
 
 <script type="module">
-  import { SMW200A } from './assets/js/smw200a/index.js';
+  import { FSW } from './assets/js/fsw/index.js';
   import { boot } from './assets/js/app.js';
-  boot(SMW200A);
+  boot(FSW);
 </script>
 </body>
 </html>

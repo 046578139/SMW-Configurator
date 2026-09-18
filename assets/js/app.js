@@ -336,6 +336,8 @@ function renderHero () {
   const notes = PROF.panel.connectorNotes(d);
   const rear = state.face === 'rear';
   const w = panelWidth();
+  /* an instrument without photographs has the drawing alone, and no switch */
+  const photo = !!PROF.photo && state.view === 'photo';
 
   return `
   <section class="hero" aria-label="Configured instrument">
@@ -346,17 +348,17 @@ function renderHero () {
         <button class="face ${rear ? 'active' : ''}" data-face="rear">
           Rear <span class="face-count">${counts.rear}</span></button>
       </div>
-      <div class="view-switch" role="group" aria-label="How to show the instrument">
+      ${PROF.photo ? `<div class="view-switch" role="group" aria-label="How to show the instrument">
         <button class="view ${state.view === 'photo' ? 'active' : ''}" data-view="photo"
           title="The instrument as photographed, with your configuration marked on it">Photo</button>
         <button class="view ${state.view === 'schematic' ? 'active' : ''}" data-view="schematic"
           title="A drawing that matches any configuration exactly">Schematic</button>
-      </div>
+      </div>` : ''}
       <button class="btn btn-ghost btn-sm" data-action="enlarge">
         ${icon('search', 14)} Enlarge</button>
     </div>
     <div class="viz viz-panel">
-      ${state.view === 'photo'
+      ${photo
         ? PROF.photo.renderPhoto(d, rear ? 'rear' : 'front')
         : (rear ? PROF.panel.renderRear(d, w, 'hero') : PROF.panel.renderFront(d, state.sel, 'hero'))}
     </div>
@@ -366,7 +368,7 @@ function renderHero () {
         <span class="conn-value">${esc(n.value)}</span>
         ${n.note ? `<span class="conn-sub">${esc(n.note)}</span>` : ''}
       </div>`).join('')}</div>` : ''}
-    <p class="viz-caption">${state.view === 'photo'
+    <p class="viz-caption">${photo
       ? 'Photograph of a fully equipped instrument; the rings mark what this configuration fits.'
       : 'Schematic elevation — connector inventory and types follow the specifications, positions are indicative.'}</p>
   </section>`;
@@ -481,7 +483,7 @@ document.addEventListener('click', ev => {
     delete state.sel[from];
     state.sel[to] = 1;
     afterChange();
-    toast(`Switched to R&S®SMW-${to}`);
+    toast(`Switched to ${PROF.typeName(to)}`);
     return;
   }
 
@@ -584,7 +586,7 @@ document.addEventListener('click', ev => {
         <button class="btn btn-icon btn-ghost" data-close aria-label="Close">${icon('x', 16)}</button>
       </div>
       <div class="modal-body">
-        <div class="viz viz-wide">${state.view === 'photo'
+        <div class="viz viz-wide">${PROF.photo && state.view === 'photo'
           ? PROF.photo.renderPhoto(d2, rear ? 'rear' : 'front')
           : (rear ? PROF.panel.renderRear(d2, 980, 'zoom') : PROF.panel.renderFront(d2, state.sel, 'zoom'))}</div>
         <p class="viz-caption">Schematic elevation. The connectors fitted and their types
@@ -1483,7 +1485,7 @@ function closePanel () {
 export function boot (profile) {
   useInstrument(profile);
   PROF = profile;
-  state.view = store.get(inst().storage.view) === 'schematic' ? 'schematic' : 'photo';
+  state.view = !profile.photo || store.get(inst().storage.view) === 'schematic' ? 'schematic' : 'photo';
   // a host that sandboxes the frame is the only case where this matters
   if (window.claude?.use) {
     saveHost().then(host => { savingBlocked = !host; }).catch(() => { savingBlocked = true; });

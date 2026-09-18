@@ -3,15 +3,16 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "Unofficial configurator for the Rohde & Schwarz SMW200A vector signal generator",
+  "description": "Unofficial configurators for the Rohde & Schwarz SMW200A vector signal generator and the FSW signal and spectrum analyzer",
   "scripts": {
     "test": "node --test",
     "test:browser": "node tests/browser/run.mjs",
     "build": "node tools/build-standalone.mjs",
-    "serve": "python3 -m http.server 8000"
+    "serve": "python3 -m http.server 8000",
+    "build:fsw": "node tools/build-standalone.mjs --profile fsw"
   },
   "devDependencies": {
     "playwright": "^1.49.0"
   },
-  "comment": "The site itself has no dependencies and no build step - open index.html from any static server. Playwright is only needed to run the browser suites, and the single-file build in tools/ has no dependencies either."
+  "comment": "The site itself has no dependencies and no build step - open index.html (SMW200A) or fsw.html (FSW) from any static server. Playwright is only needed to run the browser suites, and the single-file builds in tools/ have no dependencies either."
 }

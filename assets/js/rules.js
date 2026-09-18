@@ -171,7 +171,9 @@ function stepAllowed (opt, q, sel) {
 const label = id => (inst().BY_ID[id] ? inst().typeName(id) : id);
 
 export function needText (need) {
-  const names = need.ids.map(label);
+  /* two ids can print as one designation - a fixed and a floating licence of
+     the same application - and naming it twice reads as a mistake */
+  const names = [...new Set(need.ids.map(label))];
   const list = names.length > 3
     ? `${names.slice(0, 3).join(', ')} …`
     : names.join(' or ');

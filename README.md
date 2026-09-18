@@ -1,11 +1,14 @@
-# R&S®SMW200A Configurator
+# R&S®SMW200A and R&S®FSW Configurators
 
-An interactive configurator for the Rohde & Schwarz SMW200A vector signal
-generator. Pick options, watch the instrument take shape, and get a parts list
-that has been checked against every rule in the configuration guide.
+Interactive configurators for two Rohde & Schwarz instruments: the SMW200A
+vector signal generator (`index.html`) and the FSW signal and spectrum
+analyzer (`fsw.html`). Pick options, watch the instrument take shape, and get
+a parts list that has been checked against every rule in the instrument's
+ordering documentation. The two pages share one shell; each boots its own
+instrument profile.
 
 It is a static site — plain HTML, CSS and ES modules, no build step, no runtime
-dependencies. Open `index.html` and it runs.
+dependencies. Open `index.html` or `fsw.html` and it runs.
 
 ![Overview](docs/screenshot-overview.png)
 
@@ -123,16 +126,17 @@ issues) or a printable page.
 Any static file server works; ES modules need HTTP rather than `file://`.
 
 ```sh
-python3 -m http.server 8000     # then open http://localhost:8000
+python3 -m http.server 8000     # then open http://localhost:8000 (SMW200A)
+                                # or http://localhost:8000/fsw.html (FSW)
 ```
 
 Tests:
 
 ```sh
-node --test                       # rules, panel, scale and overlay
+node --test                       # 169 tests: both instruments' rules, the behaviour corpus, panels, reader
 npm install                       # only needed for the browser suites
-node tests/browser/run.mjs        # 12 suites, 92 checks, in a real browser
-node tests/browser/run.mjs xss    # or just one
+node tests/browser/run.mjs        # 16 suites, 136 checks, in a real browser
+node tests/browser/run.mjs fsw    # or just one
 ```
 
 Run `node --test` without a path: naming `tests/` sweeps in the browser suites,
@@ -152,18 +156,20 @@ not rediscovering.
 ### One file, no server
 
 ```sh
-node tools/build-standalone.mjs        # -> dist/smw200a-configurator.html
+node tools/build-standalone.mjs                # -> dist/smw200a-configurator.html
+node tools/build-standalone.mjs --profile fsw  # -> dist/fsw-configurator.html
 ```
 
-Inlines the stylesheet, every module and both photographs into a single
-~400 kB HTML file that
-runs by double-clicking it — no server, no network. Useful for handing the
+Inlines the stylesheet, every module and (for the SMW200A) both photographs
+into a single HTML file – about 565 kB for the SMW200A, 315 kB for the FSW –
+that runs by double-clicking it — no server, no network. Useful for handing a
 configurator to someone who just wants to open it. The builder has no
 dependencies: the modules form a plain chain with no cycles and no clashing
 top-level names, so concatenating them in order is all it takes. It refuses to
-emit a page whose stylesheet did not survive, and checks that every module a
-module imports is listed ahead of it, because both failures otherwise produce a
-file that looks valid and breaks at runtime.
+emit a page whose stylesheet did not survive, checks that every module a
+module imports is listed ahead of it, and that no two modules declare the
+same top-level name, because each failure otherwise produces a file that
+looks valid and breaks at runtime.
 
 The file is a build product and is not checked in; rebuild it after changing
 anything under `assets/`.
@@ -171,7 +177,7 @@ anything under `assets/`.
 ## Where the data comes from
 
 Everything is transcribed from Rohde & Schwarz product documentation, kept in
-`docs/source/` so any entry can be traced back:
+`docs/source/` so any entry can be traced back. For the SMW200A:
 
 | Document | Used for |
 | --- | --- |
@@ -206,9 +212,18 @@ the specifications document (version 31.00) — R&S®SMW-K508, ‑K554, ‑K556,
 and ‑K575. They are included and marked *newer than guide v06.00* in the
 interface.
 
+For the FSW there is no configuration guide: the ordering information of the
+specifications (PD 5215.6749.22, version 17.01, September 2025, pages 43 to
+51) is the source of every row, and 36 application data sheets in
+`docs/source/fsw/` supply what it only implies. Every row of the FSW catalog
+cites its page; [`docs/fsw/README.md`](docs/fsw/README.md) says how the
+instrument was mapped onto the configurator (the model as the base unit, one
+order number per model, the analysis-bandwidth ladder, upgrades, floating
+licences) and lists the decisions and the two discrepancies between documents.
+
 ## How it is put together
 
-The page is a shell plus one instrument profile. The core - the rules engine,
+The page is a shell plus one instrument profile, and there are two profiles. The core - the rules engine,
 the interface helpers, saved configurations, Import, the PDF writer, the
 cross-reference resolver and the shell itself - never imports an instrument;
 it reaches the active profile through `instrument.js` at call time. The
@@ -217,11 +232,12 @@ the instrument's own rules as hooks the engine calls at fixed points, the
 derived capabilities, the sections it draws itself, the drawings and
 photographs, the starting points, the storage keys and the words the
 document reader needs. A second instrument is another profile of the same
-shape, booted by its own page. `docs/HANDOVER.md` describes the shape and
-how to add one.
+shape, booted by its own page: `assets/js/fsw/index.js` is the second, and
+`docs/HANDOVER.md` describes the shape and how to add another.
 
 ```
 index.html              shell and layout; boots the SMW200A profile
+fsw.html                the same shell; boots the FSW profile
 assets/css/app.css      design system, both themes
 assets/js/              the core: knows no instrument, reaches the active profile through instrument.js
   util.js                   shared helpers
@@ -245,11 +261,22 @@ assets/js/smw200a/      the R&S SMW200A profile: everything about this instrumen
   photo.js                  the photographs, with the configuration marked on them
   presets.js                validated starting points
   xref-keysight.js          Keysight E8267D -> SMW200A table with citations, and the Keysight reader
-tests/rules.test.mjs    rule regression tests
+assets/js/fsw/          the R&S FSW profile, the same shape
+  index.js                  the profile object; the model is the parts list's base line (bomBase)
+  catalog.js                7 models, 140 options, 35 floating licences and 60 accessories, each citing its page
+  rules.js                  the instrument's own rules (the model, one bandwidth option, upgrades, what a model rules out)
+  sections.js               the model ladder, the bandwidth level list, per-model hardware, single-select groups
+  derive.js                 selection -> instrument capabilities
+  diagram.js                receiver chain and frequency scale (SVG)
+  panel.js                  front and rear panel elevations (SVG); no photographs
+  presets.js                validated starting points
+tests/rules.test.mjs    SMW200A rule regression tests
+tests/fsw.test.mjs      FSW rule regression tests
 tests/corpus.test.mjs   the engine against its recorded behaviour (tests/fixtures/corpus.json.gz)
 tests/panel.test.mjs    panel, scale and photo overlay tests
 tests/browser/          browser suites and their runner
-tools/build-standalone.mjs  single-file build
+tools/build-standalone.mjs  single-file build, one profile per run
+docs/fsw/README.md      where the FSW data comes from and how the instrument maps onto the page
 ```
 
 Requirements are written in a small expression language that mirrors the
@@ -297,10 +324,10 @@ applies and downloads work normally.
 
 ## Scope
 
-This is a planning aid built from public documentation, not an ordering system.
-It carries no prices and no availability, and R&S documentation states that data
-without tolerance limits is not binding. Confirm any configuration with Rohde &
-Schwarz before ordering.
+These are planning aids built from public documentation, not an ordering
+system. They carry no prices and no availability, and R&S documentation
+states that data without tolerance limits is not binding. Confirm any
+configuration with Rohde & Schwarz before ordering.
 
 R&S® is a registered trademark of Rohde & Schwarz. Bluetooth®, CDMA2000®, LoRa®
 and other marks belong to their respective owners. This project is not

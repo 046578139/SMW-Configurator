@@ -12,7 +12,8 @@ open, and the container-level details that cost time to rediscover.
 | Repository | `https://github.com/046578139/SMW-Configurator` (public) |
 | Branch | `claude/continue-previous-session-lcfkeo` (this container's work); `claude/smw-online-configurator-hahn6b` is the repository's **default** branch and where the earlier work lives |
 | Everything is pushed | there is no work living only in a container |
-| Live preview | https://claude.ai/code/artifact/1134486f-4b7b-4a82-b005-dbe8b2385636 |
+| Live preview, SMW200A | https://claude.ai/code/artifact/1134486f-4b7b-4a82-b005-dbe8b2385636 (v34) |
+| Live preview, FSW | https://claude.ai/artifact/ChtUc7fsQ4tSrh9mhMTCuM (v2) |
 
 There is no `main`. The default branch is what GitHub Pages would publish;
 the continuation branch has to be merged into it (or opened as a pull request)
@@ -36,13 +37,14 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 143 pass, 0 fail (includes the behaviour corpus)
-npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 15 of 15 suites passed, 125 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  564 kB
+node --test                                    # 169 pass, 0 fail (both instruments; includes the behaviour corpus)
+npm install                                    # Playwright, ~1 dependency
+node tools/build-standalone.mjs                # dist/smw200a-configurator.html  565 kB
+node tools/build-standalone.mjs --profile fsw  # dist/fsw-configurator.html      315 kB
+node tests/browser/run.mjs                     # 16 of 16 suites passed, 136 checks (build both first: standalone, verify and fsw read dist/)
 ```
 
-`node --test` covers the rules engine, the panel drawings, the frequency scale,
+`node --test` covers the rules engine, the FSW profile (`tests/fsw.test.mjs`, 26 tests), the panel drawings, the frequency scale,
 the photo overlay geometry, the rules adopted from the vendor comparison, the
 saved-configurations store against a stand-in for the artifact's document
 store, the document reader behind Import, the Keysight cross-reference
@@ -67,7 +69,7 @@ suites also honour `SMW_BASE`, `SMW_ROOT` and `SMW_OUT` (see
 
 ## Where the work stands
 
-253 options and 23 accessories across 13 sections, every rule from the configuration guide plus
+Two instruments on one shell. The SMW200A: 253 options and 23 accessories across 13 sections, every rule from the configuration guide plus
 the rules the vendor's own configurator enforces beyond it, 8 validated
 starting points, two views of the instrument (photograph with a configuration
 overlay, and a schematic that matches any configuration exactly), a frequency
@@ -210,8 +212,35 @@ code:
   back what someone else removed. Declaring `db` makes the artifact
   organization-internal, and a non-empty `capabilities` on republish must
   restate `downloads` (it is a full-set declaration).
-- **The page is a shell plus an instrument profile** (done for a second
-  instrument, the R&S FSW, which is the next request). The core -
+- **The R&S FSW is the second instrument** (`fsw.html`, `assets/js/fsw/`,
+  `docs/fsw/README.md`, live at the FSW link above). Its catalog is
+  transcribed from the ordering information of the FSW specifications
+  (v17.01, p43–51; there is no configuration guide) and checked against 36
+  application data sheets, all in `docs/source/fsw/`: 7 models, 140 options,
+  35 floating licences (.51 numbers, needing R&S FSW-FL) and 60 accessories,
+  every row citing its page. The structural differences from the SMW200A
+  and how they map: the model is the base unit (catalog entries flagged
+  `baseModel`, the one mandatory choice, the parts list's base line through
+  the profile's `bomBase` hook, nameable in requirements as `M26P` and the
+  like); B24/B71/B21/B8 carry one order number per model (one entry each,
+  `meta.models`, shown for the chosen model and dimmed for the others, the
+  reader settling the code from the number); the analysis bandwidth is one
+  option per instrument (single-select with an "included 28 MHz" level, the
+  real-time analyzers included) that most applications need a minimum of
+  (`BW10` … `BW4001`); upgrades (U-options) count as the bandwidth they
+  produce and are never proposed on a new instrument; an option a model or
+  the bandwidth rules out shows "not available with FSW13" and the issue
+  offers the lowest model or narrowest bandwidth that allows it (the rules'
+  `unreachable`/`blockedBy`/`pickFix`/`swapFor` hooks look one step through
+  what a candidate itself needs, so a 2 GHz upgrade is out of reach on an
+  FSW8 because 1.2 GHz is). The shell needed four small things: `bomBase`,
+  an `opt.kind` badge override, the card chips stripping the profile's own
+  prefix rather than "SMW-", and no photo/schematic switch when a profile
+  has no photographs; the SMW200A page came through pixel-identical (54
+  screenshots, both themes, three widths) and its corpus byte-identical. The
+  build takes `--profile fsw` and now refuses two modules that declare the
+  same top-level name (the first FSW build was blank for exactly that).
+- **The page is a shell plus an instrument profile.** The core -
   `rules.js`, `ui.js`, `saved.js`, `import.js`, `xref.js`, `pdf.js`,
   `app.js` - never imports an instrument; it reaches the active profile
   through `instrument.js` (`useInstrument()` once at boot, `inst()` at call
@@ -331,7 +360,26 @@ Roughly in the order worth doing.
    month) licences for every software option and pre-selects a 3-month trial
    licence (T0). Only permanent licences are modelled; T0 is listed as an
    accessory.
-7. **More competitor models.** Only the Keysight E8267D is cross-referenced.
+7. **FSW follow-ups.** (a) The R&S online configurator has not been
+   compared for the FSW the way it was for the SMW200A (`tools/vendor/`
+   captures the camos client; the FSW product page links the same
+   configurator) – a half-hour capture would show whether its rules go
+   beyond the ordering information, in particular whether it treats the
+   analysis bandwidth as one option and what it does with the two B24
+   numbers per model. (b) Questions only R&S can answer, each noted on its
+   row: what tells the two R&S FSW-B24 numbers apart for the FSW50 (.49/.51)
+   and FSW67 (.66/.67); R&S FSW-K201's number (1331.7387.02 in the
+   specifications, 1331.7382.02 in its data sheet); the order numbers of the
+   FC330SR converter and the three ZN-ZTW wrenches, whose column alignment
+   the text extraction cannot prove; whether K192/K193 accept B1200 and up
+   (the specifications say B320/B512 only). (c) No photographs: the FSW page
+   shows the drawing alone; product photographs would need the same overlay
+   work as the SMW200A's. (d) No behaviour corpus for the FSW yet
+   (`tests/corpus-lib.mjs` is SMW-specific); `tests/fsw.test.mjs` sweeps
+   every option on every model instead. (e) Out of scope by decision: the
+   FSW3-KMxxx licences (FSWX/FSW3 line), the oscilloscopes B2071 records
+   through, the supported power sensors (specifications p52/53).
+8. **More competitor models.** Only the Keysight E8267D is cross-referenced.
    The reader already names the E8257D, E8663D, MXG/EXG and AP500x models so
    a document gets a plain "no table yet" answer; their guides and data
    sheets are in `docs/source/keysight/` (in the container, not the
