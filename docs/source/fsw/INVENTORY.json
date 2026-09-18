@@ -96,5 +96,40 @@
   "sha": "9a8cb6a29f9c8644",
   "size": 907705,
   "head": "R&S\u00aeFSW-K17 MULTICARRIER GROUP DELAY MEASUREMENTS Specifications Data Sheet Version 05.00"
+ },
+ {
+  "file": "FSW-K76-K77_dat-sw_en.pdf",
+  "pages": 8,
+  "sha": "3dc1cd9d30f4d532",
+  "size": 2486904,
+  "head": "R&S\u00aeFSW-K76/-K77 3GPP TD-SCDMA BS/UE Measurement Applications Specifications t n e m e r u s a e M & t s e T 0 0 . 1 0 | t e e h S a t a D FSW-K76-K77_dat-sw_en"
+ },
+ {
+  "file": "FSW-K82-K83-K84-k85_dat-sw_en.pdf",
+  "pages": 8,
+  "sha": "8c29b93dc4fe497f",
+  "size": 573237,
+  "head": "R&S\u00aeFSW-K82/-K83/ R&S\u00aeFSW-K84/-K85 Measurement Applications Specifications t n e m e r u s a e M & t s e T 0 0 . 1 0 | t e e h S a t a D"
+ },
+ {
+  "file": "FSW-K95-K97_dat-sw_en_3607-3116-22_v0200.pdf",
+  "pages": 8,
+  "sha": "50bc825c0afd9bd3",
+  "size": 1332811,
+  "head": "R&S\u00aeFSW-K95/-K97 WLAN IEEE 802.11ad/ay Measurement Application Specifications 0 0 . 2 0 n o i s r e V | t e e h S a t a D FSW-K95-K97_dat-sw_en_3607-3116-22_v02"
+ },
+ {
+  "file": "FSW-K97__Option_sheet.pdf",
+  "pages": 2,
+  "sha": "2cf66faafd1232a9",
+  "size": 649917,
+  "head": "R&S\u00aeFSW-K97: 802.11ay Spectrum and Signal Analysis Tackling a standard with wide bandwidth and high frequency The perfect choice for Modulation quality analysis"
+ },
+ {
+  "file": "FSW-K118-K119_FPS-K118_dat-sw_en_5215-3727-22_v0200.pdf",
+  "pages": 8,
+  "sha": "a75b8a146d48477a",
+  "size": 1482514,
+  "head": "V5GTF Measurement Application Specifications R&S\u00aeFSW-K118 R&S\u00aeFSW-K119 R&S\u00aeFPS-K118 0 0 . 2 0 n o i s r e V | t e e h S a t a D FSW-K118-K119_FPS-K118_dat-sw_en"
  }
 ]
