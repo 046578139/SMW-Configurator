@@ -249,11 +249,24 @@ function renderFreqB () {
   }
   const cards = opts.filter(o => allowed.includes(o.id)).map(o => freqCard(o, state.sel)).join('');
   const blocked = opts.filter(o => !allowed.includes(o.id));
+  /* the one-path main module rules every path B option out; the way through is
+     the main module, so it is offered here rather than left to the cards */
+  const onePath = mainModule(state.sel) === 'B13'
+    ? `<div class="issue info">
+        <div class="issue-title">${icon('info', 14)}<span>A second RF path needs a two-path main module</span></div>
+        <div class="issue-detail">R&amp;S®SMW-B13 carries one I/Q path to the RF section. RF path B needs
+          R&amp;S®SMW-B13T (two paths, standard baseband) or R&amp;S®SMW-B13XT (two paths, wideband).</div>
+        <div class="issue-actions">
+          <button class="mini mini-go" data-swap="B13,B13T">Use B13T instead of B13</button>
+          <button class="mini" data-swap="B13,B13XT">Use B13XT instead of B13</button>
+        </div>
+      </div>` : '';
   const chassis = state.sel.B94L
     ? `<div class="issue info"><div class="issue-title">${icon('info', 14)}<span>Deeper chassis added automatically</span></div>
        <div class="issue-detail">This RF path combination requires R&amp;S®SMW-B94L (1438.8150.02); it is
        included in the parts list.</div></div>` : '';
   return `
+    ${onePath}
     <div class="cards grid-2">${cards}</div>
     ${chassis}
     ${blocked.length ? `<div class="group-head">Not available with R&amp;S®SMW-${esc(a.id)}</div>

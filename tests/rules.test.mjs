@@ -13,7 +13,7 @@ import { OPTIONS, BY_ID, RF_PATH_MATRIX, O_VARIANTS, EXTRAS, BASE_UNIT, typeName
 import {
   validate, autoResolve, holds, parse, evaluate, maxQty, qtyChoices, needText, ruledOutBy
 } from '../assets/js/rules.js';
-import { bomLines } from '../assets/js/ui.js';
+import { bomLines, freqCard } from '../assets/js/ui.js';
 import { productCode } from '../assets/js/util.js';
 import { derive } from '../assets/js/derive.js';
 import { PRESETS } from '../assets/js/presets.js';
@@ -403,6 +403,27 @@ test('options sharing a product code never print an invented one', () => {
       assert.equal(o.code, it.code);
     } else assert.equal(o.code, o.id);
   }
+});
+
+test('a path B frequency card says what rules it out, and is not left to be clicked', () => {
+  // the one-path main module is installed: not on offer, and the card says why
+  const under13 = freqCard(BY_ID.B2044, { B1044: 1, B13: 1 });
+  assert.match(under13, /unavailable/);
+  assert.match(under13, /not available with B13/);
+  assert.match(under13, /needs B13T or B13XT/);
+  assert.doesNotMatch(under13, /data-toggle=/);
+  assert.match(under13, /disabled/);
+  // the two-path module: on offer, nothing in the way
+  const under13T = freqCard(BY_ID.B2044, { B1044: 1, B13T: 1 });
+  assert.doesNotMatch(under13T, /unavailable|not available|needs/);
+  assert.match(under13T, /data-toggle="B2044"/);
+  // no main module yet: still on offer, and says what it will need
+  const alone = freqCard(BY_ID.B2044, { B1044: 1 });
+  assert.match(alone, /needs B13T or B13XT/);
+  assert.match(alone, /data-toggle="B2044"/);
+  assert.doesNotMatch(alone, /unavailable/);
+  // a path A card has no requirement and no chip
+  assert.doesNotMatch(freqCard(BY_ID.B1044, { B13: 1 }), /chip/);
 });
 
 /* ------------------------------------------------------------ accessories */

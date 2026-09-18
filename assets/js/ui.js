@@ -138,23 +138,39 @@ function qtyStepper (opt, qty, choices) {
   </div>`;
 }
 
-/** Frequency options get a card that shows the range on a bar. */
+/**
+ * Frequency options get a card that shows the range on a bar. It says the
+ * same as an option card about what stands in its way: a path B option needs
+ * the two-path main module, and with R&S SMW-B13 installed it is not on offer
+ * until that changes - so the card says so instead of ignoring the click.
+ */
 export function freqCard (opt, sel, maxGhz = 67) {
   const on = !!sel[opt.id];
   const pct = Math.max(4, (Math.log10(opt.meta.fMax) + 1) / (Math.log10(maxGhz) + 1) * 100);
+  const blocker = on ? null : ruledOutBy(opt, sel);
+  const need = !on && !blocker && opt.requires ? evaluate(parse(opt.requires), sel) : null;
+  const plain = s => esc(s).replace(/R&amp;S®SMW-/g, '');
+  const chip = blocker
+    ? `<span class="chip">${icon('minus', 11)} not available with ${esc(productCode(blocker))}${
+        opt.reqText ? ` – needs ${plain(opt.reqText)}` : ''}</span>`
+    : need && !need.ok
+      ? `<span class="chip unmet">${icon('alert', 11)} needs ${plain(need.need.map(needText).join(' + '))}</span>`
+      : '';
+  const toggle = blocker ? '' : `data-toggle="${esc(opt.id)}"`;
   return `
-<div class="card freq-card ${on ? 'on' : 'off'}" data-opt="${esc(opt.id)}" data-toggle="${esc(opt.id)}">
+<div class="card freq-card ${on ? 'on' : 'off'} ${blocker ? 'unavailable' : ''}" data-opt="${esc(opt.id)}" ${toggle}>
   <div class="freq-top">
     <div>
       <div class="freq-val">${opt.meta.fMax}<small>GHz</small></div>
       <div class="opt-id" style="margin-top:2px">${fullId(opt.id)}</div>
     </div>
-    <button class="tick round" data-toggle="${esc(opt.id)}" aria-pressed="${on}"
-      aria-label="Select ${esc(opt.id)}">${icon('check', 13)}</button>
+    <button class="tick round" ${blocker ? 'disabled' : toggle} aria-pressed="${on}"
+      aria-label="${blocker ? `${esc(opt.id)} is not available with ${esc(productCode(blocker))}` : `Select ${esc(opt.id)}`}">${icon('check', 13)}</button>
   </div>
   <div class="freq-bar"><div class="freq-fill" style="width:${pct.toFixed(1)}%"></div></div>
   <div class="opt-meta">
     <span class="opt-order">${esc(opt.order)}</span>
+    ${chip}
   </div>
   ${opt.note ? `<div class="freq-foot">${esc(opt.note)}</div>` : ''}
 </div>`;

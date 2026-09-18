@@ -223,6 +223,30 @@ await t('an accessory without a type designation leaves the Type cell empty in e
   await p.keyboard.press('Escape');
 });
 
+await t('with the one-path main module, a path B option says why it is not on offer and points to the fix', async () => {
+  await open('B1044.B13');
+  await p.locator('.nav-item', { hasText: 'RF path B' }).click();
+  await p.waitForTimeout(500);
+  const b2044 = card('B2044');
+  if (!(await b2044.getAttribute('class')).includes('unavailable')) throw new Error('B2044 is not marked unavailable');
+  const chip = (await b2044.locator('.chip').first().textContent()).replace(/\s+/g, ' ').trim();
+  if (!chip.includes('not available with B13') || !chip.includes('needs B13T or B13XT')) throw new Error('the card says: ' + chip);
+  await b2044.click({ force: true });
+  await p.waitForTimeout(300);
+  if ((await b2044.getAttribute('class')).includes(' on')) throw new Error('a ruled-out option was added');
+  const note = p.locator('#sec-rf-b .issue.info', { hasText: 'two-path main module' });
+  if (!(await note.count())) throw new Error('no word about the main module in the section');
+  await note.locator('[data-swap="B13,B13T"]').click();
+  await p.waitForTimeout(600);
+  if (!(await p.locator('.card[data-opt="B13T"].on').count())) throw new Error('the swap did not install B13T');
+  if ((await card('B2044').getAttribute('class')).includes('unavailable')) throw new Error('B2044 still unavailable after the swap');
+  await card('B2044').locator('.tick').click();
+  await p.waitForTimeout(500);
+  if (!(await card('B2044').getAttribute('class')).includes(' on')) throw new Error('B2044 could not be added after the swap');
+  await tab('checks');
+  if (await p.locator('.panel-body .issue.error').count()) throw new Error('the two-path instrument reports errors');
+});
+
 console.log(`\n${pass} passed, ${fail} failed`);
 console.log(errs.length ? 'JS: ' + [...new Set(errs)].join(' | ') : 'no JS errors');
 await b.close();

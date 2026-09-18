@@ -36,10 +36,10 @@ Run these four in order. Expected output is written next to each; anything else
 is a regression, not a fresh-container quirk.
 
 ```sh
-node --test                        # 126 pass, 0 fail
+node --test                        # 127 pass, 0 fail
 npm install                        # Playwright, ~1 dependency
-node tests/browser/run.mjs         # 14 of 14 suites passed, 115 checks
-node tools/build-standalone.mjs    # dist/smw200a-configurator.html  489 kB
+node tests/browser/run.mjs         # 14 of 14 suites passed, 116 checks
+node tools/build-standalone.mjs    # dist/smw200a-configurator.html  491 kB
 ```
 
 `node --test` covers the rules engine, the panel drawings, the frequency scale,
